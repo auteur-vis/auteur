@@ -1,8 +1,7 @@
 import React, {useRef, useState, useEffect} from "react";
 
 import { Chart } from "../src/lib/Chart.js";
-import ThresholdLess from "../src/lib/ThresholdLess.js";
-import ThresholdGreater from "../src/lib/ThresholdGreater.js";
+import Threshold from "../src/lib/Threshold.js";
 
 import cereal from "../public/cereal.json";
 
@@ -18,8 +17,8 @@ export const ToStorybook = () => {
 	const [xThreshold1, setXThreshold1] = React.useState(3);
 	const [xThreshold2, setXThreshold2] = React.useState(12);
 
-	let newXThreshold1 = new ThresholdGreater(cereal, "sugars", xThreshold1);
-	let newXThreshold2 = new ThresholdLess(cereal, "sugars", xThreshold2);
+	let newXThreshold1 = new Threshold(cereal, "sugars", xThreshold1, "geq");
+	let newXThreshold2 = new Threshold(cereal, "sugars", xThreshold2, "leq");
 
 	let newAugs = newXThreshold1.intersect(newXThreshold2);
 

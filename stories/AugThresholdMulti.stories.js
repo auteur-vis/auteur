@@ -1,7 +1,7 @@
 import React, {useRef, useState, useEffect} from "react";
 
 import { Chart } from "../src/lib/Chart.js";
-import ThresholdLess from "../src/lib/ThresholdLess.js";
+import Threshold from "../src/lib/Threshold.js";
 
 import cereal from "../public/cereal.json";
 
@@ -17,8 +17,8 @@ export const ToStorybook = () => {
 	const [xThreshold, setXThreshold] = React.useState(7.5);
 	const [yThreshold, setYThreshold] = React.useState(115);
 
-	let newXThreshold = new ThresholdLess(cereal, "sugars", xThreshold);
-	let newYThreshold = new ThresholdLess(cereal, "calories", yThreshold);
+	let newXThreshold = new Threshold(cereal, "sugars", xThreshold, "le");
+	let newYThreshold = new Threshold(cereal, "calories", yThreshold, "le");
 
 	let aug1 = newXThreshold.getAugs();
 	let aug2 = newYThreshold.getAugs();

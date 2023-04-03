@@ -1,27 +1,40 @@
 import Aug from "./Aug.js";
 import DataFact from "./DataFact.js"
 
-export default class ThresholdGreater extends DataFact {
+export default class Threshold extends DataFact {
 
 	// Qn to self: add option of orient? Either variable name provided, or orientation (x/y axis)
-	constructor(data, variable, val, style) {
+	constructor(data, variable, val, threshold_type="eq", style) {
 		super(data);
 
-		this.name = "ThresholdGreater";
+		this.name = "Threshold";
 
 		this.variable = variable;
 		this.val = val;
 
-		this.target = this.generationCriteria(variable, val);
+		this.threshold_type = threshold_type;
+
+		this.target = this.generationCriteria();
 
 		// this.style = style;
 	}
 
 	generationCriteria() {
+		// this.variable = variable;
+		// this.val = val;
+
 		let newIndex = [];
 
 		for (let i = 0; i < this._data.length; i++) {
-			if (this._data[i][this.variable] > this.val) {
+			if (this.threshold_type === "eq" && this._data[i][this.variable] == this.val) {
+				newIndex.push(i);
+			} else if (this.threshold_type === "le" && this._data[i][this.variable] < this.val) {
+				newIndex.push(i);
+			} else if (this.threshold_type === "leq" && this._data[i][this.variable] <= this.val) {
+				newIndex.push(i);
+			} else if (this.threshold_type === "ge" && this._data[i][this.variable] > this.val) {
+				newIndex.push(i);
+			} else if (this.threshold_type === "geq" && this._data[i][this.variable] >= this.val) {
 				newIndex.push(i);
 			}
 		}
@@ -29,6 +42,7 @@ export default class ThresholdGreater extends DataFact {
 		return {"index": newIndex};
 	}
 
+	// returns a list of [Aug Class]
 	getAugs() {
 
 		let newTargetCoord = {};
