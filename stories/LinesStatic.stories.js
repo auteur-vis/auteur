@@ -4,8 +4,6 @@ import { Chart } from "../src/lib/Chart.js";
 
 import cereal from "../public/cereal.json";
 
-// let unadjustedData = JSON.parse(JSON.stringify(CohortConfounds)).map((d, i) => {d.treatment = CohortTreatments[i]; d.propensity = CohortPropensity[i]; return d})
-
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
   title: 'Lines/Static',

@@ -2,14 +2,23 @@ import { v4 as uuidv4 } from 'uuid';
 
 export default class Aug {
 
-	constructor(data) {
-		this._data = data;
+	constructor(name="", target=[], type="", style={}, encoding={}) {
+		// this._data = data; 
 		this._id = `aug${uuidv4()}`;
-		this.name = "AugBase";
-		this.target = [];
-		this.type = "";
-		this.style = {};
-		this.encoding = {};
+		this.name = name;
+		this.target = target;
+		this.type = type;
+		this.style = style;
+		this.encoding = encoding;
+	}
+
+	getSpec() {
+		return {"id": this._id,
+				"name": this.name,
+				"target": this.target,
+				"type": this.type,
+				"style": this.style,
+				"encoding": this.encoding}
 	}
 
 }

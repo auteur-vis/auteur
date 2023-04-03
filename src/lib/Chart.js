@@ -23,7 +23,8 @@ export const Chart = ({data=[],
 								     "stroke-width":1,
 								     "stroke-dasharray":"none"},
 							"point":{"fill":"black",
-									 "r":3}
+									 "r":3,
+									 "stroke":"none"}
 							}
 
 	// This function computes coords of line-mark augmentations
@@ -118,7 +119,7 @@ export const Chart = ({data=[],
 			if (aug.type === "line") {
 
 				let lineCoords = getLineCoords(aug);
-				let augStyle = aug.style ? aug.style : _defaultStyles["line"]
+				let augStyle = (aug.style && Object.keys(aug.style).length > 0) ? aug.style : _defaultStyles["line"]
 
 				let newLine = svgElement.select("#augmentation")
 					.selectAll(`.threshold${i}`)

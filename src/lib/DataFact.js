@@ -6,7 +6,7 @@ export default class DataFact {
 		this._data = data;
 		this._id = `df${uuidv4()}`;
 		this.name = "DFBase";
-		// this.target = [];
+		this.target = [];
 		// this.type = "";
 		// this.style = {};
 		// this.encoding = {};

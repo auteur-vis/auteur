@@ -1,15 +1,13 @@
 import React, {useRef, useState, useEffect} from "react";
 
 import { Chart } from "../src/lib/Chart.js";
-import ThresholdEquals from "../src/lib/Threshold.js";
+import ThresholdLess from "../src/lib/ThresholdLess.js";
 
 import cereal from "../public/cereal.json";
 
-// let unadjustedData = JSON.parse(JSON.stringify(CohortConfounds)).map((d, i) => {d.treatment = CohortTreatments[i]; d.propensity = CohortPropensity[i]; return d})
-
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
-  title: 'Aug/Threshold',
+  title: 'Aug/Threshold Intersect',
 };
 
 let chartSpec = {"mark":"point", "x":"sugars", "y":"calories"};
@@ -19,21 +17,19 @@ export const ToStorybook = () => {
 	const [xThreshold, setXThreshold] = React.useState(7.5);
 	const [yThreshold, setYThreshold] = React.useState(115);
 
-	let newXThreshold = new ThresholdEquals(cereal, "sugars", xThreshold);
-	let newYThreshold = new ThresholdEquals(cereal, "calories", yThreshold);
+	let newXThreshold = new ThresholdLess(cereal, "sugars", xThreshold);
+	let newYThreshold = new ThresholdLess(cereal, "calories", yThreshold);
 
-	let aug1 = newXThreshold.getAugs();
-	let aug2 = newYThreshold.getAugs();
+	let newAugs = newXThreshold.intersect(newYThreshold);
 
-	const [augs, setAugs] = React.useState([...aug1, ...aug2])
+	const [augs, setAugs] = React.useState([...newAugs]);
 
 	useEffect(() => {
 
 		newXThreshold.updateVal(xThreshold);
+		let newAugs = newXThreshold.intersect(newYThreshold);
 
-		let newAug1 = newXThreshold.getAugs();
-
-		setAugs([...newAug1, ...aug2]);
+		setAugs([...newAugs]);
 
 	}, [xThreshold])
 
@@ -44,10 +40,9 @@ export const ToStorybook = () => {
 	useEffect(() => {
 
 		newYThreshold.updateVal(yThreshold);
+		let newAugs = newXThreshold.intersect(newYThreshold);
 
-		let newAug2 = newYThreshold.getAugs();
-
-		setAugs([...aug1, ...newAug2]);
+		setAugs([...newAugs]);
 
 	}, [yThreshold])
 
@@ -60,7 +55,7 @@ export const ToStorybook = () => {
 			<div>
 				<p>x-axis threshold: </p>
 				<input
-					type="number"
+					type="range"
 					id="quantity"
 					name="quantity"
 					min="1" max="15"
@@ -70,7 +65,7 @@ export const ToStorybook = () => {
 			<div>
 				<p>y-axis threshold: </p>
 				<input
-					type="number"
+					type="range"
 					id="quantity"
 					name="quantity"
 					min="60" max="160"
@@ -83,5 +78,5 @@ export const ToStorybook = () => {
 }
 
 ToStorybook.story = {
-  name: 'Threshold',
+  name: 'Threshold Intersect',
 };
