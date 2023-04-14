@@ -1,13 +1,13 @@
 import React, {useRef, useState, useEffect} from "react";
 
-import { Chart } from "../src/lib/Chart.js";
+import Chart from "../src/lib/Chart.js";
 import Threshold from "../src/lib/Threshold.js";
 
 import cereal from "../public/cereal.json";
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
-  title: 'Aug/Threshold Equals',
+  title: 'Aug/Threshold/Equals',
 };
 
 let chartSpec = {"mark":"point", "x":"sugars", "y":"calories"};
@@ -23,7 +23,7 @@ export const ToStorybook = () => {
 	let aug1 = newXThreshold.getAugs();
 	let aug2 = newYThreshold.getAugs();
 
-	const [augs, setAugs] = React.useState([...aug1, ...aug2])
+	const [augs, setAugs] = React.useState([...aug1, ...aug2]);
 
 	useEffect(() => {
 
@@ -31,7 +31,10 @@ export const ToStorybook = () => {
 
 		let newAug1 = newXThreshold.getAugs();
 
-		setAugs([...newAug1, ...aug2]);
+		let allAugs = [...newAug1, ...aug2];
+
+		let chart = new Chart("#thres_eq", cereal, chartSpec, allAugs);
+		chart.render();
 
 	}, [xThreshold])
 
@@ -46,6 +49,11 @@ export const ToStorybook = () => {
 		let newAug2 = newYThreshold.getAugs();
 
 		setAugs([...aug1, ...newAug2]);
+
+		let allAugs = [...aug1, ...newAug2];
+
+		let chart = new Chart("#thres_eq", cereal, chartSpec, allAugs);
+		chart.render();
 
 	}, [yThreshold])
 
@@ -75,11 +83,11 @@ export const ToStorybook = () => {
 					value={yThreshold}
 					onChange={(e) => updateY(e)} />
 			</div>
-			<Chart data={cereal} chart={chartSpec} augmentations={augs} />
+			<svg id="thres_eq" />
 		</div>
 	)
 }
 
 ToStorybook.story = {
-  name: 'Threshold Equals',
+  name: 'Equals',
 };

@@ -4,7 +4,7 @@ import DataFact from "./DataFact.js"
 export default class Threshold extends DataFact {
 
 	// Qn to self: add option of orient? Either variable name provided, or orientation (x/y axis)
-	constructor(data, variable, val, threshold_type="eq", style) {
+	constructor(data, variable, val, type="eq", style) {
 		super(data);
 
 		this.name = "Threshold";
@@ -12,7 +12,7 @@ export default class Threshold extends DataFact {
 		this.variable = variable;
 		this.val = val;
 
-		this.threshold_type = threshold_type;
+		this._type = type;
 
 		this.target = this.generationCriteria();
 
@@ -26,15 +26,15 @@ export default class Threshold extends DataFact {
 		let newIndex = [];
 
 		for (let i = 0; i < this._data.length; i++) {
-			if (this.threshold_type === "eq" && this._data[i][this.variable] == this.val) {
+			if (this._type === "eq" && this._data[i][this.variable] == this.val) {
 				newIndex.push(i);
-			} else if (this.threshold_type === "le" && this._data[i][this.variable] < this.val) {
+			} else if (this._type === "le" && this._data[i][this.variable] < this.val) {
 				newIndex.push(i);
-			} else if (this.threshold_type === "leq" && this._data[i][this.variable] <= this.val) {
+			} else if (this._type === "leq" && this._data[i][this.variable] <= this.val) {
 				newIndex.push(i);
-			} else if (this.threshold_type === "ge" && this._data[i][this.variable] > this.val) {
+			} else if (this._type === "ge" && this._data[i][this.variable] > this.val) {
 				newIndex.push(i);
-			} else if (this.threshold_type === "geq" && this._data[i][this.variable] >= this.val) {
+			} else if (this._type === "geq" && this._data[i][this.variable] >= this.val) {
 				newIndex.push(i);
 			}
 		}

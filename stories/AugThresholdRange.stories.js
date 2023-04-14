@@ -1,13 +1,13 @@
 import React, {useRef, useState, useEffect} from "react";
 
-import { Chart } from "../src/lib/Chart.js";
+import Chart from "../src/lib/Chart.js";
 import Threshold from "../src/lib/Threshold.js";
 
 import cereal from "../public/cereal.json";
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
-  title: 'Aug/Threshold Range',
+  title: 'Aug/Threshold/Range',
 };
 
 let chartSpec = {"mark":"point", "x":"sugars", "y":"calories"};
@@ -29,7 +29,8 @@ export const ToStorybook = () => {
 		newXThreshold1.updateVal(xThreshold1);
 		let newAugs = newXThreshold1.intersect(newXThreshold2);
 
-		setAugs([...newAugs]);
+		let chart = new Chart("#thres_range", cereal, chartSpec, newAugs);
+		chart.render();
 
 	}, [xThreshold1])
 
@@ -42,7 +43,8 @@ export const ToStorybook = () => {
 		newXThreshold2.updateVal(xThreshold2);
 		let newAugs = newXThreshold2.intersect(newXThreshold1);
 
-		setAugs([...newAugs]);
+		let chart = new Chart("#thres_range", cereal, chartSpec, newAugs);
+		chart.render();
 
 	}, [xThreshold2])
 
@@ -72,11 +74,11 @@ export const ToStorybook = () => {
 					value={xThreshold2}
 					onChange={(e) => updateX2(e)} />
 			</div>
-			<Chart data={cereal} chart={chartSpec} augmentations={augs} />
+			<svg id="thres_range" />
 		</div>
 	)
 }
 
 ToStorybook.story = {
-  name: 'Threshold Range',
+  name: 'Range',
 };

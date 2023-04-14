@@ -1,18 +1,18 @@
 import React from "react";
 import * as ReactDOMClient from 'react-dom/client';
 
-import { Chart } from "./lib/Chart.js";
+// import Chart from "./lib/Chart.js";
 
-import cereal from "./shared/cereal.json"
+// import cereal from "./shared/cereal.json"
 
 const App = () => {
 
-	let chartSpec = {"mark":"point", "x":"sugars", "y":"calories"};
+	// let chartSpec = {"mark":"point", "x":"sugars", "y":"calories"};
 
 	return (
 
 		<div>
-			<Chart data={cereal} chart={chartSpec} test="1" />
+			// <Chart data={cereal} chart={chartSpec} test="1" />
 		</div>
 
 	)

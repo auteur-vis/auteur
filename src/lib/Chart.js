@@ -1,34 +1,137 @@
-import React, {useRef, useState, useEffect} from "react";
+// import React, {useRef, useState, useEffect} from "react";
 import * as d3 from "d3";
 
-// index column values must be unique per data row, if no col name provided, defaults to index
+import { v4 as uuidv4 } from 'uuid';
 
-export const Chart = ({data=[],
-					   index="default",
-					   layout={"width":500,
-					   		   "height":500,
-					   		   "marginTop":50,
-					   		   "marginRight":50,
-					   		   "marginBottom":50,
-					   		   "marginLeft":50},
-					   chart={"mark":"point",
+export default class Chart {
+
+	constructor(el,
+				data=[],
+				chart={"mark":"point",
 							  "x":"none",
 							  "y":"none"},
-					   augmentations=[]
-					   }) => {
+				augmentations=[],
+				layout={"width":500,
+			   		   "height":500,
+			   		   "marginTop":50,
+			   		   "marginRight":50,
+			   		   "marginBottom":50,
+			   		   "marginLeft":50},
+			   	index="default") {
 
-	const ref = useRef("chart");
+		
+		let svg = d3.select(el);
+		svg.attr("width", layout.width)
+			.attr("height", layout.height)
+		svg.append("g").attr("id", "mark");
+		svg.append("g").attr("id", "xAxis");
+		svg.append("g").attr("id", "yAxis");
+		svg.append("g").attr("id", "augmentation");
 
-	const _defaultStyles = {"line": {"stroke":"black",
-								     "stroke-width":1,
-								     "stroke-dasharray":"none"},
-							"point":{"fill":"black",
-									 "r":3,
-									 "stroke":"none"}
-							}
+		this.svg = svg;
+
+		this._id = `chart${uuidv4()}`; 
+
+		this._data = data; 
+		this._mark = chart.mark;
+
+		this._xVar;
+		this._yVar;
+		this._xType;
+		this._yType;
+		this._xScale;
+		this._yScale;
+		this.getVars(data, chart.x, chart.y, layout);
+
+		this._augs = augmentations;
+
+		this._layout = layout;
+
+		this._index = index;
+		this._defaultStyles = {"line": {"stroke":"black",
+									     "stroke-width":1,
+									     "stroke-dasharray":"none"},
+								"point":{"fill":"black",
+										 "r":3,
+										 "stroke":"none"}
+								}
+	}
+
+	getVars(data, x, y, layout) {
+		let _xVar;
+		let _yVar;
+
+		if (x.variable) {
+			_xVar = x.variable;
+		} else if (typeof(x) === "string") {
+			_xVar = x;
+		} else {
+			console.warn("chart x and y variables must be specified");
+		}
+
+		if (y.variable) {
+			_yVar = y.variable;
+		} else if (typeof(y) === "string") {
+			_yVar = y;
+		} else {
+			console.warn("chart x and y variables must be specified");
+		}
+
+		this._xVar = _xVar;
+		this._yVar = _yVar;
+
+		let _xType;
+		let _yType;
+
+		if (x.type) {
+			_xType = x.type;
+		} else {
+			_xType = isNaN(data[0][_xVar]) ? "categorical" : "numeric";
+		}
+
+		if (y.type) {
+			_yType = y.type;
+		} else {
+			_yType = isNaN(data[0][_yVar]) ? "categorical" : "numeric";
+		}
+
+		this._xType = _xType;
+		this._yType = _yType;
+
+		let _xScale;
+		let _yScale;
+
+		if (_xType === "numeric") {
+			_xScale = d3.scaleLinear()
+						.domain(d3.extent(data, d => d[_xVar]))
+						.range([layout.marginLeft, layout.width - layout.marginRight])
+		} else if (_xType === "categorical") {
+			_xScale = d3.scaleBand()
+						.domain(data.map(d => d[_yVar]))
+						.range([layout.marginLeft, layout.width - layout.marginRight])
+		} else {
+			console.warn("Only categorical and numeric data types are currently supported");
+		}
+
+
+		if (_yType === "numeric") {
+			_yScale = d3.scaleLinear()
+						.domain(d3.extent(data, d => d[_yVar]))
+						.range([layout.height - layout.marginBottom, layout.marginTop])
+		} else if (_yType === "categorical") {
+			_yScale = d3.scaleBand()
+						.domain(data.map(d => d[_yVar]))
+						.range([layout.height - layout.marginBottom, layout.marginTop])
+		} else {
+			console.warn("Only categorical and numeric data types are currently supported");
+		}
+
+		this._xScale = _xScale;
+		this._yScale = _yScale;
+	}
 
 	// This function computes coords of line-mark augmentations
-	function getLineCoords(aug) {
+	getLineCoords(aug) {
 
 		let lineCoords = {};
 
@@ -54,15 +157,18 @@ export const Chart = ({data=[],
 
 		// }
 
+		let xVar = this._xVar;
+		let yVar = this._yVar;
+
 		
 		if (!aug.encoding) {
 
 			// If no encodings provided, else use chart x and y
 
-			lineCoords.x1 = target[0][chart.x] ? target[0][chart.x] : null;
-			lineCoords.x2 = target[1][chart.x] ? target[1][chart.x] : null;
-			lineCoords.y1 = target[0][chart.y] ? target[0][chart.y] : null;
-			lineCoords.y2 = target[1][chart.y] ? target[1][chart.y] : null;
+			lineCoords.x1 = target[0][xVar] ? target[0][xVar] : null;
+			lineCoords.x2 = target[1][xVar] ? target[1][xVar] : null;
+			lineCoords.y1 = target[0][yVar] ? target[0][yVar] : null;
+			lineCoords.y2 = target[1][yVar] ? target[1][yVar] : null;
 
 		} else {
 
@@ -75,8 +181,8 @@ export const Chart = ({data=[],
 
 			} else {
 
-				lineCoords.x1 = target[0][chart.x] ? target[0][chart.x] : null;
-				lineCoords.x2 = target[1][chart.x] ? target[1][chart.x] : null;
+				lineCoords.x1 = target[0][xVar] ? target[0][xVar] : null;
+				lineCoords.x2 = target[1][xVar] ? target[1][xVar] : null;
 
 			}
 
@@ -87,8 +193,8 @@ export const Chart = ({data=[],
 
 			} else {
 
-				lineCoords.y1 = target[0][chart.y] ? target[0][chart.y] : null;
-				lineCoords.y2 = target[1][chart.y] ? target[1][chart.y] : null;
+				lineCoords.y1 = target[0][yVar] ? target[0][yVar] : null;
+				lineCoords.y2 = target[1][yVar] ? target[1][yVar] : null;
 
 			}
 
@@ -104,12 +210,12 @@ export const Chart = ({data=[],
 	}
 
 	// Handle augmentations for point charts
-	function handlePointAugs(augmentations, svgElement, xScale, yScale, xMin, xMax, yMin, yMax) {
+	handlePointAugs(augmentations, svgElement, xScale, yScale, xMin, xMax, yMin, yMax) {
 
 		let allPoints = svgElement.select("#mark")
 								  .selectAll(".scatterpoint")
 
-		for (let [key, val] of Object.entries(_defaultStyles["point"])) {
+		for (let [key, val] of Object.entries(this._defaultStyles["point"])) {
 			allPoints.attr(key, val);
 		}
 
@@ -118,8 +224,8 @@ export const Chart = ({data=[],
 
 			if (aug.type === "line") {
 
-				let lineCoords = getLineCoords(aug);
-				let augStyle = (aug.style && Object.keys(aug.style).length > 0) ? aug.style : _defaultStyles["line"]
+				let lineCoords = this.getLineCoords(aug);
+				let augStyle = (aug.style && Object.keys(aug.style).length > 0) ? aug.style : this._defaultStyles["line"]
 
 				let newLine = svgElement.select("#augmentation")
 					.selectAll(`.threshold${i}`)
@@ -145,13 +251,14 @@ export const Chart = ({data=[],
 
 					let augStyle = aug.style;
 					let augIndex = aug.target.index;
+					let chartIndex = this._index;
 					let augPoints = svgElement.select("#mark")
 											  .selectAll(".scatterpoint")
 											  .filter(function (d, i) {
-											  	if (index === "default") {
+											  	if (chartIndex === "default") {
 											  		return augIndex.includes(i)
 											  	} else {
-											  		return augIndex.includes(d[index])
+											  		return augIndex.includes(d[chartIndex])
 											  	}
 											  })
 
@@ -167,59 +274,50 @@ export const Chart = ({data=[],
 
 	}
 
-	useEffect(() => {
 
-		let svgElement = d3.select(ref.current);
-
-		// let svgElement = svg.select("g");
-
-		let xScale = d3.scaleLinear()
-						.domain(d3.extent(data, d => d[chart.x]))
-						.range([layout.marginLeft, layout.width - layout.marginRight])
-
-		let yScale = d3.scaleLinear()
-						.domain(d3.extent(data, d => d[chart.y]))
-						.range([layout.height - layout.marginBottom, layout.marginTop])
+	render() {
+		let layout = this._layout;
+		let svgElement = this.svg;
 
 		let xAxis = svgElement.select("#xAxis")
 							  .attr('transform', `translate(0, ${layout.height - layout.marginBottom})`)
-							  .call(d3.axisBottom(xScale).tickSize(3).ticks(5))
+							  .call(d3.axisBottom(this._xScale).tickSize(3))
 
 		let yAxis = svgElement.select("#yAxis")
 							  .attr('transform', `translate(${layout.marginLeft}, 0)`)
-							  .call(d3.axisLeft(yScale).tickSize(3).ticks(5))
+							  .call(d3.axisLeft(this._yScale).tickSize(3))
 
-		if (chart["mark"] === "point") {
+		if (this._mark === "point") {
 
 			let scatterpoints = svgElement.select("#mark")
 				.selectAll(".scatterpoint")
-				.data(data)
+				.data(this._data)
 				.join("circle")
 				.attr("class", "scatterpoint")
-				.attr("cx", d => xScale(d[chart["x"]]))
-				.attr("cy", d => yScale(d[chart["y"]]))
+				.attr("cx", d => this._xType === "categorical" ? this._xScale(d[this._xVar]) + this._xScale.bandwidth() / 2 : this._xScale(d[this._xVar]))
+				.attr("cy", d => this._yType === "categorical" ? this._yScale(d[this._yVar]) + this._yScale.bandwidth() / 2 : this._yScale(d[this._yVar]))
 				.attr("r", 3)
 
-			handlePointAugs(augmentations, svgElement, xScale, yScale, layout.marginLeft, layout.width - layout.marginRight, layout.height - layout.marginBottom, layout.marginTop);
+			this.handlePointAugs(this._augs, svgElement, this._xScale, this._yScale, layout.marginLeft, layout.width - layout.marginRight, layout.height - layout.marginBottom, layout.marginTop);
 
 		} else if (chart.mark === "bar") {
+
+			// let barrects = svgElement.select("#mark")
+			// 	.selectAll(".barrect")
+			// 	.data(data)
+			// 	.join("rect")
+			// 	.attr("class", "barrect")
+			// 	.attr("cx", d => _xType === "categorical" ? _xScale(d[_xVar]) + _xScale.bandwidth() / 2 : _xScale(d[_xVar]))
+			// 	.attr("cy", d => _yType === "categorical" ? _yScale(d[_yVar]) + _yScale.bandwidth() / 2 : _yScale(d[_yVar]))
+			// 	.attr("r", 3)
+
+			// handlePointAugs(augmentations, svgElement, _xScale, _yScale, layout.marginLeft, layout.width - layout.marginRight, layout.height - layout.marginBottom, layout.marginTop);
 
 		} else if (chart.mark === "line") {
 
 		} else {
 			console.error("mark type not supported. please use point, bar or line.")
 		}
+	}
 
-	}, [data, augmentations])
-
-	return (
-		<div>
-			<svg width={layout.width} height={layout.height} ref={ref}>
-				<g id="mark" />
-				<g id="augmentation" />
-				<g id="xAxis" />
-				<g id="yAxis" />
-			</svg>
-		</div>
-	)
 }

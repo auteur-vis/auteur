@@ -1,13 +1,13 @@
 import React, {useRef, useState, useEffect} from "react";
 
-import { Chart } from "../src/lib/Chart.js";
+import Chart from "../src/lib/Chart.js";
 import Threshold from "../src/lib/Threshold.js";
 
 import cereal from "../public/cereal.json";
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
-  title: 'Aug/Threshold Intersect',
+  title: 'Aug/Threshold/Intersect',
 };
 
 let chartSpec = {"mark":"point", "x":"sugars", "y":"calories"};
@@ -29,7 +29,8 @@ export const ToStorybook = () => {
 		newXThreshold.updateVal(xThreshold);
 		let newAugs = newXThreshold.intersect(newYThreshold);
 
-		setAugs([...newAugs]);
+		let chart = new Chart("#thres_intersect", cereal, chartSpec, newAugs);
+		chart.render();
 
 	}, [xThreshold])
 
@@ -42,7 +43,8 @@ export const ToStorybook = () => {
 		newYThreshold.updateVal(yThreshold);
 		let newAugs = newXThreshold.intersect(newYThreshold);
 
-		setAugs([...newAugs]);
+		let chart = new Chart("#thres_intersect", cereal, chartSpec, newAugs);
+		chart.render();
 
 	}, [yThreshold])
 
@@ -72,11 +74,11 @@ export const ToStorybook = () => {
 					value={yThreshold}
 					onChange={(e) => updateY(e)} />
 			</div>
-			<Chart data={cereal} chart={chartSpec} augmentations={augs} />
+			<svg id="thres_intersect" />
 		</div>
 	)
 }
 
 ToStorybook.story = {
-  name: 'Threshold Intersect',
+  name: 'Intersect',
 };

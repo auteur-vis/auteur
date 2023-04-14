@@ -1,13 +1,13 @@
 import React, {useRef, useState, useEffect} from "react";
 
-import { Chart } from "../src/lib/Chart.js";
+import Chart from "../src/lib/Chart.js";
 import Threshold from "../src/lib/Threshold.js";
 
 import cereal from "../public/cereal.json";
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
-  title: 'Aug/Threshold Less',
+  title: 'Aug/Threshold/Less',
 };
 
 let chartSpec = {"mark":"point", "x":"sugars", "y":"calories"};
@@ -28,7 +28,8 @@ export const ToStorybook = () => {
 
 		let newAug2 = newYThreshold.getAugs();
 
-		setAugs([...newAug2]);
+		let chart = new Chart("#thres_less", cereal, chartSpec, newAug2);
+		chart.render();
 
 	}, [yThreshold])
 
@@ -48,11 +49,11 @@ export const ToStorybook = () => {
 					value={yThreshold}
 					onChange={(e) => updateY(e)} />
 			</div>
-			<Chart data={cereal} chart={chartSpec} augmentations={augs} />
+			<svg id="thres_less" />
 		</div>
 	)
 }
 
 ToStorybook.story = {
-  name: 'Threshold Less',
+  name: 'Less',
 };
