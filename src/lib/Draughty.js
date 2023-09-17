@@ -3,48 +3,40 @@ import * as d3 from "d3";
 
 import { v4 as uuidv4 } from 'uuid';
 
-export default class Chart {
+export default class Draught {
 
 	constructor(el,
 				data=[],
-				chart={"mark":"point",
-							  "x":"none",
-							  "y":"none"},
 				augmentations=[],
-				layout={"width":500,
-			   		   "height":500,
-			   		   "marginTop":50,
-			   		   "marginRight":50,
-			   		   "marginBottom":50,
-			   		   "marginLeft":50},
+				scaleX,
+				scaleY,
+				selector,
 			   	index="default") {
 
 		let svg = d3.select(el);
-		svg.attr("width", layout.width)
-			.attr("height", layout.height)
-		svg.append("g").attr("id", "mark");
-		svg.append("g").attr("id", "xAxis");
-		svg.append("g").attr("id", "yAxis");
-		svg.append("g").attr("id", "augmentation");
 
 		this.svg = svg;
 
-		this._id = `chart${uuidv4()}`; 
+		this.elements = svg.selectAll(selector);
+		console.log(this.elements.data());
+
+		this._id = `chart${uuidv4()}`;
 
 		this._data = data; 
-		this._mark = chart.mark;
+		// this._mark = chart.mark;
 
-		this._xVar;
-		this._yVar;
-		this._xType;
-		this._yType;
-		this._xScale;
-		this._yScale;
-		this.getVars(data, chart.x, chart.y, layout);
+		// this._xVar;
+		// this._yVar;
+		// this._xType;
+		// this._yType;
+		this._xScale = scaleX;
+		this._yScale = scaleY;
+		console.log(scaleX.domain());
+		// this.getVars(data, chart.x, chart.y, layout);
 
 		this._augs = augmentations;
 
-		this._layout = layout;
+		// this._layout = layout;
 
 		this._index = index;
 		this._defaultStyles = {"line": {"stroke":"black",
@@ -58,78 +50,78 @@ export default class Chart {
 								}
 	}
 
-	getVars(data, x, y, layout) {
-		let _xVar;
-		let _yVar;
+	// getVars(data, x, y, layout) {
+	// 	let _xVar;
+	// 	let _yVar;
 
-		if (x.variable) {
-			_xVar = x.variable;
-		} else if (typeof(x) === "string") {
-			_xVar = x;
-		} else {
-			console.warn("chart x and y variables must be specified");
-		}
+	// 	if (x.variable) {
+	// 		_xVar = x.variable;
+	// 	} else if (typeof(x) === "string") {
+	// 		_xVar = x;
+	// 	} else {
+	// 		console.warn("chart x and y variables must be specified");
+	// 	}
 
-		if (y.variable) {
-			_yVar = y.variable;
-		} else if (typeof(y) === "string") {
-			_yVar = y;
-		} else {
-			console.warn("chart x and y variables must be specified");
-		}
+	// 	if (y.variable) {
+	// 		_yVar = y.variable;
+	// 	} else if (typeof(y) === "string") {
+	// 		_yVar = y;
+	// 	} else {
+	// 		console.warn("chart x and y variables must be specified");
+	// 	}
 
-		this._xVar = _xVar;
-		this._yVar = _yVar;
+	// 	this._xVar = _xVar;
+	// 	this._yVar = _yVar;
 
-		let _xType;
-		let _yType;
+	// 	let _xType;
+	// 	let _yType;
 
-		if (x.type) {
-			_xType = x.type;
-		} else {
-			_xType = isNaN(data[0][_xVar]) ? "categorical" : "numeric";
-		}
+	// 	if (x.type) {
+	// 		_xType = x.type;
+	// 	} else {
+	// 		_xType = isNaN(data[0][_xVar]) ? "categorical" : "numeric";
+	// 	}
 
-		if (y.type) {
-			_yType = y.type;
-		} else {
-			_yType = isNaN(data[0][_yVar]) ? "categorical" : "numeric";
-		}
+	// 	if (y.type) {
+	// 		_yType = y.type;
+	// 	} else {
+	// 		_yType = isNaN(data[0][_yVar]) ? "categorical" : "numeric";
+	// 	}
 
-		this._xType = _xType;
-		this._yType = _yType;
+	// 	this._xType = _xType;
+	// 	this._yType = _yType;
 
-		let _xScale;
-		let _yScale;
+	// 	let _xScale;
+	// 	let _yScale;
 
-		if (_xType === "numeric") {
-			_xScale = d3.scaleLinear()
-						.domain(d3.extent(data, d => d[_xVar]))
-						.range([layout.marginLeft, layout.width - layout.marginRight])
-		} else if (_xType === "categorical") {
-			_xScale = d3.scaleBand()
-						.domain(data.map(d => d[_xVar]))
-						.range([layout.marginLeft, layout.width - layout.marginRight])
-		} else {
-			console.warn("Only categorical and numeric data types are currently supported");
-		}
+	// 	if (_xType === "numeric") {
+	// 		_xScale = d3.scaleLinear()
+	// 					.domain(d3.extent(data, d => d[_xVar]))
+	// 					.range([layout.marginLeft, layout.width - layout.marginRight])
+	// 	} else if (_xType === "categorical") {
+	// 		_xScale = d3.scaleBand()
+	// 					.domain(data.map(d => d[_xVar]))
+	// 					.range([layout.marginLeft, layout.width - layout.marginRight])
+	// 	} else {
+	// 		console.warn("Only categorical and numeric data types are currently supported");
+	// 	}
 
 
-		if (_yType === "numeric") {
-			_yScale = d3.scaleLinear()
-						.domain(d3.extent(data, d => d[_yVar]))
-						.range([layout.height - layout.marginBottom, layout.marginTop])
-		} else if (_yType === "categorical") {
-			_yScale = d3.scaleBand()
-						.domain(data.map(d => d[_yVar]))
-						.range([layout.height - layout.marginBottom, layout.marginTop])
-		} else {
-			console.warn("Only categorical and numeric data types are currently supported");
-		}
+	// 	if (_yType === "numeric") {
+	// 		_yScale = d3.scaleLinear()
+	// 					.domain(d3.extent(data, d => d[_yVar]))
+	// 					.range([layout.height - layout.marginBottom, layout.marginTop])
+	// 	} else if (_yType === "categorical") {
+	// 		_yScale = d3.scaleBand()
+	// 					.domain(data.map(d => d[_yVar]))
+	// 					.range([layout.height - layout.marginBottom, layout.marginTop])
+	// 	} else {
+	// 		console.warn("Only categorical and numeric data types are currently supported");
+	// 	}
 
-		this._xScale = _xScale;
-		this._yScale = _yScale;
-	}
+	// 	this._xScale = _xScale;
+	// 	this._yScale = _yScale;
+	// }
 
 	// This function computes coords of line-mark augmentations
 	getLineCoords(aug) {

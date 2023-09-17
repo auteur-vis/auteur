@@ -7,7 +7,7 @@ import cereal from "../public/cereal.json";
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
-  title: 'Aug/Threshold/Intersect',
+  title: 'Aug/Threshold/Point/Intersect',
 };
 
 let chartSpec = {"mark":"point", "x":"sugars", "y":"calories"};
