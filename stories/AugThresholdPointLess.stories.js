@@ -13,12 +13,11 @@ export default {
 
 export const ToStorybook = () => {
 
+	const [yThreshold, setYThreshold] = React.useState(115);
+
 	const ref = useRef("less");
 	const chart = useRef(new Draught());
-	const newYThreshold = useRef(new Threshold("calories", yThreshold, "le"));
-
-	let scatterSpec = {"mark":"point", "x":"sugars", "y":"calories"};
-	const [yThreshold, setYThreshold] = React.useState(115);
+	const newYThreshold = useRef(new Threshold("calories", yThreshold, "leq"));
 
 	const [data, setData] = React.useState(cereal);
 
@@ -55,40 +54,14 @@ export const ToStorybook = () => {
 							.domain(d3.extent(data, d => d["calories"]))
 							.range([3, 6]);
 
-		// let scatterpoints = svgElement.select("#mark")
-		// 							.selectAll(".scatterpoint")
-		// 							.data(data)
-		// 							.join("circle")
-		// 							.attr("class", "scatterpoint")
-		// 							.attr("cx", d => xScale(d["sugars"]) + Math.random() * 8 - 8)
-		// 							.attr("cy", d => yScale(d["calories"]) + Math.random() * 8 - 8)
-		// 							.attr("r", d => 3)
-		// 							.on("mouseover", (event, d) => {
-
-		// 								let xPos = xScale(d["sugars"]);
-		// 								let yPos = yScale(d["calories"]) - 8;
-
-		// 								tooltip.attr("transform", `translate(${xPos}, ${yPos})`)
-		// 										.attr("opacity", 1)
-		// 										.text(d.name);
-
-		// 							})
-		// 							.on("mouseout", (event, d) => {
-
-		// 								tooltip.attr("opacity", 0);
-
-		// 							});
-
 		let scatterpoints = svgElement.select("#mark")
 									.selectAll(".scatterpoint")
 									.data(data)
-									.join("rect")
+									.join("circle")
 									.attr("class", "scatterpoint")
-									.attr("x", d => xScale(d["sugars"]) - 3)
-									.attr("y", d => yScale(d["calories"]) - 3)
-									.attr("width", 6)
-									.attr("height", 6)
-									.attr("opacity", 0.3)
+									.attr("cx", d => xScale(d["sugars"]) + Math.random() * 8 - 4)
+									.attr("cy", d => yScale(d["calories"]) + Math.random() * 8 - 4)
+									.attr("r", d => 3)
 									.on("mouseover", (event, d) => {
 
 										let xPos = xScale(d["sugars"]);
@@ -105,6 +78,32 @@ export const ToStorybook = () => {
 
 									});
 
+		// let scatterpoints = svgElement.select("#mark")
+		// 							.selectAll(".scatterpoint")
+		// 							.data(data)
+		// 							.join("rect")
+		// 							.attr("class", "scatterpoint")
+		// 							.attr("x", d => xScale(d["sugars"]) - 3)
+		// 							.attr("y", d => yScale(d["calories"]) - 3)
+		// 							.attr("width", 6)
+		// 							.attr("height", 6)
+		// 							.attr("opacity", 0.3)
+		// 							.on("mouseover", (event, d) => {
+
+		// 								let xPos = xScale(d["sugars"]);
+		// 								let yPos = yScale(d["calories"]) - 8;
+
+		// 								tooltip.attr("transform", `translate(${xPos}, ${yPos})`)
+		// 										.attr("opacity", 1)
+		// 										.text(d.name);
+
+		// 							})
+		// 							.on("mouseout", (event, d) => {
+
+		// 								tooltip.attr("opacity", 0);
+
+		// 							});
+
 		svgElement.select("#xAxis")
 				  .call(d3.axisBottom(xScale))
 				  .attr("transform", `translate(0, ${layout.height - layout.marginBottom})`);
@@ -117,6 +116,7 @@ export const ToStorybook = () => {
 					.selection(scatterpoints)
 					.x("sugars", xScale)
 					.y("calories", yScale)
+					.exclude({"rank":2})
 					.augment(newYThreshold.current.getAugs());
 
 	}, [data])
@@ -127,7 +127,7 @@ export const ToStorybook = () => {
 
 		let newAug2 = newYThreshold.current.getAugs();
 
-		chart.current.augment(newAug2)
+		chart.current.augment(newAug2);
 
 	}, [yThreshold])
 

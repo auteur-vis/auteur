@@ -17,6 +17,10 @@ export default class Draught {
 								"bar":{"fill":"steelblue",
 									   "stroke":"none"}
 								}
+
+		this._include = null;
+		this._exclude = null;
+
 	}
 
 	chart(el) {
@@ -63,7 +67,7 @@ export default class Draught {
 	x(variable, scaleX) {
 
 		this._xVar = variable;
-		this._x = scaleX;
+		this._xScale = scaleX;
 
 		return this;
 
@@ -72,7 +76,26 @@ export default class Draught {
 	y(variable, scaleY) {
 
 		this._yVar = variable;
-		this._y = scaleY;
+		this._yScale = scaleY;
+
+		return this;
+
+	}
+
+	// {"type": ["encoding", "mark", ...], "rank": 1, 2, 3..., "name": ["line", "color", "opacity", ...]}
+	include(inclusions) {
+
+		this._include = inclusions;
+
+		return this;
+
+	}
+
+	// exclusions take priority
+	// {"type": [encoding", "mark", ...], "rank": 1, 2, 3..., "name": ["line", "color", "opacity", ...]}
+	exclude(exclusions) {
+
+		this._exclude = exclusions;
 
 		return this;
 
@@ -91,9 +114,9 @@ export default class Draught {
 							.data(data)
 							.join("line")
 							.attr("id", aug.id)
-							.attr("x1", d => this._x(d["x"]))
+							.attr("x1", d => d["x"])
 							.attr("y1", 0)
-							.attr("x2", d => this._x(d["x"]))
+							.attr("x2", d => d["x"])
 							.attr("y2", this._chart.attr("height"))
 							.attr("stroke", "black");
 
@@ -104,10 +127,48 @@ export default class Draught {
 							.join("line")
 							.attr("id", aug.id)
 							.attr("x1", 0)
-							.attr("y1", d => this._y(d["y"]))
+							.attr("y1", d => d["y"])
 							.attr("x2", this._chart.attr("width"))
-							.attr("y2", d => this._y(d["y"]))
+							.attr("y2", d => d["y"])
 							.attr("stroke", "black");
+
+			}
+		}
+
+	}
+
+	_handleText(aug, data) {
+
+		let draughtLayer = this._chart.select("#draughty");
+
+		if (data.length === 1) {
+			let orient = data[0]["x"] ? "x" : "y";
+
+			if (orient === "x") {
+
+				draughtLayer.selectAll(`#${aug.id}`)
+							.data(data)
+							.join("text")
+							.attr("id", aug.id)
+							.attr("x", d => d["x"])
+							.attr("y", 10)
+							.attr("font-family", "sans-serif")
+							.attr("font-size", 11)
+							.attr("alignment-baseline", "hanging")
+							.text(d => d["text"]);
+
+			} else if (orient === "y") {
+
+				draughtLayer.selectAll(`#${aug.id}`)
+							.data(data)
+							.join("text")
+							.attr("id", aug.id)
+							.attr("x", 0)
+							.attr("y", d => d["y"])
+							.attr("font-family", "sans-serif")
+							.attr("font-size", 11)
+							.attr("alignment-baseline", "middle")
+							.text(d => d["text"]);
 
 			}
 		}
@@ -116,7 +177,48 @@ export default class Draught {
 
 	augment(augmentations) {
 
-		for (let a of augmentations) {
+		let filteredAugs = augmentations;
+
+		// rank is exactly the same for both include and exclude
+		if (this._exclude && this._exclude["rank"]) {
+
+			filteredAugs = filteredAugs.slice(0, this._exclude["rank"]);
+
+		} else if (this._include && this._include["rank"]) {
+
+			filteredAugs = filteredAugs.slice(0, this._include["rank"]);
+
+		}
+
+		for (let a of filteredAugs) {
+
+			if (this._exclude && this._exclude["type"]) {
+
+				if (this._exclude["type"].indexOf(a.type) >= 0) {
+					continue
+				}
+
+			} else if (this._include && this._include["type"]) {
+
+				if (this._include["type"].indexOf(a.type) === -1) {
+					continue
+				}
+
+			}
+
+			if (this._exclude && this._exclude["name"]) {
+
+				if (this._exclude["name"].indexOf(a.name.split("_")[1]) >= 0) {
+					continue
+				}
+
+			} else if (this._include && this._include["name"]) {
+
+				if (this._include["name"].indexOf(a.name.split("_")[1]) === -1) {
+					continue
+				}
+
+			}
 
 			if (a.type === "encoding") {
 
@@ -124,23 +226,44 @@ export default class Draught {
 
 				for (let e of Object.keys(encodings)) {
 
-					this._selection.attr(e, d => {
+					if (e === "opacity") {
 
-						if (a.generationCriteria(d)) {
-							return encodings[e];
-						}
-						
-					});
+						this._selection.style(e, d => {
+
+							if (a.generationCriteria(d)) {
+								return encodings[e];
+							} else {
+								return 0.25
+							}
+							
+						});
+
+					} else {
+
+						this._selection.style(e, d => {
+
+							if (a.generationCriteria(d)) {
+								return encodings[e];
+							}
+							
+						});
+
+					}
+					
 				}
 
 			} else if (a.type === "mark") {
 
 				// Check that the right x and y variables are used in chart
-				let draughtData = a.generationCriteria(this._xVar, this._yVar);
+				let draughtData = a.generationCriteria(this._xVar, this._yVar, this._xScale, this._yScale);
 
 				if (draughtData && a.encoding.mark === "line") {
 
 					this._handleLine(a, draughtData);
+
+				} else if (draughtData && a.encoding.mark === "text") {
+
+					this._handleText(a, draughtData);
 
 				}
 
