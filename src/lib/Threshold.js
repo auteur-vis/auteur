@@ -57,7 +57,7 @@ export default class Threshold extends DataFact {
 	}
 
 	generateText(variable, val, type) {
-
+		console.log(type)
 		return function(xVar, yVar, xScale, yScale) {
 			// If variable not mapped to x or y position, do not render line
 			if (xVar != variable && yVar != variable) {
@@ -66,15 +66,15 @@ export default class Threshold extends DataFact {
 
 			if (type === "le" || type === "leq") {
 				if (xVar == variable) {
-					return [{"x": xScale(val) + 10, "text": `${variable} ${"le" ? "less than" : "less than or equal to"} ${val}`}];
+					return [{"x": xScale(val) + 10, "text": `${variable} ${"le" == type ? "less than" : "less than or equal to"} ${val}`}];
 				} else if (yVar == variable) {
-					return [{"y": yScale(val) + 10, "text": `${variable} ${"le" ? "less than" : "less than or equal to"} ${val}`}];
+					return [{"y": yScale(val) + 10, "text": `${variable} ${"le" == type ? "less than" : "less than or equal to"} ${val}`}];
 				}
 			} else if (type === "ge" || type === "geq") {
 				if (xVar == variable) {
-					return [{"x": xScale(val) + 10, "text": `${variable} ${"ge" ? "greater than" : "greater than or equal to"} ${val}`}];
+					return [{"x": xScale(val) + 10, "text": `${variable} ${"ge" == type ? "greater than" : "greater than or equal to"} ${val}`}];
 				} else if (yVar == variable) {
-					return [{"y": yScale(val) + 10, "text": `${variable} ${"ge" ? "greater than" : "greater than or equal to"} ${val}`}];
+					return [{"y": yScale(val) + 10, "text": `${variable} ${"ge" == type ? "greater than" : "greater than or equal to"} ${val}`}];
 				}
 			} else {
 				if (xVar == variable) {
@@ -106,6 +106,10 @@ export default class Threshold extends DataFact {
 
 	updateVal(val) {
 		this._val = val;
+	}
+
+	updateType(type) {
+		this._type = type;
 	}
 
 	// returns a list of [Aug Class]
