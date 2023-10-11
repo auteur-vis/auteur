@@ -8,18 +8,17 @@ import cereal from "../public/cereal.json";
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
-  title: 'Aug/Threshold/Point/Range',
+  title: 'Aug/Threshold/Point/Calculated',
 };
 
 export const ToStorybook = () => {
 
-	const [maxThreshold, setMaxThreshold] = React.useState(135);
-	const [minThreshold, setMinThreshold] = React.useState(80);
+	const [yThreshold, setYThreshold] = React.useState(d3.mean(cereal, d => d.calories));
+	const [yStatistic, setYStatistic] = useState("mean");
 
-	const ref = useRef("range");
+	const ref = useRef("calculated");
 	const chart = useRef(new Draught());
-	const newMaxThreshold = useRef(new Threshold("calories", maxThreshold, "leq"));
-	const newMinThreshold = useRef(new Threshold("calories", minThreshold, "geq"));
+	const newYThreshold = useRef(new Threshold("calories", yThreshold, "leq"));
 
 	const [data, setData] = React.useState(cereal);
 
@@ -89,62 +88,51 @@ export const ToStorybook = () => {
 				  .attr("transform", `translate(${layout.marginLeft}, 0)`);
 
 		chart.current.chart(ref.current)
-					// .charttype("point") // point, bar, line...
 					.selection(scatterpoints)
 					.x("sugars", xScale)
 					.y("calories", yScale)
-					// .exclude({"type":["encoding"]})
-					.augment(newMaxThreshold.current.intersect(newMinThreshold.current));
+					.augment(newYThreshold.current.getAugs());
 
 	}, [data])
 
 	useEffect(() => {
 
-		newMaxThreshold.current.updateVal(maxThreshold);
-		let newAugs = newMaxThreshold.current.intersect(newMinThreshold.current);
+		newYThreshold.current.updateVal(yThreshold);
 
-		chart.current.augment(newAugs);
+		let newAug2 = newYThreshold.current.getAugs();
 
-	}, [maxThreshold])
+		chart.current.augment(newAug2);
+
+	}, [yThreshold])
 
 	useEffect(() => {
 
-		newMinThreshold.current.updateVal(minThreshold);
-		let newAugs = newMaxThreshold.current.intersect(newMinThreshold.current);
+		if (yStatistic === "min") {
+			setYThreshold(Math.round(d3.min(cereal, d => d.calories)));
+		} else if (yStatistic === "mean") {
+			setYThreshold(Math.round(d3.mean(cereal, d => d.calories)));
+		} else if (yStatistic === "median") {
+			setYThreshold(Math.round(d3.median(cereal, d => d.calories)));
+		} else if (yStatistic === "max") {
+			setYThreshold(Math.round(d3.max(cereal, d => d.calories)));
+		}
 
-		chart.current.augment(newAugs);
+	}, [yStatistic])
 
-	}, [minThreshold])
-
-	function updateMax(e) {
-		setMaxThreshold(e.target.value);
-	}
-
-	function updateMin(e) {
-		setMinThreshold(e.target.value);
+	function updateY(e) {
+		setYStatistic(e.target.value);
 	}
 
 	return (
 		<div>
 			<div>
-				<p>max threshold: </p>
-				<input
-					type="range"
-					id="quantity"
-					name="quantity"
-					min="110" max="160"
-					value={maxThreshold}
-					onChange={(e) => updateMax(e)} />
-			</div>
-			<div>
-				<p>min threshold: </p>
-				<input
-					type="range"
-					id="quantity"
-					name="quantity"
-					min="50" max="110"
-					value={minThreshold}
-					onChange={(e) => updateMin(e)} />
+				<p>y statistic: </p>
+				<select value={yStatistic} onChange={(e) => updateY(e)}>
+					<option value="min">Min</option>
+					<option value="mean">Mean</option>
+					<option value="median">Median</option>
+					<option value="max">Max</option>
+				</select>
 			</div>
 			<svg id="less" ref={ref}>
 				<g id="mark" />
@@ -157,5 +145,5 @@ export const ToStorybook = () => {
 }
 
 ToStorybook.story = {
-  name: 'Range',
+  name: 'Calculated',
 };

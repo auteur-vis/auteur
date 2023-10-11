@@ -57,11 +57,13 @@ export const ToStorybook = () => {
 		let scatterpoints = svgElement.select("#mark")
 									.selectAll(".scatterpoint")
 									.data(data)
-									.join("circle")
+									.join("rect")
 									.attr("class", "scatterpoint")
-									.attr("cx", d => xScale(d["sugars"]) + Math.random() * 8 - 4)
-									.attr("cy", d => yScale(d["calories"]) + Math.random() * 8 - 4)
-									.attr("r", d => 3)
+									.attr("x", d => xScale(d["sugars"]) - 3)
+									.attr("y", d => yScale(d["calories"]) - 3)
+									.attr("width", 6)
+									.attr("height", 6)
+									.attr("opacity", 0.3)
 									.on("mouseover", (event, d) => {
 
 										let xPos = xScale(d["sugars"]);
@@ -77,32 +79,6 @@ export const ToStorybook = () => {
 										tooltip.attr("opacity", 0);
 
 									});
-
-		// let scatterpoints = svgElement.select("#mark")
-		// 							.selectAll(".scatterpoint")
-		// 							.data(data)
-		// 							.join("rect")
-		// 							.attr("class", "scatterpoint")
-		// 							.attr("x", d => xScale(d["sugars"]) - 3)
-		// 							.attr("y", d => yScale(d["calories"]) - 3)
-		// 							.attr("width", 6)
-		// 							.attr("height", 6)
-		// 							.attr("opacity", 0.3)
-		// 							.on("mouseover", (event, d) => {
-
-		// 								let xPos = xScale(d["sugars"]);
-		// 								let yPos = yScale(d["calories"]) - 8;
-
-		// 								tooltip.attr("transform", `translate(${xPos}, ${yPos})`)
-		// 										.attr("opacity", 1)
-		// 										.text(d.name);
-
-		// 							})
-		// 							.on("mouseout", (event, d) => {
-
-		// 								tooltip.attr("opacity", 0);
-
-		// 							});
 
 		svgElement.select("#xAxis")
 				  .call(d3.axisBottom(xScale))

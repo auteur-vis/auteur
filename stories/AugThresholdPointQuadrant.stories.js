@@ -17,7 +17,7 @@ export const ToStorybook = () => {
 	const [yThreshold, setYThreshold] = React.useState(115);
 	const [mergeBy, setMergeBy] = useState("xor");
 
-	const ref = useRef("multi");
+	const ref = useRef("quadrant");
 	const chart = useRef(new Draught());
 	const newXThreshold = useRef(new Threshold("sugars", xThreshold, "leq"));
 	const newYThreshold = useRef(new Threshold("calories", yThreshold, "leq"));
