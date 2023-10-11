@@ -113,11 +113,19 @@ export default class Threshold extends DataFact {
 	}
 
 	// returns a list of [Aug Class]
-	intersect(df) {
-		if (df.name.startsWith("Threshold")) {
-			
+	// intersect(draught) {
+	// 	if (draught.name.startsWith("Threshold")) {
+	// 		let intersect_id = `${this._id}${draught._id}`;
 
-			return [lineAug1.getSpec(), lineAug2.getSpec(), colorAug.getSpec()]
-		}
-	}
+	// 		let other_augs = draught.getAugs();
+
+	// 		let opacityAug = new Aug(`${intersect_id}_opacity`, "threshold_opacity", "encoding", {"opacity":"1"}, this.generateEncoding(this._variable, this._val, this._type));
+
+	// 		let lineAug = new Aug(`${this._id}_line`, "threshold_line", "mark", {"mark":"line"}, this.generateLine(this._variable, this._val, this._type));
+	// 		let colorAug = new Aug(`${this._id}_color`, "threshold_color", "encoding", {"fill":"#eb4034"}, this.generateEncoding(this._variable, this._val, this._type));
+	// 		let textAug = new Aug(`${this._id}_text`, "threshold_text", "mark", {"mark":"text"}, this.generateText(this._variable, this._val, this._type));
+
+	// 		return [opacityAug.getSpec(), lineAug.getSpec(), colorAug.getSpec(), textAug.getSpec()]
+	// 	}
+	// }
 }

@@ -89,6 +89,7 @@ export const ToStorybook = () => {
 				  .attr("transform", `translate(${layout.marginLeft}, 0)`);
 
 		chart.current.chart(ref.current)
+					// .charttype("point") // point, bar, line...
 					.selection(scatterpoints)
 					.x("sugars", xScale)
 					.y("calories", yScale)
