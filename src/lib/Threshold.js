@@ -99,11 +99,12 @@ export default class Threshold extends DataFact {
 	getAugs() {
 
 		let lineAug = new Aug(`${this._id}_line`, "threshold_line", "mark", {"mark":"line"}, this.generateLine(this._variable, this._val, this._type), 1);
-		let colorAug = new Aug(`${this._id}_color`, "threshold_color", "encoding", {"fill":"#eb4034"}, this.generateEncoding(this._variable, this._val, this._type), 3);
 		let opacityAug = new Aug(`${this._id}_opacity`, "threshold_opacity", "encoding", {"opacity":"1"}, this.generateEncoding(this._variable, this._val, this._type), 2);
-		let textAug = new Aug(`${this._id}_text`, "threshold_text", "mark", {"mark":"text"}, this.generateText(this._variable, this._val, this._type), 4);
+		let strokeAug = new Aug(`${this._id}_stroke`, "threshold_stroke", "encoding", {"stroke":"black", "stroke-width":"1px"}, this.generateEncoding(this._variable, this._val, this._type), 3);
+		let colorAug = new Aug(`${this._id}_color`, "threshold_color", "encoding", {"fill":"#eb4034"}, this.generateEncoding(this._variable, this._val, this._type), 4);
+		let textAug = new Aug(`${this._id}_text`, "threshold_text", "mark", {"mark":"text"}, this.generateText(this._variable, this._val, this._type), 5);
 
-		return [opacityAug.getSpec(), lineAug.getSpec(), colorAug.getSpec(), textAug.getSpec()].sort(this._sort)
+		return [lineAug.getSpec(), opacityAug.getSpec(), strokeAug.getSpec(), colorAug.getSpec(), textAug.getSpec()].sort(this._sort)
 	}
 
 	updateVariable(variable) {
