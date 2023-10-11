@@ -92,7 +92,7 @@ export const ToStorybook = () => {
 					.selection(scatterpoints)
 					.x("sugars", xScale)
 					.y("calories", yScale)
-					.exclude({"rank":2})
+					.exclude({"rank":3})
 					.augment(newYThreshold.current.getAugs());
 
 	}, [data])
@@ -100,9 +100,8 @@ export const ToStorybook = () => {
 	useEffect(() => {
 
 		newYThreshold.current.updateVal(yThreshold);
-
 		let newAug2 = newYThreshold.current.getAugs();
-
+		
 		chart.current.augment(newAug2);
 
 	}, [yThreshold])

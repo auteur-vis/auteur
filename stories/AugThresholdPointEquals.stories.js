@@ -20,7 +20,6 @@ export const ToStorybook = () => {
 	const [xOperation, setXOperation] = useState("eq");
 	const [yOperation, setYOperation] = useState("eq");
 
-
 	const ref = useRef("multi");
 	const chart = useRef(new Draught());
 	const newXThreshold = useRef(new Threshold("sugars", xThreshold, xOperation,"sugars", "calories", xThreshold,yThreshold,xOperation,yOperation));
