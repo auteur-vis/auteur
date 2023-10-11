@@ -8,13 +8,14 @@ import cereal from "../public/cereal.json";
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
-  title: 'Aug/Threshold/Point/Multi',
+  title: 'Aug/Threshold/Point/Quadrant',
 };
 
 export const ToStorybook = () => {
 
 	const [xThreshold, setXThreshold] = React.useState(8);
 	const [yThreshold, setYThreshold] = React.useState(115);
+	const [mergeBy, setMergeBy] = useState("xor");
 
 	const ref = useRef("multi");
 	const chart = useRef(new Draught());
@@ -29,6 +30,22 @@ export const ToStorybook = () => {
 	   		   "marginRight":50,
 	   		   "marginBottom":50,
 	   		   "marginLeft":50};
+
+	function merge(threshold1, threshold2, mergeValue) {
+
+		if (mergeValue === "union") {
+			return threshold1.union(threshold2)
+		} else if (mergeValue === "intersect") {
+			return threshold1.intersect(threshold2)
+		} else if (mergeValue === "difference") {
+			return threshold1.difference(threshold2)
+		} else if (mergeValue === "xor") {
+			return threshold1.xor(threshold2)
+		}
+
+		return threshold1.getAugs().concat(threshold2.getAugs())
+
+	}
 
 	useEffect(() => {
 
@@ -93,19 +110,15 @@ export const ToStorybook = () => {
 					.selection(scatterpoints)
 					.x("sugars", xScale)
 					.y("calories", yScale)
-					.exclude({"type":["encoding"]})
-					.augment(newYThreshold.current.getAugs().concat(newXThreshold.current.getAugs()));
+					// .exclude({"type":["encoding"]})
+					.augment(merge(newXThreshold.current, newYThreshold.current, mergeBy));
 
 	}, [data])
 
 	useEffect(() => {
 
 		newYThreshold.current.updateVal(yThreshold);
-
-		let xAugs = newXThreshold.current.getAugs();
-		let yAugs = newYThreshold.current.getAugs();
-
-		let newAugs = xAugs.concat(yAugs);
+		let newAugs = merge(newXThreshold.current, newYThreshold.current, mergeBy);
 
 		chart.current.augment(newAugs);
 
@@ -114,15 +127,19 @@ export const ToStorybook = () => {
 	useEffect(() => {
 
 		newXThreshold.current.updateVal(xThreshold);
-
-		let xAugs = newXThreshold.current.getAugs();
-		let yAugs = newYThreshold.current.getAugs();
-
-		let newAugs = xAugs.concat(yAugs);
+		let newAugs = merge(newXThreshold.current, newYThreshold.current, mergeBy);
 
 		chart.current.augment(newAugs);
 
 	}, [xThreshold])
+
+	useEffect(() => {
+
+		let newAugs = merge(newXThreshold.current, newYThreshold.current, mergeBy);
+
+		chart.current.augment(newAugs);
+
+	}, [mergeBy])
 
 	function updateY(e) {
 		setYThreshold(e.target.value);
@@ -154,6 +171,15 @@ export const ToStorybook = () => {
 					value={yThreshold}
 					onChange={(e) => updateY(e)} />
 			</div>
+			<div>
+				<p>merge by: </p>
+				<select value={mergeBy} onChange={(e) => setMergeBy(e.target.value)}>
+					<option value="union">Union</option>
+					<option value="intersect">Intersect</option>
+					<option value="difference">Difference</option>
+					<option value="xor">xor</option>
+				</select>
+			</div>
 			<svg id="less" ref={ref}>
 				<g id="mark" />
 				<g id="xAxis" />
@@ -165,5 +191,5 @@ export const ToStorybook = () => {
 }
 
 ToStorybook.story = {
-  name: 'Multi',
+  name: 'Quadrant',
 };

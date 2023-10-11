@@ -182,11 +182,11 @@ export default class Draught {
 		// rank is exactly the same for both include and exclude
 		if (this._exclude && this._exclude["rank"]) {
 
-			filteredAugs = filteredAugs.slice(0, this._exclude["rank"]);
+			filteredAugs = filteredAugs.filter(d => d.rank <= this._exclude["rank"]);
 
 		} else if (this._include && this._include["rank"]) {
 
-			filteredAugs = filteredAugs.slice(0, this._include["rank"]);
+			filteredAugs = filteredAugs.filter(d => d.rank <= this._include["rank"]);
 
 		}
 
@@ -230,7 +230,7 @@ export default class Draught {
 
 						this._selection.style(e, d => {
 
-							if (a.generationCriteria(d)) {
+							if (a.generator(d)) {
 								return encodings[e];
 							} else {
 								return 0.25
@@ -242,7 +242,7 @@ export default class Draught {
 
 						this._selection.style(e, d => {
 
-							if (a.generationCriteria(d)) {
+							if (a.generator(d)) {
 								return encodings[e];
 							}
 							
@@ -255,7 +255,7 @@ export default class Draught {
 			} else if (a.type === "mark") {
 
 				// Check that the right x and y variables are used in chart
-				let draughtData = a.generationCriteria(this._xVar, this._yVar, this._xScale, this._yScale);
+				let draughtData = a.generator(this._xVar, this._yVar, this._xScale, this._yScale);
 
 				if (draughtData && a.encoding.mark === "line") {
 

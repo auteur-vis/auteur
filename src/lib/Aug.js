@@ -2,12 +2,13 @@ import { v4 as uuidv4 } from 'uuid';
 
 export default class Aug {
 
-	constructor(id, name="", type="", encoding={}, generate) {
+	constructor(id, name="", type="", encoding={}, generator, rank) {
 		this._id = id;
 		this._name = name;
 		this._type = type;
 		this._encoding = encoding;
-		this._generationCriteria = generate;
+		this._generator = generator;
+		this._rank = rank;
 	}
 
 	getSpec() {
@@ -15,7 +16,9 @@ export default class Aug {
 				"name": this._name,
 				"type": this._type,
 				"encoding": this._encoding,
-				"generationCriteria": this._generationCriteria}
+				"generator": this._generator,
+				"rank": this._rank
+			}
 	}
 
 }

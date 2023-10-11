@@ -16,9 +16,9 @@ let chartSpec = {"mark":"point", "x":"sugars", "y":"calories"};
 export const ToStorybook = () => {
 
 	const [xThreshold, setXThreshold] = React.useState(8);
-	const [yThreshold, setYThreshold] = React.useState(115);
-	const [xOperation, setXOperation] = useState("leq");
-	const [yOperation, setYOperation] = useState("leq");
+	const [yThreshold, setYThreshold] = React.useState(110);
+	const [xOperation, setXOperation] = useState("eq");
+	const [yOperation, setYOperation] = useState("eq");
 
 
 	const ref = useRef("multi");
@@ -98,18 +98,14 @@ export const ToStorybook = () => {
 					.x("sugars", xScale)
 					.y("calories", yScale)
 					.exclude()
-					.augment(newYThreshold.current.getAugs().concat(newXThreshold.current.getAugs()));
+					.augment(newXThreshold.current.union(newYThreshold.current));
 
 	}, [data])
 
 	useEffect(() => {
 
 		newYThreshold.current.updateVal(yThreshold);
-
-		let xAugs = newXThreshold.current.getAugs();
-		let yAugs = newYThreshold.current.getAugs();
-
-		let newAugs = xAugs.concat(yAugs);
+		let newAugs = newXThreshold.current.union(newYThreshold.current);
 
 		chart.current.augment(newAugs);
 
@@ -118,11 +114,7 @@ export const ToStorybook = () => {
 	useEffect(() => {
 
 		newXThreshold.current.updateVal(xThreshold);
-
-		let xAugs = newXThreshold.current.getAugs();
-		let yAugs = newYThreshold.current.getAugs();
-
-		let newAugs = xAugs.concat(yAugs);
+		let newAugs = newXThreshold.current.union(newYThreshold.current);
 
 		chart.current.augment(newAugs);
 
@@ -131,11 +123,7 @@ export const ToStorybook = () => {
 	useEffect(() => {
 
 		newYThreshold.current.updateType(yOperation);
-
-		let xAugs = newXThreshold.current.getAugs();
-		let yAugs = newYThreshold.current.getAugs();
-
-		let newAugs = xAugs.concat(yAugs);
+		let newAugs = newXThreshold.current.union(newYThreshold.current);
 
 		chart.current.augment(newAugs);
 
@@ -144,11 +132,7 @@ export const ToStorybook = () => {
 	useEffect(() => {
 
 		newXThreshold.current.updateType(xOperation);
-
-		let xAugs = newXThreshold.current.getAugs();
-		let yAugs = newYThreshold.current.getAugs();
-
-		let newAugs = xAugs.concat(yAugs);
+		let newAugs = newXThreshold.current.union(newYThreshold.current);
 
 		chart.current.augment(newAugs);
 
