@@ -4,7 +4,8 @@ import * as d3 from "d3";
 import Draught from "../src/lib/Draught.js";
 import Threshold from "../src/lib/Threshold.js";
 
-import cereal from "../public/cereal.json";
+// data from https://rkabacoff.github.io/qacData/reference/coffee.html
+import coffee from "../public/arabica_data_cleaned_top15.json";
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
@@ -13,13 +14,13 @@ export default {
 
 export const ToStorybook = () => {
 
-	const [yThreshold, setYThreshold] = React.useState(115);
+	const [yThreshold, setYThreshold] = React.useState(6.5);
 
 	const ref = useRef("less");
 	const chart = useRef(new Draught());
-	const newYThreshold = useRef(new Threshold("calories", yThreshold, "leq"));
+	const newYThreshold = useRef(new Threshold("Flavor", yThreshold, "leq"));
 
-	const [data, setData] = React.useState(cereal);
+	const [data, setData] = React.useState(coffee);
 
 	let layout={"width":500,
 	   		   "height":500,
@@ -43,15 +44,15 @@ export const ToStorybook = () => {
 				.attr("height", layout.height);
 
 		let xScale = d3.scaleLinear()
-							.domain(d3.extent(data, d => d["sugars"]))
+							.domain(d3.extent(data, d => d["Aroma"]))
 							.range([layout.marginLeft, layout.width - layout.marginRight]);
 
 		let yScale = d3.scaleLinear()
-							.domain(d3.extent(data, d => d["calories"]))
+							.domain(d3.extent(data, d => d["Flavor"]))
 							.range([layout.height - layout.marginBottom, layout.marginTop]);
 
 		let sizeScale = d3.scaleLinear()
-							.domain(d3.extent(data, d => d["calories"]))
+							.domain(d3.extent(data, d => d["Flavor"]))
 							.range([3, 6]);
 
 		let scatterpoints = svgElement.select("#mark")
@@ -59,15 +60,15 @@ export const ToStorybook = () => {
 									.data(data)
 									.join("rect")
 									.attr("class", "scatterpoint")
-									.attr("x", d => xScale(d["sugars"]) - 3)
-									.attr("y", d => yScale(d["calories"]) - 3)
+									.attr("x", d => xScale(d["Aroma"]) - 3)
+									.attr("y", d => yScale(d["Flavor"]) - 3)
 									.attr("width", 6)
 									.attr("height", 6)
 									.attr("opacity", 0.3)
 									.on("mouseover", (event, d) => {
 
-										let xPos = xScale(d["sugars"]);
-										let yPos = yScale(d["calories"]) - 8;
+										let xPos = xScale(d["Aroma"]);
+										let yPos = yScale(d["Flavor"]) - 8;
 
 										tooltip.attr("transform", `translate(${xPos}, ${yPos})`)
 												.attr("opacity", 1)
@@ -90,8 +91,8 @@ export const ToStorybook = () => {
 
 		chart.current.chart(ref.current)
 					.selection(scatterpoints)
-					.x("sugars", xScale)
-					.y("calories", yScale)
+					.x("Aroma", xScale)
+					.y("Flavor", yScale)
 					.exclude({"rank":3})
 					.augment(newYThreshold.current.getAugs());
 
@@ -118,7 +119,8 @@ export const ToStorybook = () => {
 					type="range"
 					id="quantity"
 					name="quantity"
-					min="60" max="160"
+					min="6" max="9"
+					step="0.01"
 					value={yThreshold}
 					onChange={(e) => updateY(e)} />
 			</div>

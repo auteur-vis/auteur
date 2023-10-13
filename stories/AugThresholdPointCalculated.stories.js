@@ -4,7 +4,8 @@ import * as d3 from "d3";
 import Draught from "../src/lib/Draught.js";
 import Threshold from "../src/lib/Threshold.js";
 
-import cereal from "../public/cereal.json";
+// data from https://rkabacoff.github.io/qacData/reference/coffee.html
+import coffee from "../public/arabica_data_cleaned_top15.json";
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
@@ -13,14 +14,14 @@ export default {
 
 export const ToStorybook = () => {
 
-	const [yThreshold, setYThreshold] = React.useState(d3.mean(cereal, d => d.calories));
+	const [yThreshold, setYThreshold] = React.useState(d3.mean(coffee, d => d.Flavor));
 	const [yStatistic, setYStatistic] = useState("mean");
 
 	const ref = useRef("calculated");
 	const chart = useRef(new Draught());
-	const newYThreshold = useRef(new Threshold("calories", yThreshold, "leq"));
+	const newYThreshold = useRef(new Threshold("Flavor", yThreshold, "eq"));
 
-	const [data, setData] = React.useState(cereal);
+	const [data, setData] = React.useState(coffee);
 
 	let layout={"width":500,
 	   		   "height":500,
@@ -44,33 +45,31 @@ export const ToStorybook = () => {
 				.attr("height", layout.height);
 
 		let xScale = d3.scaleLinear()
-							.domain(d3.extent(data, d => d["sugars"]))
+							.domain(d3.extent(data, d => d["Aroma"]))
 							.range([layout.marginLeft, layout.width - layout.marginRight]);
 
 		let yScale = d3.scaleLinear()
-							.domain(d3.extent(data, d => d["calories"]))
+							.domain(d3.extent(data, d => d["Flavor"]))
 							.range([layout.height - layout.marginBottom, layout.marginTop]);
-
-		let sizeScale = d3.scaleLinear()
-							.domain(d3.extent(data, d => d["calories"]))
-							.range([3, 6]);
 
 		let scatterpoints = svgElement.select("#mark")
 									.selectAll(".scatterpoint")
 									.data(data)
 									.join("circle")
 									.attr("class", "scatterpoint")
-									.attr("cx", d => xScale(d["sugars"]) + Math.random() * 8 - 4)
-									.attr("cy", d => yScale(d["calories"]) + Math.random() * 8 - 4)
+									.attr("cx", d => xScale(d["Aroma"]) + Math.random() * 8 - 4)
+									.attr("cy", d => yScale(d["Flavor"]) + Math.random() * 8 - 4)
 									.attr("r", d => 3)
+									.attr("fill", "none")
+									.attr("stroke", "steelblue")
 									.on("mouseover", (event, d) => {
 
-										let xPos = xScale(d["sugars"]);
-										let yPos = yScale(d["calories"]) - 8;
+										let xPos = xScale(d["Aroma"]);
+										let yPos = yScale(d["Flavor"]) - 8;
 
 										tooltip.attr("transform", `translate(${xPos}, ${yPos})`)
 												.attr("opacity", 1)
-												.text(d.name);
+												.text(d["Country"]);
 
 									})
 									.on("mouseout", (event, d) => {
@@ -83,14 +82,32 @@ export const ToStorybook = () => {
 				  .call(d3.axisBottom(xScale))
 				  .attr("transform", `translate(0, ${layout.height - layout.marginBottom})`);
 
+		svgElement.select("#xAxis").selectAll("#xTitle")
+				  .data(["Aroma"])
+				  .join("text")
+				  .attr("id", "xTitle")
+				  .attr("text-anchor", "middle")
+				  .attr("transform", `translate(${layout.width/2}, 30)`)
+				  .attr("fill", "black")
+				  .text(d => d);
+
 		svgElement.select("#yAxis")
 				  .call(d3.axisLeft(yScale).ticks(5))
 				  .attr("transform", `translate(${layout.marginLeft}, 0)`);
 
+		svgElement.select("#yAxis").selectAll("#yTitle")
+				  .data(["Flavor"])
+				  .join("text")
+				  .attr("id", "yTitle")
+				  .attr("text-anchor", "middle")
+				  .attr("transform", `translate(0, 40)`)
+				  .attr("fill", "black")
+				  .text(d => d)
+
 		chart.current.chart(ref.current)
 					.selection(scatterpoints)
-					.x("sugars", xScale)
-					.y("calories", yScale)
+					.x("Aroma", xScale)
+					.y("Flavor", yScale)
 					.augment(newYThreshold.current.getAugs());
 
 	}, [data])
@@ -108,13 +125,13 @@ export const ToStorybook = () => {
 	useEffect(() => {
 
 		if (yStatistic === "min") {
-			setYThreshold(Math.round(d3.min(cereal, d => d.calories)));
+			setYThreshold(d3.min(coffee, d => d.Flavor));
 		} else if (yStatistic === "mean") {
-			setYThreshold(Math.round(d3.mean(cereal, d => d.calories)));
+			setYThreshold(d3.mean(coffee, d => d.Flavor));
 		} else if (yStatistic === "median") {
-			setYThreshold(Math.round(d3.median(cereal, d => d.calories)));
+			setYThreshold(d3.median(coffee, d => d.Flavor));
 		} else if (yStatistic === "max") {
-			setYThreshold(Math.round(d3.max(cereal, d => d.calories)));
+			setYThreshold(d3.max(coffee, d => d.Flavor));
 		}
 
 	}, [yStatistic])
@@ -126,7 +143,7 @@ export const ToStorybook = () => {
 	return (
 		<div>
 			<div>
-				<p>y statistic: </p>
+				<p>y-statistic: </p>
 				<select value={yStatistic} onChange={(e) => updateY(e)}>
 					<option value="min">Min</option>
 					<option value="mean">Mean</option>

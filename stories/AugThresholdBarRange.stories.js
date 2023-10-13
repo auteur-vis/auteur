@@ -4,7 +4,8 @@ import * as d3 from "d3";
 import Draught from "../src/lib/Draught.js";
 import Threshold from "../src/lib/Threshold.js";
 
-import cereal from "../public/cereal.json";
+// data from https://rkabacoff.github.io/qacData/reference/coffee.html
+import coffee from "../public/arabica_data_cleaned_top15.json";
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
@@ -13,11 +14,11 @@ export default {
 
 export const ToStorybook = () => {
 
-	let group = d3.group(cereal, d => d["mfr"]);
-	let groupedData = [...group.entries()].map(d => { return {"mfr":d[0], "entries":d[1], "count":d[1].length} }).sort((a, b) => a.count - b.count);
+	let group = d3.group(coffee, d => d["Country"]);
+	let groupedData = [...group.entries()].map(d => { return {"Country":d[0], "entries":d[1], "count":d[1].length} }).sort((a, b) => a.count - b.count);
 	
-	const [maxThreshold, setMaxThreshold] = React.useState(17);
-	const [minThreshold, setMinThreshold] = React.useState(7);
+	const [maxThreshold, setMaxThreshold] = React.useState(70);
+	const [minThreshold, setMinThreshold] = React.useState(30);
 
 	const ref = useRef("barrange");
 	const chart = useRef(new Draught());
@@ -26,7 +27,7 @@ export const ToStorybook = () => {
 
 	const [data, setData] = React.useState(groupedData);
 
-	let layout={"width":500,
+	let layout={"width":1200,
 	   		   "height":500,
 	   		   "marginTop":50,
 	   		   "marginRight":50,
@@ -48,7 +49,7 @@ export const ToStorybook = () => {
 				.attr("height", layout.height);
 
 		let xScale = d3.scaleBand()
-						.domain(data.map(d => d["mfr"]))
+						.domain(data.map(d => d["Country"]))
 						.range([layout.marginLeft, layout.width - layout.marginRight]);
 
 		let yScale = d3.scaleLinear()
@@ -60,7 +61,7 @@ export const ToStorybook = () => {
 							.data(data)
 							.join("rect")
 							.attr("class", "bar")
-							.attr("x", d => xScale(d["mfr"]) + 1)
+							.attr("x", d => xScale(d["Country"]) + 1)
 							.attr("y", d => yScale(d["count"]))
 							.attr("width", xScale.bandwidth() - 2)
 							.attr("height", d => yScale(0) - yScale(d["count"]))
@@ -68,12 +69,12 @@ export const ToStorybook = () => {
 							.attr("fill-opacity", 0.25)
 							.on("mouseover", (event, d) => {
 
-								let xPos = xScale(d["mfr"]) + xScale.bandwidth() / 2;
+								let xPos = xScale(d["Country"]) + xScale.bandwidth() / 2;
 								let yPos = yScale(d["count"]) - 8;
 
 								tooltip.attr("transform", `translate(${xPos}, ${yPos})`)
 										.attr("opacity", 1)
-										.text(`${d.count} cereals`);
+										.text(`${d.count} coffees`);
 
 							})
 							.on("mouseout", (event, d) => {
@@ -125,29 +126,33 @@ export const ToStorybook = () => {
 		setMinThreshold(e.target.value);
 	}
 
+	let controlStyle = {"display":"flex"};
+
 	return (
 		<div>
-			<div>
-				<p>max threshold: </p>
+			<div style={controlStyle}>
+				<p>min coffees: 0</p>
 				<input
 					type="range"
 					id="quantity"
 					name="quantity"
-					min="12" max="23"
-					step="0.5"
-					value={maxThreshold}
-					onChange={(e) => updateMax(e)} />
-			</div>
-			<div>
-				<p>min threshold: </p>
-				<input
-					type="range"
-					id="quantity"
-					name="quantity"
-					min="0" max="12"
+					min="0" max="65"
 					step="0.5"
 					value={minThreshold}
 					onChange={(e) => updateMin(e)} />
+				<p>65</p>
+			</div>
+			<div style={controlStyle}>
+				<p>max coffees: 65</p>
+				<input
+					type="range"
+					id="quantity"
+					name="quantity"
+					min="65" max="236"
+					step="0.5"
+					value={maxThreshold}
+					onChange={(e) => updateMax(e)} />
+				<p>236</p>
 			</div>
 			<svg id="barless" ref={ref}>
 				<g id="mark" />

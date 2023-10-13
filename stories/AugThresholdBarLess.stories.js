@@ -4,7 +4,8 @@ import * as d3 from "d3";
 import Draught from "../src/lib/Draught.js";
 import Threshold from "../src/lib/Threshold.js";
 
-import cereal from "../public/cereal.json";
+// data from https://rkabacoff.github.io/qacData/reference/coffee.html
+import coffee from "../public/arabica_data_cleaned_top15.json";
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
@@ -13,10 +14,10 @@ export default {
 
 export const ToStorybook = () => {
 
-	let group = d3.group(cereal, d => d["mfr"]);
-	let groupedData = [...group.entries()].map(d => { return {"mfr":d[0], "entries":d[1], "count":d[1].length} });
+	let group = d3.group(coffee, d => d["Country"]);
+	let groupedData = [...group.entries()].map(d => { return {"Country":d[0], "entries":d[1], "count":d[1].length} }).sort((a, b) => a.count - b.count);
 	
-	const [barThreshold, setBarThreshold] = React.useState(8.5);
+	const [barThreshold, setBarThreshold] = React.useState(150);
 	const [barOperation, setBarOperation] = useState("leq");
 
 	const ref = useRef("barless");
@@ -25,7 +26,7 @@ export const ToStorybook = () => {
 
 	const [data, setData] = React.useState(groupedData);
 
-	let layout={"width":500,
+	let layout={"width":1200,
 	   		   "height":500,
 	   		   "marginTop":50,
 	   		   "marginRight":50,
@@ -47,7 +48,7 @@ export const ToStorybook = () => {
 				.attr("height", layout.height);
 
 		let xScale = d3.scaleBand()
-						.domain(data.map(d => d["mfr"]))
+						.domain(data.map(d => d["Country"]))
 						.range([layout.marginLeft, layout.width - layout.marginRight]);
 
 		let yScale = d3.scaleLinear()
@@ -59,19 +60,19 @@ export const ToStorybook = () => {
 							.data(data)
 							.join("rect")
 							.attr("class", "bar")
-							.attr("x", d => xScale(d["mfr"]) + 1)
+							.attr("x", d => xScale(d["Country"]) + 1)
 							.attr("y", d => yScale(d["count"]))
 							.attr("width", xScale.bandwidth() - 2)
 							.attr("height", d => yScale(0) - yScale(d["count"]))
 							.attr("fill", "steelblue")
 							.on("mouseover", (event, d) => {
 
-								let xPos = xScale(d["mfr"]) + xScale.bandwidth() / 2;
+								let xPos = xScale(d["Country"]) + xScale.bandwidth() / 2;
 								let yPos = yScale(d["count"]) - 8;
 
 								tooltip.attr("transform", `translate(${xPos}, ${yPos})`)
 										.attr("opacity", 1)
-										.text(`${d.count} cereals`);
+										.text(`${d.count} coffees`);
 
 							})
 							.on("mouseout", (event, d) => {
@@ -127,8 +128,7 @@ export const ToStorybook = () => {
 					type="range"
 					id="quantity"
 					name="quantity"
-					min="0" max="23"
-					step="0.5"
+					min="0" max="236"
 					value={barThreshold}
 					onChange={(e) => updateY(e)} />
 			</div>

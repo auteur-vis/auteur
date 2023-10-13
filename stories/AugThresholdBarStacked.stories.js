@@ -4,7 +4,8 @@ import * as d3 from "d3";
 import Draught from "../src/lib/Draught.js";
 import Threshold from "../src/lib/Threshold.js";
 
-import cereal from "../public/cereal.json";
+// data from https://rkabacoff.github.io/qacData/reference/coffee.html
+import coffee from "../public/arabica_data_cleaned_top15.json";
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
@@ -13,22 +14,20 @@ export default {
 
 export const ToStorybook = () => {
 
-	// console.log(d3.group(cereal, d => d.mfr, d => d.type));
-
 	let series = d3.stack()
-					.keys(["C", "H"])
-					.value(([, D], key) => D.get(key) ? D.get(key).length : 0)(d3.group(cereal, d => d.mfr, d => d.type));
+					.keys(Array.from(new Set(coffee.map(d => d.Variety))))
+					.value(([, D], key) => D.get(key) ? D.get(key).length : 0)(d3.group(coffee, d => d["Country"], d => d.Variety));
 	let flatten = [];
 
 	for (let t of series) {
 
-		let type = t.key;
+		let variety = t.key;
 
 		for (let m of t) {
 
-			let mfr = m.data[0];
+			let country = m.data[0];
 
-			flatten.push({"mfr":mfr, "type":type, "0":m[0], "1":m[1], "count":m[1] - m[0]});
+			flatten.push({"country":country, "variety":variety, "0":m[0], "1":m[1], "count":m[1] - m[0]});
 		}
 
 	}
@@ -38,12 +37,12 @@ export const ToStorybook = () => {
 
 	const ref = useRef("barstacked");
 	const chart = useRef(new Draught());
-	const newMaxThreshold = useRef(new Threshold("count", maxThreshold, "le"));
+	const newMaxThreshold = useRef(new Threshold("count", maxThreshold, "leq"));
 	const newMinThreshold = useRef(new Threshold("count", minThreshold, "ge"));
 
 	const [data, setData] = React.useState(flatten);
 
-	let layout={"width":500,
+	let layout={"width":1200,
 	   		   "height":500,
 	   		   "marginTop":50,
 	   		   "marginRight":50,
@@ -65,32 +64,35 @@ export const ToStorybook = () => {
 				.attr("height", layout.height);
 
 		let xScale = d3.scaleBand()
-						.domain(data.map(d => d["mfr"]))
+						.domain(data.map(d => d.country).sort())
 						.range([layout.marginLeft, layout.width - layout.marginRight]);
 
 		let yScale = d3.scaleLinear()
 						.domain([0, d3.max(data, d => d["1"])])
 						.range([layout.height - layout.marginBottom, layout.marginTop]);
 
+		let colorScale = d3.scaleOrdinal(d3.schemeTableau10)
+							.domain(d3.extent(data, d => d.variety))
+
 		let bars = svgElement.select("#mark")
 							.selectAll(".bar")
 							.data(data)
 							.join("rect")
 							.attr("class", "bar")
-							.attr("x", d => xScale(d["mfr"]) + 1)
+							.attr("x", d => xScale(d.country) + 1)
 							.attr("y", d => yScale(d["1"]))
 							.attr("width", xScale.bandwidth() - 2)
 							.attr("height", d => yScale(d["0"]) - yScale(d["1"]))
-							.attr("fill", d => d.type === "C" ? "steelblue" : "orange")
+							.attr("fill", d => colorScale(d.variety))
 							.attr("opacity", 0.25)
 							.on("mouseover", (event, d) => {
 
-								let xPos = xScale(d["mfr"]) + xScale.bandwidth() / 2;
-								let yPos = yScale(d["1"]) - 8;
+								let xPos = xScale(d.country) + xScale.bandwidth() / 2;
+								let yPos = yScale(d["1"]) + 8;
 
 								tooltip.attr("transform", `translate(${xPos}, ${yPos})`)
 										.attr("opacity", 1)
-										.text(`${d.count} cereals`);
+										.text(`${d.variety} variety: ${d.count} coffees`);
 
 							})
 							.on("mouseout", (event, d) => {
@@ -111,7 +113,7 @@ export const ToStorybook = () => {
 					.selection(bars)
 					.x("mfr", xScale)
 					.y("count", yScale)
-					.exclude({"name":["line", "color", "stroke", "text"]})
+					.include({"name":["opacity"]})
 					.augment(newMaxThreshold.current.intersect(newMinThreshold.current));
 
 	}, [data])
@@ -148,7 +150,7 @@ export const ToStorybook = () => {
 	return (
 		<div>
 			<div style={controlStyle}>
-				<p style={paragraphStyle}>highlighting cereal types with between </p>
+				<p style={paragraphStyle}>highlighting coffees with between </p>
 				<input
 					type="number"
 					id="quantity"
@@ -161,10 +163,10 @@ export const ToStorybook = () => {
 					type="number"
 					id="quantity"
 					name="quantity"
-					min="12" max="23"
+					min="0" max="23"
 					value={maxThreshold}
 					onChange={(e) => updateMax(e)} />
-				<p style={paragraphStyle}>products:</p>
+				<p style={paragraphStyle}>varieties per country:</p>
 			</div>
 			<svg id="barless" ref={ref}>
 				<g id="mark" />
