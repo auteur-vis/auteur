@@ -1,46 +1,31 @@
 import React, {useRef, useState, useEffect} from "react";
 import * as d3 from "d3";
 
-import Draught from "../src/lib/Draught.js";
-import Threshold from "../src/lib/Threshold.js";
+import Draught from "../../src/lib/Draught.js";
+import Threshold from "../../src/lib/Threshold.js";
 
 // data from https://rkabacoff.github.io/qacData/reference/coffee.html
-import coffee from "../public/arabica_data_cleaned_top15.json";
+import coffee from "../../public/arabica_data_cleaned_top15.json";
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
-  title: 'Aug/Threshold/Bar/Stacked',
+  title: 'Aug/Threshold/Bar/Range',
 };
 
 export const ToStorybook = () => {
 
-	let series = d3.stack()
-					.keys(Array.from(new Set(coffee.map(d => d.Variety))))
-					.value(([, D], key) => D.get(key) ? D.get(key).length : 0)(d3.group(coffee, d => d["Country"], d => d.Variety));
-	let flatten = [];
-
-	for (let t of series) {
-
-		let variety = t.key;
-
-		for (let m of t) {
-
-			let country = m.data[0];
-
-			flatten.push({"country":country, "variety":variety, "0":m[0], "1":m[1], "count":m[1] - m[0]});
-		}
-
-	}
+	let group = d3.group(coffee, d => d["Country"]);
+	let groupedData = [...group.entries()].map(d => { return {"Country":d[0], "entries":d[1], "count":d[1].length} }).sort((a, b) => a.count - b.count);
 	
-	const [maxThreshold, setMaxThreshold] = React.useState(5);
-	const [minThreshold, setMinThreshold] = React.useState(0);
+	const [maxThreshold, setMaxThreshold] = React.useState(70);
+	const [minThreshold, setMinThreshold] = React.useState(30);
 
-	const ref = useRef("barstacked");
+	const ref = useRef("barrange");
 	const chart = useRef(new Draught());
 	const newMaxThreshold = useRef(new Threshold("count", maxThreshold, "leq"));
-	const newMinThreshold = useRef(new Threshold("count", minThreshold, "ge"));
+	const newMinThreshold = useRef(new Threshold("count", minThreshold, "geq"));
 
-	const [data, setData] = React.useState(flatten);
+	const [data, setData] = React.useState(groupedData);
 
 	let layout={"width":1200,
 	   		   "height":500,
@@ -64,35 +49,32 @@ export const ToStorybook = () => {
 				.attr("height", layout.height);
 
 		let xScale = d3.scaleBand()
-						.domain(data.map(d => d.country).sort())
+						.domain(data.map(d => d["Country"]))
 						.range([layout.marginLeft, layout.width - layout.marginRight]);
 
 		let yScale = d3.scaleLinear()
-						.domain([0, d3.max(data, d => d["1"])])
+						.domain([0, d3.max(data, d => d["count"])])
 						.range([layout.height - layout.marginBottom, layout.marginTop]);
-
-		let colorScale = d3.scaleOrdinal(d3.schemeTableau10)
-							.domain(d3.extent(data, d => d.variety))
 
 		let bars = svgElement.select("#mark")
 							.selectAll(".bar")
 							.data(data)
 							.join("rect")
 							.attr("class", "bar")
-							.attr("x", d => xScale(d.country) + 1)
-							.attr("y", d => yScale(d["1"]))
+							.attr("x", d => xScale(d["Country"]) + 1)
+							.attr("y", d => yScale(d["count"]))
 							.attr("width", xScale.bandwidth() - 2)
-							.attr("height", d => yScale(d["0"]) - yScale(d["1"]))
-							.attr("fill", d => colorScale(d.variety))
-							.attr("opacity", 0.25)
+							.attr("height", d => yScale(0) - yScale(d["count"]))
+							.attr("fill", "steelblue")
+							.attr("fill-opacity", 0.25)
 							.on("mouseover", (event, d) => {
 
-								let xPos = xScale(d.country) + xScale.bandwidth() / 2;
-								let yPos = yScale(d["1"]) + 8;
+								let xPos = xScale(d["Country"]) + xScale.bandwidth() / 2;
+								let yPos = yScale(d["count"]) - 8;
 
 								tooltip.attr("transform", `translate(${xPos}, ${yPos})`)
 										.attr("opacity", 1)
-										.text(`${d.variety} variety: ${d.count} coffees`);
+										.text(`${d.count} coffees`);
 
 							})
 							.on("mouseout", (event, d) => {
@@ -111,9 +93,9 @@ export const ToStorybook = () => {
 
 		chart.current.chart(ref.current)
 					.selection(bars)
-					.x("mfr", xScale)
+					.x("country", xScale)
 					.y("count", yScale)
-					.include({"name":["opacity"]})
+					.include({"name":["line", "stroke", "text"]})
 					.augment(newMaxThreshold.current.intersect(newMinThreshold.current));
 
 	}, [data])
@@ -145,28 +127,32 @@ export const ToStorybook = () => {
 	}
 
 	let controlStyle = {"display":"flex"};
-	let paragraphStyle = {"margin":"3px"};
 
 	return (
 		<div>
 			<div style={controlStyle}>
-				<p style={paragraphStyle}>highlighting coffees with between </p>
+				<p>min coffees: 0</p>
 				<input
-					type="number"
+					type="range"
 					id="quantity"
 					name="quantity"
-					min="0" max="12"
+					min="0" max="65"
+					step="0.5"
 					value={minThreshold}
 					onChange={(e) => updateMin(e)} />
-				<p style={paragraphStyle}>and</p>
+				<p>65</p>
+			</div>
+			<div style={controlStyle}>
+				<p>max coffees: 65</p>
 				<input
-					type="number"
+					type="range"
 					id="quantity"
 					name="quantity"
-					min="0" max="23"
+					min="65" max="236"
+					step="0.5"
 					value={maxThreshold}
 					onChange={(e) => updateMax(e)} />
-				<p style={paragraphStyle}>varieties per country:</p>
+				<p>236</p>
 			</div>
 			<svg id="barless" ref={ref}>
 				<g id="mark" />
@@ -179,5 +165,5 @@ export const ToStorybook = () => {
 }
 
 ToStorybook.story = {
-  name: 'Stacked',
+  name: 'Range',
 };

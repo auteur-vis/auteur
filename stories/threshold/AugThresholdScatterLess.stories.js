@@ -1,28 +1,24 @@
 import React, {useRef, useState, useEffect} from "react";
 import * as d3 from "d3";
 
-import Draught from "../src/lib/Draught.js";
-import Threshold from "../src/lib/Threshold.js";
+import Draught from "../../src/lib/Draught.js";
+import Threshold from "../../src/lib/Threshold.js";
 
 // data from https://rkabacoff.github.io/qacData/reference/coffee.html
-import coffee from "../public/arabica_data_cleaned_top15.json";
+import coffee from "../../public/arabica_data_cleaned_top15.json";
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
-  title: 'Aug/Threshold/Point/Equals',
+  title: 'Aug/Threshold/Scatter/Less',
 };
 
 export const ToStorybook = () => {
 
-	const [xThreshold, setXThreshold] = React.useState(8);
-	const [yThreshold, setYThreshold] = React.useState(8);
-	const [xOperation, setXOperation] = useState("eq");
-	const [yOperation, setYOperation] = useState("eq");
+	const [yThreshold, setYThreshold] = React.useState(6.5);
 
-	const ref = useRef("multi");
+	const ref = useRef("less");
 	const chart = useRef(new Draught());
-	const newXThreshold = useRef(new Threshold("Aroma", xThreshold, xOperation));
-	const newYThreshold = useRef(new Threshold("Flavor", yThreshold, yOperation));
+	const newYThreshold = useRef(new Threshold("Flavor", yThreshold, "leq"));
 
 	const [data, setData] = React.useState(coffee);
 
@@ -62,11 +58,13 @@ export const ToStorybook = () => {
 		let scatterpoints = svgElement.select("#mark")
 									.selectAll(".scatterpoint")
 									.data(data)
-									.join("circle")
+									.join("rect")
 									.attr("class", "scatterpoint")
-									.attr("cx", d => xScale(d["Aroma"]) + Math.random() * 8 - 4)
-									.attr("cy", d => yScale(d["Flavor"]) + Math.random() * 8 - 4)
-									.attr("r", d => 3)
+									.attr("x", d => xScale(d["Aroma"]) - 3)
+									.attr("y", d => yScale(d["Flavor"]) - 3)
+									.attr("width", 6)
+									.attr("height", 6)
+									.attr("opacity", 0.3)
 									.on("mouseover", (event, d) => {
 
 										let xPos = xScale(d["Aroma"]);
@@ -87,76 +85,52 @@ export const ToStorybook = () => {
 				  .call(d3.axisBottom(xScale))
 				  .attr("transform", `translate(0, ${layout.height - layout.marginBottom})`);
 
+		svgElement.select("#xAxis").selectAll("#xTitle")
+				  .data(["Aroma"])
+				  .join("text")
+				  .attr("id", "xTitle")
+				  .attr("text-anchor", "middle")
+				  .attr("transform", `translate(${layout.width/2}, 30)`)
+				  .attr("fill", "black")
+				  .text(d => d);
+
 		svgElement.select("#yAxis")
 				  .call(d3.axisLeft(yScale).ticks(5))
 				  .attr("transform", `translate(${layout.marginLeft}, 0)`);
+
+		svgElement.select("#yAxis").selectAll("#yTitle")
+				  .data(["Flavor"])
+				  .join("text")
+				  .attr("id", "yTitle")
+				  .attr("text-anchor", "middle")
+				  .attr("transform", `translate(0, 40)`)
+				  .attr("fill", "black")
+				  .text(d => d)
 
 		chart.current.chart(ref.current)
 					.selection(scatterpoints)
 					.x("Aroma", xScale)
 					.y("Flavor", yScale)
-					.exclude()
-					.augment(newXThreshold.current.union(newYThreshold.current));
+					.exclude({"rank":3})
+					.augment(newYThreshold.current.getAugs());
 
 	}, [data])
 
 	useEffect(() => {
 
 		newYThreshold.current.updateVal(yThreshold);
-		let newAugs = newXThreshold.current.union(newYThreshold.current);
-
-		chart.current.augment(newAugs);
+		let newAug2 = newYThreshold.current.getAugs();
+		
+		chart.current.augment(newAug2);
 
 	}, [yThreshold])
-
-	useEffect(() => {
-
-		newXThreshold.current.updateVal(xThreshold);
-		let newAugs = newXThreshold.current.union(newYThreshold.current);
-
-		chart.current.augment(newAugs);
-
-	}, [xThreshold])
-
-	useEffect(() => {
-
-		newYThreshold.current.updateType(yOperation);
-		let newAugs = newXThreshold.current.union(newYThreshold.current);
-
-		chart.current.augment(newAugs);
-
-	}, [yOperation])
-
-	useEffect(() => {
-
-		newXThreshold.current.updateType(xOperation);
-		let newAugs = newXThreshold.current.union(newYThreshold.current);
-
-		chart.current.augment(newAugs);
-
-	}, [xOperation])
 
 	function updateY(e) {
 		setYThreshold(e.target.value);
 	}
 
-	function updateX(e) {
-		setXThreshold(e.target.value);
-	}
-
 	return (
 		<div>
-			<div>
-				<p>x-axis threshold: </p>
-				<input
-					type="range"
-					id="quantity"
-					name="quantity"
-					min="5" max="9"
-					step="0.01"
-					value={xThreshold}
-					onChange={(e) => updateX(e)} />
-			</div>
 			<div>
 				<p>y-axis threshold: </p>
 				<input
@@ -167,26 +141,6 @@ export const ToStorybook = () => {
 					step="0.01"
 					value={yThreshold}
 					onChange={(e) => updateY(e)} />
-			</div>
-			<div>
-				<p>x-axis operation: </p>
-				<select value={xOperation} onChange={(e) => setXOperation(e.target.value)}>
-					<option value="eq">Equals</option>
-					<option value="le">Less Than</option>
-					<option value="leq">Less Than or Equals To</option>
-					<option value="ge">Greater Than</option>
-					<option value="geq">Greater Than or Equals to</option>
-				</select>
-			</div>
-			<div>
-				<p>y-axis operation: </p>
-				<select value={yOperation} onChange={(e) => setYOperation(e.target.value)}>
-					<option value="eq">Equals</option>
-					<option value="le">Less Than</option>
-					<option value="leq">Less Than or Equals To</option>
-					<option value="ge">Greater Than</option>
-					<option value="geq">Greater Than or Equals To</option>
-				</select>
 			</div>
 			<svg id="less" ref={ref}>
 				<g id="mark" />
@@ -199,5 +153,5 @@ export const ToStorybook = () => {
 }
 
 ToStorybook.story = {
-  name: 'Equals',
+  name: 'Less',
 };

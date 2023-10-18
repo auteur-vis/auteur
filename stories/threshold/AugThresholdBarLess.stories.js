@@ -1,15 +1,15 @@
 import React, {useRef, useState, useEffect} from "react";
 import * as d3 from "d3";
 
-import Draught from "../src/lib/Draught.js";
-import Threshold from "../src/lib/Threshold.js";
+import Draught from "../../src/lib/Draught.js";
+import Threshold from "../../src/lib/Threshold.js";
 
 // data from https://rkabacoff.github.io/qacData/reference/coffee.html
-import coffee from "../public/arabica_data_cleaned_top15.json";
+import coffee from "../../public/arabica_data_cleaned_top15.json";
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
-  title: 'Aug/Threshold/Bar/Range',
+  title: 'Aug/Threshold/Bar/Less',
 };
 
 export const ToStorybook = () => {
@@ -17,13 +17,12 @@ export const ToStorybook = () => {
 	let group = d3.group(coffee, d => d["Country"]);
 	let groupedData = [...group.entries()].map(d => { return {"Country":d[0], "entries":d[1], "count":d[1].length} }).sort((a, b) => a.count - b.count);
 	
-	const [maxThreshold, setMaxThreshold] = React.useState(70);
-	const [minThreshold, setMinThreshold] = React.useState(30);
+	const [barThreshold, setBarThreshold] = React.useState(150);
+	const [barOperation, setBarOperation] = useState("leq");
 
-	const ref = useRef("barrange");
+	const ref = useRef("barless");
 	const chart = useRef(new Draught());
-	const newMaxThreshold = useRef(new Threshold("count", maxThreshold, "leq"));
-	const newMinThreshold = useRef(new Threshold("count", minThreshold, "geq"));
+	const newBarThreshold = useRef(new Threshold("count", barThreshold, barOperation));
 
 	const [data, setData] = React.useState(groupedData);
 
@@ -66,7 +65,6 @@ export const ToStorybook = () => {
 							.attr("width", xScale.bandwidth() - 2)
 							.attr("height", d => yScale(0) - yScale(d["count"]))
 							.attr("fill", "steelblue")
-							.attr("fill-opacity", 0.25)
 							.on("mouseover", (event, d) => {
 
 								let xPos = xScale(d["Country"]) + xScale.bandwidth() / 2;
@@ -93,66 +91,56 @@ export const ToStorybook = () => {
 
 		chart.current.chart(ref.current)
 					.selection(bars)
-					.x("mfr", xScale)
+					.x("country", xScale)
 					.y("count", yScale)
-					.include({"name":["line", "stroke", "text"]})
-					.augment(newMaxThreshold.current.intersect(newMinThreshold.current));
+					.exclude({"name":["fill", "stroke"]})
+					.augment(newBarThreshold.current.getAugs());
 
 	}, [data])
 
 	useEffect(() => {
 
-		newMaxThreshold.current.updateVal(maxThreshold);
-		let newAugs = newMaxThreshold.current.intersect(newMinThreshold.current);
+		newBarThreshold.current.updateVal(barThreshold);
+		let newAug2 = newBarThreshold.current.getAugs();
 
-		chart.current.augment(newAugs);
+		chart.current.augment(newAug2);
 
-	}, [maxThreshold])
+	}, [barThreshold])
 
 	useEffect(() => {
 
-		newMinThreshold.current.updateVal(minThreshold);
-		let newAugs = newMaxThreshold.current.intersect(newMinThreshold.current);
+		newBarThreshold.current.updateType(barOperation);
+		let newAugs = newBarThreshold.current.getAugs();
 
 		chart.current.augment(newAugs);
 
-	}, [minThreshold])
+	}, [barOperation])
 
-	function updateMax(e) {
-		setMaxThreshold(e.target.value);
+	function updateY(e) {
+		setBarThreshold(e.target.value);
 	}
-
-	function updateMin(e) {
-		setMinThreshold(e.target.value);
-	}
-
-	let controlStyle = {"display":"flex"};
 
 	return (
 		<div>
-			<div style={controlStyle}>
-				<p>min coffees: 0</p>
+			<div>
+				<p>y-axis threshold: </p>
 				<input
 					type="range"
 					id="quantity"
 					name="quantity"
-					min="0" max="65"
-					step="0.5"
-					value={minThreshold}
-					onChange={(e) => updateMin(e)} />
-				<p>65</p>
+					min="0" max="236"
+					value={barThreshold}
+					onChange={(e) => updateY(e)} />
 			</div>
-			<div style={controlStyle}>
-				<p>max coffees: 65</p>
-				<input
-					type="range"
-					id="quantity"
-					name="quantity"
-					min="65" max="236"
-					step="0.5"
-					value={maxThreshold}
-					onChange={(e) => updateMax(e)} />
-				<p>236</p>
+			<div>
+				<p>y-axis operation: </p>
+				<select value={barOperation} onChange={(e) => setBarOperation(e.target.value)}>
+					<option value="eq">Equals</option>
+					<option value="le">Less Than</option>
+					<option value="leq">Less Than or Equals To</option>
+					<option value="ge">Greater Than</option>
+					<option value="geq">Greater Than or Equals To</option>
+				</select>
 			</div>
 			<svg id="barless" ref={ref}>
 				<g id="mark" />
@@ -165,5 +153,5 @@ export const ToStorybook = () => {
 }
 
 ToStorybook.story = {
-  name: 'Range',
+  name: 'Less',
 };

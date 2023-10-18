@@ -1,32 +1,30 @@
 import React, {useRef, useState, useEffect} from "react";
 import * as d3 from "d3";
 
-import Draught from "../src/lib/Draught.js";
-import Threshold from "../src/lib/Threshold.js";
+import Draught from "../../src/lib/Draught.js";
+import DerivedValues from "../../src/lib/DerivedValues.js";
 
 // data from https://rkabacoff.github.io/qacData/reference/coffee.html
-import coffee from "../public/arabica_data_cleaned_top15.json";
+import coffee from "../../public/arabica_data_cleaned_top15.json";
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
-  title: 'Aug/Threshold/Bar/Less',
+  title: 'Aug/Derived/Bar/Constant',
 };
 
 export const ToStorybook = () => {
 
-	let group = d3.group(coffee, d => d["Country"]);
-	let groupedData = [...group.entries()].map(d => { return {"Country":d[0], "entries":d[1], "count":d[1].length} }).sort((a, b) => a.count - b.count);
-	
-	const [barThreshold, setBarThreshold] = React.useState(150);
-	const [barOperation, setBarOperation] = useState("leq");
+	const [yConstant, setYConstant] = React.useState(0.5);
 
-	const ref = useRef("barless");
+	const style = {"markMultiple":{"fill":"steelblue", "opacity":1}};
+
+	const ref = useRef("constant");
 	const chart = useRef(new Draught());
-	const newBarThreshold = useRef(new Threshold("count", barThreshold, barOperation));
+	const newYConstant = useRef(new DerivedValues("Flavor", yConstant, "mult", undefined, style));
 
-	const [data, setData] = React.useState(groupedData);
+	const [data, setData] = React.useState(coffee.slice(0, 5));
 
-	let layout={"width":1200,
+	let layout={"width":500,
 	   		   "height":500,
 	   		   "marginTop":50,
 	   		   "marginRight":50,
@@ -48,11 +46,11 @@ export const ToStorybook = () => {
 				.attr("height", layout.height);
 
 		let xScale = d3.scaleBand()
-						.domain(data.map(d => d["Country"]))
+						.domain(data.map(d => d["FIELD1"]))
 						.range([layout.marginLeft, layout.width - layout.marginRight]);
 
 		let yScale = d3.scaleLinear()
-						.domain([0, d3.max(data, d => d["count"])])
+						.domain([0, d3.max(data, d => d["Flavor"])])
 						.range([layout.height - layout.marginBottom, layout.marginTop]);
 
 		let bars = svgElement.select("#mark")
@@ -60,19 +58,20 @@ export const ToStorybook = () => {
 							.data(data)
 							.join("rect")
 							.attr("class", "bar")
-							.attr("x", d => xScale(d["Country"]) + 1)
-							.attr("y", d => yScale(d["count"]))
+							.attr("x", d => xScale(d["FIELD1"]) + 1)
+							.attr("y", d => yScale(d["Flavor"]))
 							.attr("width", xScale.bandwidth() - 2)
-							.attr("height", d => yScale(0) - yScale(d["count"]))
+							.attr("height", d => yScale(0) - yScale(d["Flavor"]))
 							.attr("fill", "steelblue")
+							.attr("opacity", "0.5")
 							.on("mouseover", (event, d) => {
 
-								let xPos = xScale(d["Country"]) + xScale.bandwidth() / 2;
-								let yPos = yScale(d["count"]) - 8;
+								let xPos = xScale(d["FIELD1"]) + xScale.bandwidth() / 2;
+								let yPos = yScale(d["Flavor"]) - 8;
 
 								tooltip.attr("transform", `translate(${xPos}, ${yPos})`)
 										.attr("opacity", 1)
-										.text(`${d.count} coffees`);
+										.text(`${d.Flavor} Flavor`);
 
 							})
 							.on("mouseout", (event, d) => {
@@ -91,56 +90,38 @@ export const ToStorybook = () => {
 
 		chart.current.chart(ref.current)
 					.selection(bars)
-					.x("mfr", xScale)
-					.y("count", yScale)
-					.exclude({"name":["color", "stroke"]})
-					.augment(newBarThreshold.current.getAugs());
+					.x("FIELD1", xScale)
+					.y("Flavor", yScale)
+					.exclude({"name":["line"]})
+					.augment(newYConstant.current.getAugs());
 
 	}, [data])
 
 	useEffect(() => {
 
-		newBarThreshold.current.updateVal(barThreshold);
-		let newAug2 = newBarThreshold.current.getAugs();
+		newYConstant.current.updateVal(yConstant);
+		let newAug2 = newYConstant.current.getAugs();
 
 		chart.current.augment(newAug2);
 
-	}, [barThreshold])
-
-	useEffect(() => {
-
-		newBarThreshold.current.updateType(barOperation);
-		let newAugs = newBarThreshold.current.getAugs();
-
-		chart.current.augment(newAugs);
-
-	}, [barOperation])
+	}, [yConstant])
 
 	function updateY(e) {
-		setBarThreshold(e.target.value);
+		setYConstant(e.target.value);
 	}
 
 	return (
 		<div>
 			<div>
-				<p>y-axis threshold: </p>
+				<p>Showing Flavor * {yConstant}: </p>
 				<input
 					type="range"
 					id="quantity"
 					name="quantity"
-					min="0" max="236"
-					value={barThreshold}
+					min="0" max="1"
+					step="0.1"
+					value={yConstant}
 					onChange={(e) => updateY(e)} />
-			</div>
-			<div>
-				<p>y-axis operation: </p>
-				<select value={barOperation} onChange={(e) => setBarOperation(e.target.value)}>
-					<option value="eq">Equals</option>
-					<option value="le">Less Than</option>
-					<option value="leq">Less Than or Equals To</option>
-					<option value="ge">Greater Than</option>
-					<option value="geq">Greater Than or Equals To</option>
-				</select>
 			</div>
 			<svg id="barless" ref={ref}>
 				<g id="mark" />
@@ -153,5 +134,5 @@ export const ToStorybook = () => {
 }
 
 ToStorybook.story = {
-  name: 'Less',
+  name: 'Constant',
 };

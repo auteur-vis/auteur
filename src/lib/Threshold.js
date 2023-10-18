@@ -1,12 +1,15 @@
 import * as d3 from "d3";
 
 import Aug from "./Aug.js";
-import DataFact from "./DataFact.js"
+import DataFact from "./DataFact.js";
+
+import markStyles from "./styles/markStyles.js";
+import encodingStyles from "./styles/encodingStyles.js";
 
 export default class Threshold extends DataFact {
 
 	// Qn to self: add option of orient? Either variable name provided, or orientation (x/y axis)
-	constructor(variable, val, type="eq", style) {
+	constructor(variable, val, type="eq", styles={}) {
 
 		super();
 		
@@ -17,12 +20,14 @@ export default class Threshold extends DataFact {
 
 		this._type = type;
 
+		this._customStyles = styles;
+
 	}
 
 	// generator for encoding type augmentations
 	generateEncoding(variable, val, type) {
 
-		return function(datum) {
+		return function(datum, xVar, yVar, xScale, yScale) {
 			if (type === "eq" && datum[variable] == val) {
 				return true;
 			} else if (type === "le" && datum[variable] < val) {
@@ -43,16 +48,16 @@ export default class Threshold extends DataFact {
 	// generator for line augmentation
 	generateLine(variable, val, type) {
 
-		return function(xVar, yVar, xScale, yScale) {
+		return function(data, xVar, yVar, xScale, yScale) {
 			// If variable not mapped to x or y position, do not render line
 			if (xVar != variable && yVar != variable) {
 				return false;
 			}
 
 			if (xVar == variable) {
-				return [{"x": xScale(val)}];
+				return [{"x1": xScale(val), "x2": xScale(val), "y1":yScale.range()[0], "y2":yScale.range()[1]}];
 			} else if (yVar == variable) {
-				return [{"y": yScale(val)}];
+				return [{"x1": xScale.range()[0], "x2": xScale.range()[1], "y1": yScale(val), "y2": yScale(val)}];
 			}
 		}
 
@@ -60,7 +65,8 @@ export default class Threshold extends DataFact {
 
 	// generator for text augmentation
 	generateText(variable, val, type) {
-		return function(xVar, yVar, xScale, yScale) {
+
+		return function(data, xVar, yVar, xScale, yScale) {
 			// If variable not mapped to x or y position, do not render line
 			if (xVar != variable && yVar != variable) {
 				return false;
@@ -98,13 +104,27 @@ export default class Threshold extends DataFact {
 	// returns a list of [Aug Class]
 	getAugs() {
 
-		let lineAug = new Aug(`${this._id}_line`, "threshold_line", "mark", {"mark":"line"}, this.generateLine(this._variable, this._val, this._type), 1);
-		let opacityAug = new Aug(`${this._id}_opacity`, "threshold_opacity", "encoding", {"opacity":"1"}, this.generateEncoding(this._variable, this._val, this._type), 2);
-		let strokeAug = new Aug(`${this._id}_stroke`, "threshold_stroke", "encoding", {"stroke":"black", "stroke-width":"1px"}, this.generateEncoding(this._variable, this._val, this._type), 3);
-		let colorAug = new Aug(`${this._id}_color`, "threshold_color", "encoding", {"fill":"#eb4034"}, this.generateEncoding(this._variable, this._val, this._type), 4);
-		let textAug = new Aug(`${this._id}_text`, "threshold_text", "mark", {"mark":"text"}, this.generateText(this._variable, this._val, this._type), 5);
+		let lineAug = new Aug(`${this._id}_line`, "threshold_line", "mark", {"mark":"line"},
+								 this.generateLine(this._variable, this._val, this._type),
+								 this.mergeStyles(this._customStyles.line, markStyles.line), 1);
 
-		return [lineAug.getSpec(), opacityAug.getSpec(), strokeAug.getSpec(), colorAug.getSpec(), textAug.getSpec()].sort(this._sort)
+		let opacityAug = new Aug(`${this._id}_opacity`, "threshold_opacity", "encoding", undefined,
+									this.generateEncoding(this._variable, this._val, this._type), 
+									this.mergeStyles(this._customStyles.opacity, encodingStyles.opacity), 2);
+
+		let strokeAug = new Aug(`${this._id}_stroke`, "threshold_stroke", "encoding", undefined,
+								   this.generateEncoding(this._variable, this._val, this._type),
+								   this.mergeStyles(this._customStyles.stroke, encodingStyles.stroke), 3);
+
+		let fillAug = new Aug(`${this._id}_fill`, "threshold_fill", "encoding", undefined,
+								  this.generateEncoding(this._variable, this._val, this._type),
+								  this.mergeStyles(this._customStyles.fill, encodingStyles.fill), 4);
+
+		let textAug = new Aug(`${this._id}_text`, "threshold_text", "mark", {"mark":"text"},
+								 this.generateText(this._variable, this._val, this._type),
+								 this.mergeStyles(this._customStyles.text, markStyles.text), 5);
+
+		return [lineAug.getSpec(), opacityAug.getSpec(), strokeAug.getSpec(), fillAug.getSpec(), textAug.getSpec()].sort(this._sort)
 	}
 
 	updateVariable(variable) {
@@ -117,6 +137,10 @@ export default class Threshold extends DataFact {
 
 	updateType(type) {
 		this._type = type;
+	}
+
+	updateStyles(styles) {
+		this._customStyles = this._updateStyles(this._customStyles, styles);
 	}
 
 	// Merge augmentations between multiple data facts
@@ -169,7 +193,7 @@ export default class Threshold extends DataFact {
 
 					}
 
-					let new_aug = new Aug(new_id, last.name, last.type, last.encoding, generator, last.rank);
+					let new_aug = new Aug(new_id, last.name, last.type, last.encoding, generator, last.styles, last.rank);
 					merged.push(new_aug.getSpec());
 
 				}
