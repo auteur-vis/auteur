@@ -253,6 +253,10 @@ export default class DerivedValues extends DataFact {
 		this._val = val;
 	}
 
+	updateFunction(fn) {
+		this._fn = fn;
+	}
+
 	updateStyles(styles) {
 		this._customStyles = this._updateStyles(this._customStyles, styles);
 	}

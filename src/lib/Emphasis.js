@@ -1,138 +1,229 @@
+import * as d3 from "d3";
+
 import Aug from "./Aug.js";
-import DataFact from "./DataFact.js"
+import DataFact from "./DataFact.js";
+
+import markStyles from "./styles/markStyles.js";
+import encodingStyles from "./styles/encodingStyles.js";
 
 export default class Emphasis extends DataFact {
 
-	// - val {number, stat, fn}
-	// 		val: user specified, any valid value in data domain
-	// 		stat: automatically computed, min, max, mean, median, or mode
-	// 		fn: user specified function, takes 1D array as input, returns valid value in data domain
-	constructor(data, variable, val, style) {
-		super(data);
+	// val can either be a single value or list of values
+	constructor(variable, val, styles={}) {
 
-		this.name = "Emphasis";
+		super();
+		
+		this._name = "Emphasis";
 
-		this.variable = variable;
-		this._type;
-		this.emph;
+		this._variable = variable;
+		this._val = val;
 
-		this.updateEmph(val);
+		this._customStyles = styles;
 
-		this.target = this.generationCriteria();
-
-		// this.style = style;
 	}
 
-	generationCriteria() {
-		let newIndex = [];
+	// generator for encoding type augmentations
+	generateEncoding(variable, val, type) {
 
-		for (let i = 0; i < this._data.length; i++) {
-			if (this._data[i][this.variable] == this.emph) {
-				newIndex.push(i);
+		return function(datum, xVar, yVar, xScale, yScale) {
+
+			if (Array.isArray(val)) {
+				if (val.indexOf(datum[variable]) >= 0) {
+					return true;
+				} else {
+					return false;
+				}
+			} else {
+				if (datum[variable] == val) {
+					return true;
+				}
 			}
+
+			return false;
 		}
 
-		return {"index": newIndex};
+	}
+
+	// generator for text augmentation
+	generateText(variable, val, type) {
+
+		return function(data, xVar, yVar, xScale, yScale) {
+
+			let result;
+
+			if (Array.isArray(val)) {
+
+				result = data.filter(d => val.indexOf(d.variable) >= 0).map(d => {return {"x": xScale(d.xVar), "y": yScale(d.yVar) - 10, "text": `${variable} = ${d.variable}`}});
+
+			} else {
+
+				result = data.filter(d => val == d.variable).map(d => {return {"x": xScale(d.xVar), "y": yScale(d.yVar) - 10, "text": `${variable} = ${d.variable}`}});
+			}
+
+			return result;
+			
+		}
+ 
+	}
+
+	_sort(a, b) {
+		return a.rank - b.rank;
 	}
 
 	// returns a list of [Aug Class]
 	getAugs() {
-		let colorAug = new Aug("threshold_color", {"index":this.target.index}, "encoding", {"fill":"red"});
-		return [colorAug.getSpec()]
-	}
 
-	updateEmph(val) {
-		if (!val) {
-			console.warn("Emphasis augmentation expects emphasized value to be provided");
-		} else if (val.val) {
-			this._type = "val";
-			this.emph = val.val;
-		} else if (val.stat) {
-			this._type = "stat";
+		let strokeAug = new Aug(`${this._id}_stroke`, "emphasis_stroke", "encoding", undefined,
+								   this.generateEncoding(this._variable, this._val, this._type),
+								   this.mergeStyles(this._customStyles.stroke, encodingStyles.stroke), 1);
 
-			let attr_row = data.map(d => d[variable]);
+		let textAug = new Aug(`${this._id}_text`, "emphasis_text", "mark", {"mark":"text"},
+								 this.generateText(this._variable, this._val, this._type),
+								 this.mergeStyles(this._customStyles.text, markStyles.text), 2);
 
-			if (val.stat === "min") {
-				this.emph = Math.min(...attr_row);
-			} else if (val.stat === "max") {
-				this.emph = Math.max(...attr_row);
-			} else if (val.stat === "mean") {
-				this.emph = attr_row.reduce((a, b) => a + b) / attr_row.length;
-			} else if (val.stat === "median") {
-				let midpoint = Math.floor(attr_row.length / 2);
+		let fillAug = new Aug(`${this._id}_fill`, "emphasis_fill", "encoding", undefined,
+								  this.generateEncoding(this._variable, this._val, this._type),
+								  this.mergeStyles(this._customStyles.fill, encodingStyles.fill), 3);
 
-				attr_row.sort((a, b) => a - b);
-				this.emph = attr_row.length % 2 === 1 ? attr_row[midpoint] : (attr_row[midpoint] + attr_row[midpoint - 1]) / 2;
-			} else if (val.stat === "mode") {
+		let opacityAug = new Aug(`${this._id}_opacity`, "emphasis_opacity", "encoding", undefined,
+									this.generateEncoding(this._variable, this._val, this._type), 
+									this.mergeStyles(this._customStyles.opacity, encodingStyles.opacity), 4);
 
-				let counts = {};
-
-				for (let v of attr_row) {
-					if (!(v in counts)) {
-						counts[v] = 1;
-					} else {
-						counts[v] += 1;
-					}
-				}
-
-				let max_count = 0;
-				let max_value;
-
-				for (let vi of Object.keys(counts)) {
-					if (counts[vi] > max_count) {
-						max_count = counts[vi];
-						max_value = vi;
-					}
-				}
-
-				this.emph = max_value;
-			} else {
-				console.warn("Unrecognized stat, only 'min', 'max', 'mean', 'median', and 'mode' recognized");
-			}
-
-		} else if (val.fn) {
-			this._type = "fn"
-
-			let attr_row = data.map(d => d[variable]);
-			this.emph = val.fn(attr_row);
-		} else {
-			console.warn("Emphasized value must be provided as 'val', 'stat' or 'fn'");
-		}
-
-		this.target = this.generationCriteria();
+		return [strokeAug.getSpec(), textAug.getSpec(), fillAug.getSpec(), opacityAug.getSpec()].sort(this._sort)
 	}
 
 	updateVariable(variable) {
-		this.variable = variable;
-		this.target = this.generationCriteria();
+		this._variable = variable;
 	}
 
 	updateVal(val) {
-		this.val = val;
-		this.target = this.generationCriteria();
+		this._val = val;
 	}
 
-	// returns a list of [Aug Class]
-	// intersect(_df) {
-	// 	if (_df.name.startsWith("Threshold")) {
-	// 		let _indexSelf = new Set(this.generationCriteria().index);
-	// 		let _indexOther = new Set(_df.generationCriteria().index);
+	updateStyles(styles) {
+		this._customStyles = this._updateStyles(this._customStyles, styles);
+	}
 
-	// 		let intersect = Array.from([..._indexSelf].filter(i => _indexOther.has(i)));
+	// Merge augmentations between multiple data facts
+	// Merge by options: intersect, union, difference (in aug1 not in aug2), xor (in aug1 or aug2, not both)
+	// _mergeAugs(augs1, augs2, intersect_id, merge_by="intersect") {
 
-	// 		let selfTargetCoord = {};
-	// 		selfTargetCoord[this.variable] = this.val;
+	// 	let merged = [];
 
-	// 		let otherTargetCoord = {};
-	// 		otherTargetCoord[_df.variable] = _df.val;
+	// 	while (augs1.length > 0) {
 
-	// 		let lineAug1 = new Aug("threshold_line", {"data":[selfTargetCoord, selfTargetCoord]}, "line");
-	// 		let lineAug2 = new Aug("threshold_line", {"data":[otherTargetCoord, otherTargetCoord]}, "line");
+	// 		let last = augs1.pop();
 
-	// 		let colorAug = new Aug("threshold_color", {"index":intersect}, "encoding", {"fill":"red"});
+	// 		// mark type augmentations are not merged
+	// 		if (last.type === "mark") {
 
-	// 		return [lineAug1.getSpec(), lineAug2.getSpec(), colorAug.getSpec()]
+	// 			merged.push(last);
+
+	// 		} else {
+
+	// 			let foundIndex = augs2.findIndex(ag => ag.name === last.name && ag.type === "encoding");
+
+	// 			// if no augmentation of the same name is found, add to list without merging
+	// 			if (foundIndex < 0) {
+
+	// 				merged.push(last);
+
+	// 			} else {
+
+	// 				let matched_aug = augs2.splice(foundIndex, 1)[0];
+
+	// 				// new id is combination of aug ids
+	// 				let split_id = last.id.split('_');
+	// 				split_id[0] = intersect_id;
+	// 				let new_id = split_id.join('_');
+
+	// 				// combine generators
+	// 				function generator(datum) {
+
+	// 					if (merge_by === "intersect" && (last.generator(datum) && matched_aug.generator(datum))) {
+	// 						return true;
+	// 					} else if (merge_by === "union" && (last.generator(datum) || matched_aug.generator(datum))) {
+	// 						return true;
+	// 					} else if (merge_by === "difference" && (last.generator(datum) && !matched_aug.generator(datum))) {
+	// 						return true;
+	// 					} else if (merge_by === "xor" && ((last.generator(datum) || matched_aug.generator(datum)) && !(last.generator(datum) && matched_aug.generator(datum)))) {
+	// 						return true;
+	// 					}
+
+	// 					return false;
+
+	// 				}
+
+	// 				let new_aug = new Aug(new_id, last.name, last.type, last.encoding, generator, last.styles, last.rank);
+	// 				merged.push(new_aug.getSpec());
+
+	// 			}
+
+	// 		}
+
+	// 	}
+
+	// 	return merged.concat(augs2).sort(this._sort)
+
+	// }
+
+	// // returns a list of [Aug Class]
+	// intersect(drft) {
+
+	// 	if (drft._name.startsWith("Threshold")) {
+
+	// 		let intersect_id = `${this._id}-${drft._id}`;
+
+	// 		let my_augs = this.getAugs();
+	// 		let drft_augs = drft.getAugs();
+	// 		let merged_augs = this._mergeAugs(my_augs, drft_augs, intersect_id);
+
+	// 		return merged_augs
 	// 	}
 	// }
 
+	// // returns a list of [Aug Class]
+	// union(drft) {
+
+	// 	if (drft._name.startsWith("Threshold")) {
+
+	// 		let intersect_id = `${this._id}-${drft._id}`;
+
+	// 		let my_augs = this.getAugs();
+	// 		let drft_augs = drft.getAugs();
+	// 		let merged_augs = this._mergeAugs(my_augs, drft_augs, intersect_id, "union");
+
+	// 		return merged_augs
+	// 	}
+	// }
+
+	// // returns a list of [Aug Class]
+	// difference(drft) {
+
+	// 	if (drft._name.startsWith("Threshold")) {
+
+	// 		let intersect_id = `${this._id}-${drft._id}`;
+
+	// 		let my_augs = this.getAugs();
+	// 		let drft_augs = drft.getAugs();
+	// 		let merged_augs = this._mergeAugs(my_augs, drft_augs, intersect_id, "difference");
+
+	// 		return merged_augs
+	// 	}
+	// }
+
+	// // returns a list of [Aug Class]
+	// xor(drft) {
+
+	// 	if (drft._name.startsWith("Threshold")) {
+
+	// 		let intersect_id = `${this._id}-${drft._id}`;
+
+	// 		let my_augs = this.getAugs();
+	// 		let drft_augs = drft.getAugs();
+	// 		let merged_augs = this._mergeAugs(my_augs, drft_augs, intersect_id, "xor");
+
+	// 		return merged_augs
+	// 	}
+	// }
 }
