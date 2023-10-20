@@ -20,9 +20,14 @@ export const ToStorybook = () => {
 
 	const ref = useRef("constant");
 	const chart = useRef(new Draught());
-	const newYConstant = useRef(new DerivedValues("Flavor", yConstant, "sub", undefined, style));
 
-	const [data, setData] = React.useState(coffee.slice(0, 5));
+	function myDerivedValue(d) {
+		return d.Flavor - d.Aroma / 2 - d.Balance / 3;
+	}
+
+	const newYConstant = useRef(new DerivedValues("Flavor", undefined, undefined, myDerivedValue, style));
+
+	const [data, setData] = React.useState(coffee.slice(0, 10));
 
 	let layout={"width":500,
 	   		   "height":500,
@@ -74,7 +79,7 @@ export const ToStorybook = () => {
 
 										tooltip.attr("transform", `translate(${xPos}, ${yPos})`)
 												.attr("opacity", 1)
-												.text(`${d.Flavor} Flavor`);
+												.text(`${d.Flavor} Rating`);
 
 									})
 									.on("mouseout", (event, d) => {
@@ -101,7 +106,7 @@ export const ToStorybook = () => {
 				  .attr("transform", `translate(${layout.marginLeft}, 0)`);
 
 		svgElement.select("#yAxis").selectAll("#yTitle")
-				  .data(["Flavor"])
+				  .data(["Rating"])
 				  .join("text")
 				  .attr("id", "yTitle")
 				  .attr("text-anchor", "middle")
@@ -125,32 +130,34 @@ export const ToStorybook = () => {
 
 	}, [data])
 
-	useEffect(() => {
+	// useEffect(() => {
 
-		newYConstant.current.updateVal(yConstant);
-		let newAug2 = newYConstant.current.getAugs();
+	// 	newYConstant.current.updateVal(yConstant);
+	// 	let newAug2 = newYConstant.current.getAugs();
 
-		chart.current.augment(newAug2);
+	// 	chart.current.augment(newAug2);
 
-	}, [yConstant])
+	// }, [yConstant])
 
-	function updateY(e) {
-		setYConstant(e.target.value);
-	}
+	// function updateY(e) {
+	// 	setYConstant(e.target.value);
+	// }
+
+	// <div>
+	// 			<p>Showing Flavor - {yConstant}: </p>
+	// 			<input
+	// 				type="number"
+	// 				id="quantity"
+	// 				name="quantity"
+	// 				min="0" max="10"
+	// 				step="1"
+	// 				value={yConstant}
+	// 				onChange={(e) => updateY(e)} />
+	// 		</div>
 
 	return (
 		<div>
-			<div>
-				<p>Showing Flavor - {yConstant}: </p>
-				<input
-					type="range"
-					id="quantity"
-					name="quantity"
-					min="0" max="10"
-					step="0.01"
-					value={yConstant}
-					onChange={(e) => updateY(e)} />
-			</div>
+			
 			<svg id="less" ref={ref}>
 				<g id="mark" />
 				<g id="xAxis" />

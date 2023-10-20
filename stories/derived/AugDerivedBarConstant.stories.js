@@ -22,7 +22,7 @@ export const ToStorybook = () => {
 	const chart = useRef(new Draught());
 	const newYConstant = useRef(new DerivedValues("Flavor", yConstant, "mult", undefined, style));
 
-	const [data, setData] = React.useState(coffee.slice(0, 5));
+	const [data, setData] = React.useState(coffee.slice(0, 10));
 
 	let layout={"width":500,
 	   		   "height":500,
@@ -94,6 +94,32 @@ export const ToStorybook = () => {
 					.y("Flavor", yScale)
 					.exclude({"name":["line"]})
 					.augment(newYConstant.current.getAugs());
+
+		let xAxis = svgElement.select("#xAxis")
+				  .call(d3.axisBottom(xScale))
+				  .attr("transform", `translate(0, ${layout.height - layout.marginBottom})`);
+
+		svgElement.select("#xAxis").selectAll("#xTitle")
+				  .data(["FIELD1 (ID)"])
+				  .join("text")
+				  .attr("id", "xTitle")
+				  .attr("text-anchor", "middle")
+				  .attr("transform", `translate(${layout.width/2}, 30)`)
+				  .attr("fill", "black")
+				  .text(d => d);
+
+		let yAxis = svgElement.select("#yAxis")
+				  .call(d3.axisLeft(yScale).ticks(5))
+				  .attr("transform", `translate(${layout.marginLeft}, 0)`);
+
+		svgElement.select("#yAxis").selectAll("#yTitle")
+				  .data(["Rating"])
+				  .join("text")
+				  .attr("id", "yTitle")
+				  .attr("text-anchor", "middle")
+				  .attr("transform", `translate(0, 40)`)
+				  .attr("fill", "black")
+				  .text(d => d);
 
 	}, [data])
 

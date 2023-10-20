@@ -49,7 +49,7 @@ export default class DerivedValues extends DataFact {
 			let result;
 
 			if (type === "custom") {
-				result = data.map(datum => fn(datum[variable]));
+				result = data.map(datum => [fn(datum), datum[variable]]);
 			} else if (type === "constant") {
 				if (calc === "add") {
 					result = data.map(datum => [datum[variable] + val, datum[variable]]);
@@ -112,7 +112,7 @@ export default class DerivedValues extends DataFact {
 			let otherVar = xVar === variable ? yVar : xVar;
 
 			if (type === "custom") {
-				result = data.map(datum => [fn(datum[variable]), datum[variable], datum[otherVar]]);
+				result = data.map(datum => [fn(datum), datum[variable], datum[otherVar]]);
 			} else if (type === "constant") {
 				if (calc === "add") {
 					result = data.map(datum => [datum[variable] + val, datum[variable], datum[otherVar]]);
@@ -157,7 +157,7 @@ export default class DerivedValues extends DataFact {
 					d.y2 = yScale(result[i][1]);
 					d.x1 = xScale(result[i][2]);
 					d.x2 = xScale(result[i][2]);
-					console.log(d);
+					// console.log(d);
 					return d
 				});
 			}
@@ -212,15 +212,15 @@ export default class DerivedValues extends DataFact {
 			let resultExtent;
 
 			if (xVar === variable) {
-				resultExtent = d3.extent(result.map(r => xScale(r)));
-				let newXScale = xScale.copy();
-				newXScale.domain(resultExtent);
-				return [newXScale, yScale];
+				resultExtent = d3.extent(result);
+				// let newXScale = d3.copy()
+				// 				  .domain(resultExtent)
+				return {"x": resultExtent, "y": yScale.domain()};
 			} else if (yVar == variable) {
-				resultExtent = d3.extent(result.map(r => yScale(r)));
-				let newYScale = yScale.copy();
-				newYScale.domain(resultExtent);
-				return [xScale, newYScale];
+				resultExtent = d3.extent(result);
+				// let newYScale = yScale.copy();
+				// newYScale.domain(resultExtent);
+				return {"x": xScale.domain(), "y": resultExtent};
 			}
 
 			return undefined
@@ -238,14 +238,11 @@ export default class DerivedValues extends DataFact {
 		let markMultipleAug = new Aug(`${this._id}_markMultiple`, "derived_markMultiple", "mark", {"mark":undefined},
 										 this.generateMark(this._variable, this._val, this._type, this._calc, this._fn), 
 										 this.mergeStyles(this._customStyles.markMultiple, undefined), 1);
-		let axisAug = new Aug(`${this._id}_axis`, "derived_axis", "axis", undefined,
-								 this.generateAxis(this._variable, this._val, this._type, this._calc, this._fn),
-								 undefined, 1);
 		let lineAug = new Aug(`${this._id}_line`, "derived_line", "mark", {"mark":"line"},
 								 this.generateLine(this._variable, this._val, this._type, this._calc, this._fn),
 								 this.mergeStyles(this._customStyles.line, markStyles.line), 2);
 
-		return [markMultipleAug.getSpec(), axisAug.getSpec(), lineAug.getSpec()].sort(this._sort)
+		return [markMultipleAug.getSpec(), lineAug.getSpec()].sort(this._sort)
 	}
 
 	updateVariable(variable) {
