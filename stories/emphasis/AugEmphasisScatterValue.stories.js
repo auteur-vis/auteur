@@ -14,7 +14,7 @@ export default {
 
 export const ToStorybook = () => {
 
-	const [emphVal, setEmphVal] = React.useState(8);
+	const [emphVal, setEmphVal] = React.useState(6);
 	const [emphVar, setEmphVar] = React.useState("Sweetness");
 
 	const ref = useRef("emphVal");
@@ -104,7 +104,19 @@ export const ToStorybook = () => {
 				  .attr("text-anchor", "middle")
 				  .attr("transform", `translate(0, 40)`)
 				  .attr("fill", "black")
-				  .text(d => d)
+				  .text(d => d);
+
+		function alignY(d, i) {
+			return yScale(d["Flavor"])
+		}
+
+		function getText(d, i) {
+			return `produced in ${d.Country}`
+		}
+
+		const styles = {"text": {"text-anchor":"middle", "x": 420, "y":alignY, "text": getText}};
+
+		newEmphasis.current.updateStyles(styles);
 
 		chart.current.chart(ref.current)
 					.selection(scatterpoints)

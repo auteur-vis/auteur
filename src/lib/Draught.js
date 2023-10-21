@@ -105,18 +105,34 @@ export default class Draught {
 
 		let draughtLayer = this._chart.select("#draughty");
 
-		let orient = data[0]["x1"] ? "x" : "y";
+		if (data.length >= 1) {
+			let orient = data[0]["x1"] ? "x" : "y";
 
-		if (orient === "x") {
+			let newLines;
 
-			let newLines = draughtLayer.selectAll(`#${aug.id}`)
-										.data(data)
-										.join("line")
-										.attr("id", aug.id)
-										.attr("x1", d => d["x1"])
-										.attr("y1", d => d["y1"])
-										.attr("x2", d => d["x2"])
-										.attr("y2", d => d["y2"]);
+			if (orient === "x") {
+
+				newLines = draughtLayer.selectAll(`#${aug.id}`)
+											.data(data)
+											.join("line")
+											.attr("id", aug.id)
+											.attr("x1", d => d["x1"])
+											.attr("y1", d => d["y1"])
+											.attr("x2", d => d["x2"])
+											.attr("y2", d => d["y2"]);
+
+			} else if (orient === "y") {
+
+				newLines = draughtLayer.selectAll(`#${aug.id}`)
+							.data(data)
+							.join("line")
+							.attr("id", aug.id)
+							.attr("x1", d => d["x1"])
+							.attr("y1", d => d["y1"])
+							.attr("x2", d => d["x2"])
+							.attr("y2", d => d["y2"]);
+
+			}
 
 			for (let s of Object.keys(aug.styles)) {
 				newLines.attr(s, (d, i) => {
@@ -129,28 +145,11 @@ export default class Draught {
 				});
 			}
 
-		} else if (orient === "y") {
-
-			let newLines = draughtLayer.selectAll(`#${aug.id}`)
+		} else {
+			draughtLayer.selectAll(`#${aug.id}`)
 						.data(data)
 						.join("line")
 						.attr("id", aug.id)
-						.attr("x1", d => d["x1"])
-						.attr("y1", d => d["y1"])
-						.attr("x2", d => d["x2"])
-						.attr("y2", d => d["y2"]);
-
-			for (let s of Object.keys(aug.styles)) {
-				newLines.attr(s, (d, i) => {
-					let customStyle = aug.styles[s];
-					if (typeof customStyle === "function") {
-						return customStyle(d, i)
-					} else {
-						return customStyle
-					}
-				});
-			}
-
 		}
 
 	}
@@ -159,17 +158,19 @@ export default class Draught {
 
 		let draughtLayer = this._chart.select("#draughty");
 
-		if (data.length === 1) {
+		let newText;
+
+		if (data.length >= 1) {
 			let orient = data[0]["x"] ? "x" : "y";
 
 			if (orient === "x") {
 
-				draughtLayer.selectAll(`#${aug.id}`)
+				newText = draughtLayer.selectAll(`#${aug.id}`)
 							.data(data)
 							.join("text")
 							.attr("id", aug.id)
-							.attr("x", d => d["x"])
-							.attr("y", 10)
+							.attr("x", d => d.x)
+							.attr("y", d => d.y)
 							.attr("font-family", "sans-serif")
 							.attr("font-size", 11)
 							.attr("alignment-baseline", "hanging")
@@ -177,18 +178,46 @@ export default class Draught {
 
 			} else if (orient === "y") {
 
-				draughtLayer.selectAll(`#${aug.id}`)
+				newText = draughtLayer.selectAll(`#${aug.id}`)
 							.data(data)
 							.join("text")
 							.attr("id", aug.id)
-							.attr("x", 0)
-							.attr("y", d => d["y"])
+							.attr("x", d => d.x)
+							.attr("y", d => d.y)
 							.attr("font-family", "sans-serif")
 							.attr("font-size", 11)
 							.attr("alignment-baseline", "middle")
 							.text(d => d["text"]);
 
 			}
+
+			for (let s of Object.keys(aug.styles)) {
+				// Text customization is handled differently due to innerHTML
+				if (s === "text") {
+					newText.text((d, i) => {
+						let customStyle = aug.styles[s];
+						if (typeof customStyle === "function") {
+							return customStyle(d, i)
+						} else {
+							return customStyle
+						}
+					}
+				)} else {
+					newText.attr(s, (d, i) => {
+						let customStyle = aug.styles[s];
+						if (typeof customStyle === "function") {
+							return customStyle(d, i)
+						} else {
+							return customStyle
+						}
+					});	
+				}
+			}
+		} else {
+			draughtLayer.selectAll(`#${aug.id}`)
+						.data(data)
+						.join("text")
+						.attr("id", aug.id)
 		}
 
 	}

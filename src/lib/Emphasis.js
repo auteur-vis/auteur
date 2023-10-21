@@ -53,11 +53,21 @@ export default class Emphasis extends DataFact {
 
 			if (Array.isArray(val)) {
 
-				result = data.filter(d => val.indexOf(d.variable) >= 0).map(d => {return {"x": xScale(d.xVar), "y": yScale(d.yVar) - 10, "text": `${variable} = ${d.variable}`}});
+				result = data.filter(d => val.indexOf(d[variable]) >= 0).map(d => {
+					d.x = xScale(d[xVar]);
+					d.y = yScale(d[yVar]) - 10;
+					d.text = `${variable} = ${d[variable]}`;
+					return d
+				});
 
 			} else {
 
-				result = data.filter(d => val == d.variable).map(d => {return {"x": xScale(d.xVar), "y": yScale(d.yVar) - 10, "text": `${variable} = ${d.variable}`}});
+				result = data.filter(d => val == d[variable]).map(d => {
+					d.x = xScale(d[xVar]);
+					d.y = yScale(d[yVar]) - 10;
+					d.text = `${variable} = ${d[variable]}`;
+					return d				
+				});
 			}
 
 			return result;
@@ -100,8 +110,12 @@ export default class Emphasis extends DataFact {
 		this._val = val;
 	}
 
-	updateStyles(styles) {
-		this._customStyles = this._updateStyles(this._customStyles, styles);
+	updateStyles(styles, override = false) {
+		if (override) {
+			this._customStyles = styles;
+		} else {
+			this._customStyles = this._updateStyles(this._customStyles, styles);
+		}
 	}
 
 	// Merge augmentations between multiple data facts

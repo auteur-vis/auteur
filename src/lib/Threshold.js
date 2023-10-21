@@ -74,21 +74,21 @@ export default class Threshold extends DataFact {
 
 			if (type === "le" || type === "leq") {
 				if (xVar == variable) {
-					return [{"x": xScale(val) + 10, "text": `${variable} ${"le" == type ? "less than" : "less than or equal to"} ${val}`}];
+					return [{"x": xScale(val) + 10, "y": yScale.range()[1], "text": `${variable} ${"le" == type ? "less than" : "less than or equal to"} ${val}`}];
 				} else if (yVar == variable) {
-					return [{"y": yScale(val) + 10, "text": `${variable} ${"le" == type ? "less than" : "less than or equal to"} ${val}`}];
+					return [{"x": xScale.range()[0], "y": yScale(val) + 10, "text": `${variable} ${"le" == type ? "less than" : "less than or equal to"} ${val}`}];
 				}
 			} else if (type === "ge" || type === "geq") {
 				if (xVar == variable) {
-					return [{"x": xScale(val) + 10, "text": `${variable} ${"ge" == type ? "greater than" : "greater than or equal to"} ${val}`}];
+					return [{"x": xScale(val) + 10, "y": yScale.range()[1], "text": `${variable} ${"ge" == type ? "greater than" : "greater than or equal to"} ${val}`}];
 				} else if (yVar == variable) {
-					return [{"y": yScale(val) + 10, "text": `${variable} ${"ge" == type ? "greater than" : "greater than or equal to"} ${val}`}];
+					return [{"x": xScale.range()[0], "y": yScale(val) + 10, "text": `${variable} ${"ge" == type ? "greater than" : "greater than or equal to"} ${val}`}];
 				}
 			} else {
 				if (xVar == variable) {
-					return [{"x": xScale(val) + 10, "text": `${variable} ${"equal to"} ${val}`}];
+					return [{"x": xScale(val) + 10, "y": yScale.range()[1], "text": `${variable} ${"equal to"} ${val}`}];
 				} else if (yVar == variable) {
-					return [{"y": yScale(val) - 10, "text": `${variable} ${"equal to"} ${val}`}];
+					return [{"x": xScale.range()[0], "y": yScale(val) - 10, "text": `${variable} ${"equal to"} ${val}`}];
 				}
 			}
 
@@ -139,8 +139,12 @@ export default class Threshold extends DataFact {
 		this._type = type;
 	}
 
-	updateStyles(styles) {
-		this._customStyles = this._updateStyles(this._customStyles, styles);
+	updateStyles(styles, override = false) {
+		if (override) {
+			this._customStyles = styles;
+		} else {
+			this._customStyles = this._updateStyles(this._customStyles, styles);
+		}
 	}
 
 	// Merge augmentations between multiple data facts

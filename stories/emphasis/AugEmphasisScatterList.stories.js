@@ -112,7 +112,7 @@ export const ToStorybook = () => {
 					.selection(scatterpoints)
 					.x("Aroma", xScale)
 					.y("Flavor", yScale)
-					.exclude()
+					.exclude({"name":["text"]})
 					.augment(newEmphasis.current.getAugs());
 
 	}, [data])

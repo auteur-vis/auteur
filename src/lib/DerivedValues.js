@@ -257,8 +257,12 @@ export default class DerivedValues extends DataFact {
 		this._fn = fn;
 	}
 
-	updateStyles(styles) {
-		this._customStyles = this._updateStyles(this._customStyles, styles);
+	updateStyles(styles, override = false) {
+		if (override) {
+			this._customStyles = styles;
+		} else {
+			this._customStyles = this._updateStyles(this._customStyles, styles);
+		}
 	}
 
 	// // Merge augmentations between multiple data facts
