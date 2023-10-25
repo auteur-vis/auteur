@@ -333,6 +333,11 @@ export default class Draught {
 
 	}
 
+	// EXCLUDED FOR NOW
+	// EXCLUDED FOR NOW
+	// EXCLUDED FOR NOW
+	// EXCLUDED FOR NOW
+
 	// _handleAxes(newAxisExtents) {
 	// 	console.log("handling axes...")
 
@@ -410,6 +415,11 @@ export default class Draught {
 	// 	}
 
 	// }
+
+	// EXCLUDED FOR NOW
+	// EXCLUDED FOR NOW
+	// EXCLUDED FOR NOW
+	// EXCLUDED FOR NOW
 
 	augment(augmentations) {
 

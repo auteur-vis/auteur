@@ -2,26 +2,29 @@ import React, {useRef, useState, useEffect} from "react";
 import * as d3 from "d3";
 
 import Draught from "../../src/lib/Draught.js";
-import Range from "../../src/lib/Range.js";
+import Emphasis from "../../src/lib/Emphasis.js";
 
 // data from https://rkabacoff.github.io/qacData/reference/coffee.html
 import coffee from "../../public/arabica_data_cleaned_top15.json";
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
-  title: 'Aug/Range/Scatter/Exclude',
+  title: 'Aug/Emphasis/Scatter/Multi',
 };
 
 export const ToStorybook = () => {
 
-	const [maxThreshold, setMaxThreshold] = React.useState(8);
-	const [minThreshold, setMinThreshold] = React.useState(6.8);
+	const [emphVal, setEmphVal] = React.useState(6);
+	const [emphVar, setEmphVar] = React.useState("Sweetness");
 
-	const style = {"rect":{"fill":"#edcf7b", "opacity": 0.2}};
+	const [emphCatVal, setEmphCatVal] = React.useState("Other");
+	const [emphCatVar, setEmphCatVar] = React.useState("Variety");
+	const [emphOptions, setEmphOptions] = React.useState(Array.from(new Set(coffee.map(d => d.Variety))));
 
-	const ref = useRef("range");
+	const ref = useRef("emphMulti");
 	const chart = useRef(new Draught());
-	const newRange = useRef(new Range("Aroma", [minThreshold, maxThreshold], "exclude", style));
+	const newEmphasis = useRef(new Emphasis(emphVar, emphVal));
+	const newCatEmphasis = useRef(new Emphasis(emphCatVar, emphCatVal));
 
 	const [data, setData] = React.useState(coffee);
 
@@ -66,7 +69,6 @@ export const ToStorybook = () => {
 									.attr("cx", d => xScale(d["Aroma"]) + Math.random() * 8 - 4)
 									.attr("cy", d => yScale(d["Flavor"]) + Math.random() * 8 - 4)
 									.attr("r", d => 3)
-									.attr("opacity", 0.25)
 									.on("mouseover", (event, d) => {
 
 										let xPos = xScale(d["Aroma"]);
@@ -107,60 +109,101 @@ export const ToStorybook = () => {
 				  .attr("text-anchor", "middle")
 				  .attr("transform", `translate(0, 40)`)
 				  .attr("fill", "black")
-				  .text(d => d)
+				  .text(d => d);
+
+		function alignY(d, i) {
+			return yScale(d["Flavor"])
+		}
+
+		function getText(d, i) {
+			return `produced in ${d.Country}`
+		}
+
+		const styles = {"text": {"text-anchor":"end", "x": 490, "y":alignY, "text": getText}};
+
+		newEmphasis.current.updateStyles(styles);
 
 		chart.current.chart(ref.current)
-					// .charttype("point") // point, bar, line...
 					.selection(scatterpoints)
 					.x("Aroma", xScale)
 					.y("Flavor", yScale)
-					// .exclude({"name":["opacity"]})
-					.augment(newRange.current.getAugs());
+					.exclude({"name":["text"]})
+					.augment(newEmphasis.current.intersect(newCatEmphasis.current));
 
 	}, [data])
 
 	useEffect(() => {
 
-		newRange.current.updateVal([minThreshold, maxThreshold]);
-		let newAugs = newRange.current.getAugs();
+		newEmphasis.current.updateVariable(emphVar);
+		let newAugs = newEmphasis.current.intersect(newCatEmphasis.current);
 
 		chart.current.augment(newAugs);
 
-	}, [minThreshold, maxThreshold])
+	}, [emphVar])
 
-	function updateMax(e) {
-		setMaxThreshold(e.target.value);
+	useEffect(() => {
+
+		newEmphasis.current.updateVal(emphVal);
+		let newAugs = newEmphasis.current.intersect(newCatEmphasis.current);
+
+		chart.current.augment(newAugs);
+
+	}, [emphVal])
+
+	useEffect(() => {
+
+		newCatEmphasis.current.updateVal(emphCatVal);
+		let newAugs = newEmphasis.current.intersect(newCatEmphasis.current);
+
+		chart.current.augment(newAugs);
+
+	}, [emphCatVal])
+
+	function updateEmphVar(e) {
+		setEmphVar(e.target.value);
 	}
 
-	function updateMin(e) {
-		setMinThreshold(e.target.value);
+	function updateEmphVal(e) {
+		setEmphVal(e.target.value);
 	}
+
+	function updateEmphCatVal(e) {
+		setEmphCatVal(e.target.value);
+	}
+
+	let controlStyle = {"display":"flex"};
+	let paragraphStyle = {"margin":"3px"};
 
 	return (
 		<div>
-			<div>
-				<p>max threshold: </p>
+			<div style={controlStyle}>
+				<p style={paragraphStyle}>Highlight variable </p>
+				<select value={emphVar} onChange={(e) => updateEmphVar(e)}>
+					<option value="Aroma">Aroma</option>
+					<option value="Flavor">Flavor</option>
+					<option value="Aftertaste">Aftertaste</option>
+					<option value="Acidity">Acidity</option>
+					<option value="Body">Body</option>
+					<option value="Balance">Balance</option>
+					<option value="Uniformity">Uniformity</option>
+					<option value="Clean.Cup">Clean.Cup</option>
+					<option value="Sweetness">Sweetness</option>
+				</select>
+				<p style={paragraphStyle}>when value is: </p>
 				<input
-					type="range"
+					type="number"
 					id="quantity"
 					name="quantity"
-					min={d3.min(data, d => d.Aroma)}
-					max={d3.max(data, d => d.Aroma)}
+					min="0" max="10"
 					step="0.01"
-					value={maxThreshold}
-					onChange={(e) => updateMax(e)} />
-			</div>
-			<div>
-				<p>min threshold: </p>
-				<input
-					type="range"
-					id="quantity"
-					name="quantity"
-					min={d3.min(data, d => d.Aroma)}
-					max={d3.max(data, d => d.Aroma)}
-					step="0.01"
-					value={minThreshold}
-					onChange={(e) => updateMin(e)} />
+					value={emphVal}
+					onChange={(e) => updateEmphVal(e)} />
+				<p style={paragraphStyle}>and when Variety is: </p>
+				<select value={emphCatVal} onChange={(e) => updateEmphCatVal(e)}>
+					{emphOptions.map((d, i) => {
+						return <option value={d} key={`option${i}`}>{d}</option>
+					})}
+				</select>
 			</div>
 			<svg id="less" ref={ref}>
 				<g id="mark" />
@@ -173,5 +216,5 @@ export const ToStorybook = () => {
 }
 
 ToStorybook.story = {
-  name: 'Exclude',
+  name: 'Multi',
 };

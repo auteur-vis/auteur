@@ -9,7 +9,7 @@ import encodingStyles from "./styles/encodingStyles.js";
 export default class Range extends DataFact {
 
 	// Assume val is [min, max]
-	constructor(variable, val, type="include", styles={}) {
+	constructor(variable, val, type="closed", styles={}) {
 
 		super();
 
@@ -39,9 +39,9 @@ export default class Range extends DataFact {
 				return false;
 			}
 
-			if (type === "include" && datum[variable] > min && datum[variable] < max) {
+			if (type === "closed" && datum[variable] >= min && datum[variable] <= max) {
 				return true;
-			} else if (type === "exclude" && (datum[variable] < min || datum[variable] > max)) {
+			} else if (type === "open" && datum[variable] > min && datum[variable] < max) {
 				return true;
 			}
 
@@ -63,55 +63,23 @@ export default class Range extends DataFact {
 				return [];
 			}
 
-			if (type === "include") {
-				if (xVar == variable) {
-					let xMin = d3.min([xScale(min), xScale(max)]);
-					let width = Math.abs(xScale(max) - xScale(min));
-					let yMin = d3.min([yScale.range()[1], yScale.range()[0]]);
-					let height = Math.abs(yScale.range()[1] - yScale.range()[0]);
+			if (xVar == variable) {
+				let xMin = d3.min([xScale(min), xScale(max)]);
+				let width = Math.abs(xScale(max) - xScale(min));
+				let yMin = d3.min([yScale.range()[1], yScale.range()[0]]);
+				let height = Math.abs(yScale.range()[1] - yScale.range()[0]);
 
-					return [{"x": xMin, "width": width, "y":yMin, "height": height}];
-				} else if (yVar == variable) {
-					let xMin = d3.min([xScale.range()[0], xScale.range()[1]]);
-					let width = Math.abs(xScale.range()[1] - xScale.range()[0]);
-					let yMin = d3.min([yScale(min), yScale(max)]);
-					let height = Math.abs(yScale(max) - yScale(min));
+				return [{"x": xMin, "width": width, "y":yMin, "height": height}];
+			} else if (yVar == variable) {
+				let xMin = d3.min([xScale.range()[0], xScale.range()[1]]);
+				let width = Math.abs(xScale.range()[1] - xScale.range()[0]);
+				let yMin = d3.min([yScale(min), yScale(max)]);
+				let height = Math.abs(yScale(max) - yScale(min));
 
-					return [{"x": xMin, "width": width, "y": yMin, "height": height}];
-				}
-			} else if (type === "exclude") {
-				if (xVar == variable) {
-					let xLower = d3.min([xScale.range()[0], xScale.range()[1]]);
-					let xMin = d3.min([xScale(min), xScale(max)]);
-					let xMax = d3.max([xScale(min), xScale(max)]);
-					let xUpper = d3.max([xScale.range()[0], xScale.range()[1]]);
-
-					let lowerWidth = Math.abs(xMin - xLower);
-					let upperWidth = Math.abs(xUpper - xMax);
-
-					let yMin = d3.min([yScale.range()[1], yScale.range()[0]]);
-					let height = Math.abs(yScale.range()[1] - yScale.range()[0]);
-
-					let lower = {"x": xLower, "width": lowerWidth, "y": yMin, "height": height};
-					let upper = {"x": xMax, "width": upperWidth, "y":yMin, "height": height};
-					return [lower, upper];
-				} else if (yVar == variable) {
-					let xMin = d3.min([xScale.range()[0], xScale.range()[1]]);
-					let width = Math.abs(xScale.range()[1] - xScale.range()[0]);
-
-					let yLower = d3.min([yScale.range()[0], yScale.range()[1]]);
-					let yMin = d3.min([yScale(min), yScale(max)]);
-					let yMax = d3.max([yScale(min), yScale(max)]);
-					let yUpper = d3.max([yScale.range()[0], yScale.range()[1]]);
-
-					let lowerHeight = Math.abs(yMin - yLower);
-					let upperHeight = Math.abs(yUpper - yMax);
-
-					let lower = {"x": xMin, "width": width, "y": yLower, "height": lowerHeight};
-					let upper = {"x": xMin, "width": width, "y": yMax, "height": upperHeight};
-					return [lower, upper];
-				}
+				return [{"x": xMin, "width": width, "y": yMin, "height": height}];
 			}
+
+			return [];
 			
 		}
 
@@ -178,16 +146,6 @@ export default class Range extends DataFact {
 	}
 
 	updateVal(val) {
-		// Do not update if max < min
-		// if (val[1] < val[0]) {
-		// 	if (val[1] < this._max) {
-		// 		this._max = this._min;
-		// 	} else if (val[1] > this._min) {
-		// 		this._min = this._max;
-		// 	}
-		// 	return
-		// }
-
 		this._min = val[0];
 		this._max = val[1];
 	}
@@ -204,126 +162,80 @@ export default class Range extends DataFact {
 		}
 	}
 
-	// Merge augmentations between multiple data facts
-	// Merge by options: intersect, union, difference (in aug1 not in aug2), xor (in aug1 or aug2, not both)
-	// _mergeAugs(augs1, augs2, intersect_id, merge_by="intersect") {
+	// returns a list of [Aug Class]
+	// drft can be a single augmentation or a list of augmentations [aug, aug, ...]
+	intersect(drft) {
 
-	// 	let merged = [];
+		let augs = drft;
 
-	// 	while (augs1.length > 0) {
+		if (!Array.isArray(drft)) {
+			augs = [drft];
+		}
 
-	// 		let last = augs1.pop();
+		let merged_id = this._id;
+		let all_merged = this.getAugs();
 
-	// 		// mark type augmentations are not merged
-	// 		if (last.type === "mark") {
+		for (let d of augs) {
+			if (d._name.startsWith("Range")) {
 
-	// 			merged.push(last);
+				merged_id = `${merged_id}-${d._id}`;
 
-	// 		} else {
+				let new_augs = d.getAugs();
+				all_merged = this._mergeAugs(all_merged, new_augs, merged_id);
+			}
+		}
 
-	// 			let foundIndex = augs2.findIndex(ag => ag.name === last.name && ag.type === "encoding");
+		return all_merged
+	}
 
-	// 			// if no augmentation of the same name is found, add to list without merging
-	// 			if (foundIndex < 0) {
+	// returns a list of [Aug Class]
+	union(drft) {
 
-	// 				merged.push(last);
+		let augs = drft;
 
-	// 			} else {
+		if (!Array.isArray(drft)) {
+			augs = [drft];
+		}
 
-	// 				let matched_aug = augs2.splice(foundIndex, 1)[0];
+		let merged_id = this._id;
+		let all_merged = this.getAugs();
 
-	// 				// new id is combination of aug ids
-	// 				let split_id = last.id.split('_');
-	// 				split_id[0] = intersect_id;
-	// 				let new_id = split_id.join('_');
+		for (let d of augs) {
+			if (d._name.startsWith("Range")) {
 
-	// 				// combine generators
-	// 				function generator(datum) {
+				merged_id = `${merged_id}-${d._id}`;
 
-	// 					if (merge_by === "intersect" && (last.generator(datum) && matched_aug.generator(datum))) {
-	// 						return true;
-	// 					} else if (merge_by === "union" && (last.generator(datum) || matched_aug.generator(datum))) {
-	// 						return true;
-	// 					} else if (merge_by === "difference" && (last.generator(datum) && !matched_aug.generator(datum))) {
-	// 						return true;
-	// 					} else if (merge_by === "xor" && ((last.generator(datum) || matched_aug.generator(datum)) && !(last.generator(datum) && matched_aug.generator(datum)))) {
-	// 						return true;
-	// 					}
+				let new_augs = d.getAugs();
+				all_merged = this._mergeAugs(all_merged, new_augs, merged_id, "union");
+			}
+		}
 
-	// 					return false;
+		return all_merged
+	}
 
-	// 				}
+	// returns a list of [Aug Class]
+	xor(drft) {
 
-	// 				let new_aug = new Aug(new_id, last.name, last.type, last.encoding, generator, last.styles, last.rank);
-	// 				merged.push(new_aug.getSpec());
+		let augs = drft;
 
-	// 			}
+		if (!Array.isArray(drft)) {
+			augs = [drft];
+		}
 
-	// 		}
+		let merged_id = this._id;
+		let all_merged = this.getAugs();
 
-	// 	}
+		for (let d of augs) {
+			if (d._name.startsWith("Range")) {
 
-	// 	return merged.concat(augs2).sort(this._sort)
+				merged_id = `${merged_id}-${d._id}`;
 
-	// }
+				let new_augs = d.getAugs();
+				all_merged = this._mergeAugs(all_merged, new_augs, merged_id, "xor");
+			}
+		}
 
-	// // returns a list of [Aug Class]
-	// intersect(drft) {
-
-	// 	if (drft._name.startsWith("Threshold")) {
-
-	// 		let intersect_id = `${this._id}-${drft._id}`;
-
-	// 		let my_augs = this.getAugs();
-	// 		let drft_augs = drft.getAugs();
-	// 		let merged_augs = this._mergeAugs(my_augs, drft_augs, intersect_id);
-
-	// 		return merged_augs
-	// 	}
-	// }
-
-	// // returns a list of [Aug Class]
-	// union(drft) {
-
-	// 	if (drft._name.startsWith("Threshold")) {
-
-	// 		let intersect_id = `${this._id}-${drft._id}`;
-
-	// 		let my_augs = this.getAugs();
-	// 		let drft_augs = drft.getAugs();
-	// 		let merged_augs = this._mergeAugs(my_augs, drft_augs, intersect_id, "union");
-
-	// 		return merged_augs
-	// 	}
-	// }
-
-	// // returns a list of [Aug Class]
-	// difference(drft) {
-
-	// 	if (drft._name.startsWith("Threshold")) {
-
-	// 		let intersect_id = `${this._id}-${drft._id}`;
-
-	// 		let my_augs = this.getAugs();
-	// 		let drft_augs = drft.getAugs();
-	// 		let merged_augs = this._mergeAugs(my_augs, drft_augs, intersect_id, "difference");
-
-	// 		return merged_augs
-	// 	}
-	// }
-
-	// // returns a list of [Aug Class]
-	// xor(drft) {
-
-	// 	if (drft._name.startsWith("Threshold")) {
-
-	// 		let intersect_id = `${this._id}-${drft._id}`;
-
-	// 		let my_augs = this.getAugs();
-	// 		let drft_augs = drft.getAugs();
-	// 		let merged_augs = this._mergeAugs(my_augs, drft_augs, intersect_id, "xor");
-
-	// 		return merged_augs
-	// 	}
-	// }
+		return all_merged
+	}
+	
 }

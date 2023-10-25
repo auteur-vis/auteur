@@ -2,27 +2,30 @@ import React, {useRef, useState, useEffect} from "react";
 import * as d3 from "d3";
 
 import Draught from "../../src/lib/Draught.js";
-import Range from "../../src/lib/Range.js";
+import Threshold from "../../src/lib/Threshold.js";
 
 // data from https://rkabacoff.github.io/qacData/reference/coffee.html
 import coffee from "../../public/arabica_data_cleaned_top15.json";
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
-  title: 'Aug/Range/Scatter/Include',
+  title: 'Aug/Threshold/Scatter/Multi',
 };
 
 export const ToStorybook = () => {
 
 	const [maxThreshold, setMaxThreshold] = React.useState(7.5);
 	const [minThreshold, setMinThreshold] = React.useState(6.5);
+	const [xThreshold, setXThreshold] = React.useState(7.6);
 
 	const style = {"fill":{"fill":"steelblue"},
 				   "line":{"stroke-dasharray":"2px 5px 5px 5px"}};
 
 	const ref = useRef("range");
 	const chart = useRef(new Draught());
-	const newRange = useRef(new Range("Flavor", [minThreshold, maxThreshold], "include", style));
+	const newMaxThreshold = useRef(new Threshold("Flavor", maxThreshold, "leq", style));
+	const newMinThreshold = useRef(new Threshold("Flavor", minThreshold, "geq", style));
+	const newXThreshold = useRef(new Threshold("Aroma", xThreshold, "leq", style));
 
 	const [data, setData] = React.useState(coffee);
 
@@ -115,19 +118,37 @@ export const ToStorybook = () => {
 					.selection(scatterpoints)
 					.x("Aroma", xScale)
 					.y("Flavor", yScale)
-					.exclude({"name":["opacity"]})
-					.augment(newRange.current.getAugs());
+					.exclude({"name":["stroke", "opacity"]})
+					.augment(newMaxThreshold.current.intersect([newMinThreshold.current, newXThreshold.current]));
 
 	}, [data])
 
 	useEffect(() => {
 
-		newRange.current.updateVal([minThreshold, maxThreshold]);
-		let newAugs = newRange.current.getAugs();
+		newMaxThreshold.current.updateVal(maxThreshold);
+		let newAugs = newMaxThreshold.current.intersect([newMinThreshold.current, newXThreshold.current]);
 
 		chart.current.augment(newAugs);
 
-	}, [minThreshold, maxThreshold])
+	}, [maxThreshold])
+
+	useEffect(() => {
+
+		newMinThreshold.current.updateVal(minThreshold);
+		let newAugs = newMaxThreshold.current.intersect([newMinThreshold.current, newXThreshold.current]);
+
+		chart.current.augment(newAugs);
+
+	}, [minThreshold])
+
+	useEffect(() => {
+
+		newXThreshold.current.updateVal(xThreshold);
+		let newAugs = newMaxThreshold.current.intersect([newMinThreshold.current, newXThreshold.current]);
+
+		chart.current.augment(newAugs);
+
+	}, [xThreshold])
 
 	function updateMax(e) {
 		setMaxThreshold(e.target.value);
@@ -137,10 +158,14 @@ export const ToStorybook = () => {
 		setMinThreshold(e.target.value);
 	}
 
+	function updateX(e) {
+		setXThreshold(e.target.value);
+	}
+
 	return (
 		<div>
 			<div>
-				<p>max threshold: </p>
+				<p>max y-threshold: </p>
 				<input
 					type="range"
 					id="quantity"
@@ -152,7 +177,7 @@ export const ToStorybook = () => {
 					onChange={(e) => updateMax(e)} />
 			</div>
 			<div>
-				<p>min threshold: </p>
+				<p>min y-threshold: </p>
 				<input
 					type="range"
 					id="quantity"
@@ -162,6 +187,18 @@ export const ToStorybook = () => {
 					step="0.01"
 					value={minThreshold}
 					onChange={(e) => updateMin(e)} />
+			</div>
+			<div>
+				<p>x-threshold: </p>
+				<input
+					type="range"
+					id="quantity"
+					name="quantity"
+					min={d3.min(data, d => d.Aroma)}
+					max={d3.max(data, d => d.Aroma)}
+					step="0.01"
+					value={xThreshold}
+					onChange={(e) => updateX(e)} />
 			</div>
 			<svg id="less" ref={ref}>
 				<g id="mark" />
@@ -174,5 +211,5 @@ export const ToStorybook = () => {
 }
 
 ToStorybook.story = {
-  name: 'Include',
+  name: 'Multi',
 };

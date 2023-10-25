@@ -2,26 +2,28 @@ import React, {useRef, useState, useEffect} from "react";
 import * as d3 from "d3";
 
 import Draught from "../../src/lib/Draught.js";
-import Threshold from "../../src/lib/Threshold.js";
+import Range from "../../src/lib/Range.js";
 
 // data from https://rkabacoff.github.io/qacData/reference/coffee.html
 import coffee from "../../public/arabica_data_cleaned_top15.json";
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
-  title: 'Aug/Threshold/Scatter/Quadrant',
+  title: 'Aug/Range/Scatter/Multi',
 };
 
 export const ToStorybook = () => {
 
-	const [xThreshold, setXThreshold] = React.useState(8);
-	const [yThreshold, setYThreshold] = React.useState(8);
-	const [mergeBy, setMergeBy] = useState("xor");
+	const [maxXThreshold, setMaxXThreshold] = React.useState(8);
+	const [minXThreshold, setMinXThreshold] = React.useState(7.5);
 
-	const ref = useRef("quadrant");
+	const [maxYThreshold, setMaxYThreshold] = React.useState(7.5);
+	const [minYThreshold, setMinYThreshold] = React.useState(6.5);
+
+	const ref = useRef("rangeMulti");
 	const chart = useRef(new Draught());
-	const newXThreshold = useRef(new Threshold("Aroma", xThreshold, "leq"));
-	const newYThreshold = useRef(new Threshold("Flavor", yThreshold, "leq"));
+	const newXRange = useRef(new Range("Aroma", [minXThreshold, maxXThreshold], "open"));
+	const newYRange = useRef(new Range("Flavor", [minYThreshold, maxYThreshold], "closed"));
 
 	const [data, setData] = React.useState(coffee);
 
@@ -31,22 +33,6 @@ export const ToStorybook = () => {
 	   		   "marginRight":50,
 	   		   "marginBottom":50,
 	   		   "marginLeft":50};
-
-	function merge(threshold1, threshold2, mergeValue) {
-
-		if (mergeValue === "union") {
-			return threshold1.union(threshold2)
-		} else if (mergeValue === "intersect") {
-			return threshold1.intersect(threshold2)
-		} else if (mergeValue === "difference") {
-			return threshold1.difference(threshold2)
-		} else if (mergeValue === "xor") {
-			return threshold1.xor(threshold2)
-		}
-
-		return threshold1.getAugs().concat(threshold2.getAugs())
-
-	}
 
 	useEffect(() => {
 
@@ -79,24 +65,10 @@ export const ToStorybook = () => {
 									.data(data)
 									.join("circle")
 									.attr("class", "scatterpoint")
-									.attr("cx", d => xScale(d["Aroma"]) + Math.random() * 8 - 4)
-									.attr("cy", d => yScale(d["Flavor"]) + Math.random() * 8 - 4)
+									.attr("cx", d => xScale(d["Aroma"]))
+									.attr("cy", d => yScale(d["Flavor"]))
 									.attr("r", d => 3)
-									.on("mouseover", (event, d) => {
-
-										let xPos = xScale(d["Aroma"]);
-										let yPos = yScale(d["Flavor"]) - 8;
-
-										tooltip.attr("transform", `translate(${xPos}, ${yPos})`)
-												.attr("opacity", 1)
-												.text(d.name);
-
-									})
-									.on("mouseout", (event, d) => {
-
-										tooltip.attr("opacity", 0);
-
-									});
+									.attr("opacity", 0.25);
 
 		svgElement.select("#xAxis")
 				  .call(d3.axisBottom(xScale))
@@ -129,76 +101,94 @@ export const ToStorybook = () => {
 					.selection(scatterpoints)
 					.x("Aroma", xScale)
 					.y("Flavor", yScale)
-					// .exclude({"type":["encoding"]})
-					.augment(merge(newXThreshold.current, newYThreshold.current, mergeBy));
+					// .exclude({"name":["opacity"]})
+					.augment(newXRange.current.union(newYRange.current));
 
 	}, [data])
 
 	useEffect(() => {
 
-		newYThreshold.current.updateVal(yThreshold);
-		let newAugs = merge(newXThreshold.current, newYThreshold.current, mergeBy);
+		newXRange.current.updateVal([minXThreshold, maxXThreshold]);
+		let newAugs = newXRange.current.union(newYRange.current);
 
 		chart.current.augment(newAugs);
 
-	}, [yThreshold])
+	}, [minXThreshold, maxXThreshold])
 
-	useEffect(() => {
-
-		newXThreshold.current.updateVal(xThreshold);
-		let newAugs = merge(newXThreshold.current, newYThreshold.current, mergeBy);
-
-		chart.current.augment(newAugs);
-
-	}, [xThreshold])
-
-	useEffect(() => {
-
-		let newAugs = merge(newXThreshold.current, newYThreshold.current, mergeBy);
-
-		chart.current.augment(newAugs);
-
-	}, [mergeBy])
-
-	function updateY(e) {
-		setYThreshold(e.target.value);
+	function updateXMax(e) {
+		setMaxXThreshold(e.target.value);
 	}
 
-	function updateX(e) {
-		setXThreshold(e.target.value);
+	function updateXMin(e) {
+		setMinXThreshold(e.target.value);
+	}
+
+	useEffect(() => {
+
+		newYRange.current.updateVal([minYThreshold, maxYThreshold]);
+		let newAugs = newXRange.current.union(newYRange.current);
+
+		chart.current.augment(newAugs);
+
+	}, [minYThreshold, maxYThreshold])
+
+	function updateYMax(e) {
+		setMaxYThreshold(e.target.value);
+	}
+
+	function updateYMin(e) {
+		setMinYThreshold(e.target.value);
 	}
 
 	return (
 		<div>
 			<div>
-				<p>x-axis threshold: </p>
+				<p>max x-threshold: </p>
 				<input
 					type="range"
 					id="quantity"
 					name="quantity"
-					min="5" max="9"
+					min={d3.min(data, d => d.Aroma)}
+					max={d3.max(data, d => d.Aroma)}
 					step="0.01"
-					value={xThreshold}
-					onChange={(e) => updateX(e)} />
+					value={maxXThreshold}
+					onChange={(e) => updateXMax(e)} />
 			</div>
 			<div>
-				<p>y-axis threshold: </p>
+				<p>min x-threshold: </p>
 				<input
 					type="range"
 					id="quantity"
 					name="quantity"
-					min="6" max="9"
+					min={d3.min(data, d => d.Aroma)}
+					max={d3.max(data, d => d.Aroma)}
 					step="0.01"
-					value={yThreshold}
-					onChange={(e) => updateY(e)} />
+					value={minXThreshold}
+					onChange={(e) => updateXMin(e)} />
 			</div>
 			<div>
-				<p>merge by: </p>
-				<select value={mergeBy} onChange={(e) => setMergeBy(e.target.value)}>
-					<option value="union">Union</option>
-					<option value="intersect">Intersect</option>
-					<option value="xor">xor</option>
-				</select>
+				<p>max y-threshold: </p>
+				<input
+					type="range"
+					id="quantity"
+					name="quantity"
+					min={d3.min(data, d => d.Flavor)}
+					max={d3.max(data, d => d.Flavor)}
+					step="0.01"
+					value={maxYThreshold}
+					onChange={(e) => updateYMax(e)} />
+			</div>
+			<div>
+				<p>min y-threshold: </p>
+				<input
+					type="range"
+					id="quantity"
+					name="quantity"
+					min={d3.min(data, d => d.Flavor)}
+					max={d3.max(data, d => d.Flavor)}
+					step="0.01"
+					value={minYThreshold}
+					onChange={(e) => updateYMin(e)} />
 			</div>
 			<svg id="less" ref={ref}>
 				<g id="mark" />
@@ -211,5 +201,5 @@ export const ToStorybook = () => {
 }
 
 ToStorybook.story = {
-  name: 'Quadrant',
+  name: 'Multi',
 };
