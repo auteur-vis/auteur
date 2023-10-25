@@ -228,21 +228,17 @@ export default class DerivedValues extends DataFact {
 
 	}
 
-	_sort(a, b) {
-		return a.rank - b.rank;
-	}
-
 	// returns a list of [Aug Class]
 	getAugs() {
 
-		let markMultipleAug = new Aug(`${this._id}_markMultiple`, "derived_markMultiple", "mark", {"mark":undefined},
+		let multipleAug = new Aug(`${this._id}_multiple`, "derived_multiple", "mark", {"mark":undefined},
 										 this.generateMark(this._variable, this._val, this._type, this._calc, this._fn), 
-										 this.mergeStyles(this._customStyles.markMultiple, undefined), 1);
+										 this.mergeStyles(this._customStyles.multiple, undefined), 1);
 		let lineAug = new Aug(`${this._id}_line`, "derived_line", "mark", {"mark":"line"},
 								 this.generateLine(this._variable, this._val, this._type, this._calc, this._fn),
 								 this.mergeStyles(this._customStyles.line, markStyles.line), 2);
 
-		return [markMultipleAug.getSpec(), lineAug.getSpec()].sort(this._sort)
+		return [multipleAug.getSpec(), lineAug.getSpec()].sort(this._sort)
 	}
 
 	updateVariable(variable) {

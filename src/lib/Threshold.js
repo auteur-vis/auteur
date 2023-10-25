@@ -97,10 +97,6 @@ export default class Threshold extends DataFact {
  
 	}
 
-	_sort(a, b) {
-		return a.rank - b.rank;
-	}
-
 	// returns a list of [Aug Class]
 	getAugs() {
 

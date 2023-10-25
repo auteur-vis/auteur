@@ -2,28 +2,25 @@ import React, {useRef, useState, useEffect} from "react";
 import * as d3 from "d3";
 
 import Draught from "../../src/lib/Draught.js";
-import Emphasis from "../../src/lib/Emphasis.js";
+import LocalData from "../../src/lib/LocalData.js";
 
 // data from https://rkabacoff.github.io/qacData/reference/coffee.html
 import coffee from "../../public/arabica_data_cleaned_top15.json";
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
-  title: 'Aug/Emphasis/Scatter/List',
+  title: 'Aug/Local/Scatter/All',
 };
 
 export const ToStorybook = () => {
 
-	const [emphVal1, setEmphVal1] = React.useState("Other");
-	const [emphVal2, setEmphVal2] = React.useState("Bourbon");
-
-	const options = Array.from(new Set(coffee.map(d => d.Variety)));
-
-	const ref = useRef("emphVal");
+	const ref = useRef("localScatter");
 	const chart = useRef(new Draught());
-	const newEmphasis = useRef(new Emphasis("Variety", [emphVal1, emphVal2]));
 
-	const [data, setData] = React.useState(coffee);
+	const [data, setData] = React.useState(coffee.slice(0, 110));
+	const local = useRef(coffee.slice(110, 120));
+
+	const newLocal = useRef(new LocalData(local.current));
 
 	let layout={"width":500,
 	   		   "height":500,
@@ -53,10 +50,6 @@ export const ToStorybook = () => {
 		let yScale = d3.scaleLinear()
 							.domain(d3.extent(data, d => d["Flavor"]))
 							.range([layout.height - layout.marginBottom, layout.marginTop]);
-
-		let sizeScale = d3.scaleLinear()
-							.domain(d3.extent(data, d => d["Flavor"]))
-							.range([3, 6]);
 
 		let scatterpoints = svgElement.select("#mark")
 									.selectAll(".scatterpoint")
@@ -108,59 +101,25 @@ export const ToStorybook = () => {
 				  .attr("fill", "black")
 				  .text(d => d);
 
-		let colorScale = d3.scaleSequential(d3.interpolateViridis)
-							.domain(d3.extent(data, d => d["Flavor"]));
+		let sizeScale = d3.scaleLinear()
+							.domain(d3.extent(local.current, d => d["Flavor"]))
+							.range([3, 10]);
 
-		const styles = {"fill": {"fill": (d, i) => colorScale(d.Flavor)}};
+		const styles = {"mark": {"fill":"none", "stroke": "red", "r": (d, i) => sizeScale(d.Flavor)}};
 
-		newEmphasis.current.updateStyles(styles);
+		newLocal.current.updateStyles(styles);
 
 		chart.current.chart(ref.current)
 					.selection(scatterpoints)
 					.x("Aroma", xScale)
 					.y("Flavor", yScale)
-					.exclude({"name":["text"]})
-					.augment(newEmphasis.current.getAugs());
+					.exclude()
+					.augment(newLocal.current.getAugs());
 
 	}, [data])
 
-	useEffect(() => {
-
-		let newEmphVals = [emphVal1, emphVal2];
-		newEmphasis.current.updateVal(newEmphVals);
-		
-		let newAugs = newEmphasis.current.getAugs();
-		chart.current.augment(newAugs);
-
-	}, [emphVal1, emphVal2])
-
-	function updateEmphVal1(e) {
-		setEmphVal1(e.target.value);
-	}
-
-	function updateEmphVal2(e) {
-		setEmphVal2(e.target.value);
-	}
-
-	let controlStyle = {"display":"flex"};
-	let paragraphStyle = {"margin":"3px"};
-
 	return (
 		<div>
-			<div style={controlStyle}>
-				<p style={paragraphStyle}>Highlight varieties </p>
-				<select value={emphVal1} onChange={(e) => updateEmphVal1(e)}>
-					{options.map((d, i) => {
-						return <option value={d} key={`option1${i}`}>{d}</option>
-					})}
-				</select>
-				<p style={paragraphStyle}> and </p>
-				<select value={emphVal2} onChange={(e) => updateEmphVal2(e)}>
-					{options.map((d, i) => {
-						return <option value={d} key={`option2${i}`}>{d}</option>
-					})}
-				</select>
-			</div>
 			<svg id="less" ref={ref}>
 				<g id="mark" />
 				<g id="xAxis" />
@@ -172,5 +131,5 @@ export const ToStorybook = () => {
 }
 
 ToStorybook.story = {
-  name: 'List',
+  name: 'All',
 };

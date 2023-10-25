@@ -106,24 +106,9 @@ export default class Draught {
 		let draughtLayer = this._chart.select("#draughty");
 
 		if (data.length >= 1) {
-			let orient = data[0]["x1"] ? "x" : "y";
+			// let orient = data[0]["x1"] ? "x" : "y";
 
-			let newLines;
-
-			if (orient === "x") {
-
-				newLines = draughtLayer.selectAll(`#${aug.id}`)
-											.data(data)
-											.join("line")
-											.attr("id", aug.id)
-											.attr("x1", d => d["x1"])
-											.attr("y1", d => d["y1"])
-											.attr("x2", d => d["x2"])
-											.attr("y2", d => d["y2"]);
-
-			} else if (orient === "y") {
-
-				newLines = draughtLayer.selectAll(`#${aug.id}`)
+			let newLines = draughtLayer.selectAll(`#${aug.id}`)
 							.data(data)
 							.join("line")
 							.attr("id", aug.id)
@@ -132,10 +117,42 @@ export default class Draught {
 							.attr("x2", d => d["x2"])
 							.attr("y2", d => d["y2"]);
 
-			}
-
 			for (let s of Object.keys(aug.styles)) {
 				newLines.attr(s, (d, i) => {
+					let customStyle = aug.styles[s];
+					if (typeof customStyle === "function") {
+						return customStyle(d, i)
+					} else {
+						return customStyle
+					}
+				});
+			}
+
+		} else {
+			draughtLayer.selectAll(`#${aug.id}`)
+						.data(data)
+						.join("line")
+						.attr("id", aug.id)
+		}
+
+	}
+
+	_handleRect(aug, data) {
+
+		let draughtLayer = this._chart.select("#draughty");
+
+		if (data.length >= 1) {
+			let newRects = draughtLayer.selectAll(`#${aug.id}`)
+											.data(data)
+											.join("rect")
+											.attr("id", aug.id)
+											.attr("x", d => d["x"])
+											.attr("width", d => d["width"])
+											.attr("y", d => d["y"])
+											.attr("height", d => d["height"]);
+
+			for (let s of Object.keys(aug.styles)) {
+				newRects.attr(s, (d, i) => {
 					let customStyle = aug.styles[s];
 					if (typeof customStyle === "function") {
 						return customStyle(d, i)
@@ -160,7 +177,7 @@ export default class Draught {
 
 		let newText;
 
-		if (data.length >= 1) {
+		if (data.length > 0) {
 			let orient = data[0]["x"] ? "x" : "y";
 
 			if (orient === "x") {
@@ -214,6 +231,7 @@ export default class Draught {
 				}
 			}
 		} else {
+			// Remove existing text
 			draughtLayer.selectAll(`#${aug.id}`)
 						.data(data)
 						.join("text")
@@ -222,43 +240,95 @@ export default class Draught {
 
 	}
 
-	_handleMultiple(aug, data) {
+	_handleMarkMultiple(aug, data, clone=true) {
 
 		let draughtLayer = this._chart.select("#draughty");
 		let elements = this._selection.nodes();
 
-		let orient = data[0]["x"] ? "x" : "y";
+		let newMultiples;
 
-		if (orient === "x") {
+		if (data[0]["x"] && !data[0]["y"]) {
 
-			let newMultiples = draughtLayer.selectAll(`.${aug.id}_multiple`)
+			newMultiples = draughtLayer.selectAll(`.${aug.id}_multiple`)
 										.data(data)
 										.join(
-											enter => enter.append((d, i) => elements[i].cloneNode(true)))
+											enter => enter.append((d, i) => clone ? elements[i].cloneNode(true) : elements[0].cloneNode(true)))
 										.attr("class", `${aug.id}_multiple`)
-										.attr("cx", (d, i) => elements[i].cx ? elements[i].cx.baseVal.value + d.deltx : undefined)
-										.attr("x", (d, i) => elements[i].x ? elements[i].x.baseVal.value + d.deltx : undefined)
-										.attr("width", (d, i) => elements[i].width ? elements[i].width.baseVal.value + d.deltx : undefined);
+										.attr("cx", (d, i) => {
+											if (!elements[i].cx) {return}
+											return d.deltx != null ? elements[i].cx.baseVal.value + d.deltx : d.x
+										})
+										.attr("x", (d, i) => {
+											if (!elements[i].x) {return} 
+											return d.deltx != null ? elements[i].x.baseVal.value + d.deltx : d.x
+										})
+										.attr("width", (d, i) => {
+											if (!elements[i].width) {return}
+											return d.deltx != null ? elements[i].width.baseVal.value + d.deltx : d.x
+										});
 
-			for (let s of Object.keys(aug.styles)) {
-				newMultiples.attr(s, aug.styles[s]);
-			}
+		} else if (data[0]["y"] && !data[0]["x"]) {
 
-		} else if (orient === "y") {
-
-			let newMultiples = draughtLayer.selectAll(`.${aug.id}_multiple`)
+			newMultiples = draughtLayer.selectAll(`.${aug.id}_multiple`)
 										.data(data)
 										.join(
-											enter => enter.append((d, i) => elements[i].cloneNode(true)))
+											enter => enter.append((d, i) => clone ? elements[i].cloneNode(true) : elements[0].cloneNode(true)))
 										.attr("class", `${aug.id}_multiple`)
-										.attr("cy", (d, i) => elements[i].cy ? elements[i].cy.baseVal.value + d.delty : undefined)
-										.attr("y", (d, i) => elements[i].y ? elements[i].y.baseVal.value + d.delty : undefined)
-										.attr("height", (d, i) => elements[i].height ? elements[i].height.baseVal.value - d.delty : undefined);
+										.attr("cy", (d, i) => {
+											if (!elements[i].cy) {return}
+											return d.delty != null ? elements[i].cy.baseVal.value + d.delty : d.y
+										})
+										.attr("y", (d, i) => {
+											if (!elements[i].y) {return}
+											return d.delty != null ? elements[i].y.baseVal.value + d.delty : d.y
+										})
+										.attr("height", (d, i) => {
+											if (!elements[i].height) {return}
+											return d.delty != null ? elements[i].height.baseVal.value - d.delty : d.y
+										});
 
-			for (let s of Object.keys(aug.styles)) {
-				newMultiples.attr(s, aug.styles[s]);
-			}
+		} else {
 
+			newMultiples = draughtLayer.selectAll(`.${aug.id}_multiple`)
+										.data(data)
+										.join(
+											enter => enter.append((d, i) => clone ? elements[i].cloneNode(true) : elements[0].cloneNode(true)))
+										.attr("cx", (d, i) => {
+											if (!elements[i].cx) {return}
+											return d.deltx != null ? elements[i].cx.baseVal.value + d.deltx : d.x
+										})
+										.attr("x", (d, i) => {
+											if (!elements[i].x) {return} 
+											return d.deltx != null ? elements[i].x.baseVal.value + d.deltx : d.x
+										})
+										.attr("width", (d, i) => {
+											if (!elements[i].width) {return}
+											return d.deltx != null ? elements[i].width.baseVal.value + d.deltx : d.x
+										})
+										.attr("cy", (d, i) => {
+											if (!elements[i].cy) {return}
+											return d.delty != null ? elements[i].cy.baseVal.value + d.delty : d.y
+										})
+										.attr("y", (d, i) => {
+											if (!elements[i].y) {return}
+											return d.delty != null ? elements[i].y.baseVal.value + d.delty : d.y
+										})
+										.attr("height", (d, i) => {
+											if (!elements[i].height) {return}
+											return d.delty != null ? elements[i].height.baseVal.value - d.delty : d.y
+										});
+
+		}
+
+		for (let s of Object.keys(aug.styles)) {
+			newMultiples.attr(s, (d, i) => {
+				let customStyle = aug.styles[s];
+				if (typeof customStyle === "function") {
+					return customStyle(d, i)
+				} else {
+					return customStyle
+				}
+			});
 		}
 
 	}
@@ -393,7 +463,7 @@ export default class Draught {
 
 						this._selection.style(s, d => {
 
-							if (a.generator(d)) {
+							if (a.generator(d, this._xVar, this._yVar, this._xScale, this._yScale)) {
 								return styles[s];
 							} else {
 								return 0.25
@@ -403,10 +473,16 @@ export default class Draught {
 
 					} else {
 
-						this._selection.style(s, d => {
+						this._selection.style(s, (d, i) => {
 
-							if (a.generator(d)) {
-								return styles[s];
+							if (a.generator(d, this._xVar, this._yVar, this._xScale, this._yScale)) {
+								let customStyle = styles[s];
+
+								if (typeof customStyle === "function") {
+									return customStyle(d, i)
+								} else {
+									return customStyle
+								}
 							}
 							
 						});
@@ -427,9 +503,17 @@ export default class Draught {
 				} else if (draughtData && a.encoding.mark === "text") {
 					// Add a text mark
 					this._handleText(a, draughtData);
+				} else if (draughtData && a.encoding.mark === "rect") {
+					// Add a text mark
+					this._handleRect(a, draughtData);
 				} else if (draughtData && !a.encoding.mark) {
-					// If no mark specified, create multiple of existing mark(s)
-					this._handleMultiple(a, draughtData);
+					// If no mark specified, duplicate existing mark(s)
+					if (a.name.endsWith("multiple")) {
+						this._handleMarkMultiple(a, draughtData);
+					} else {
+						this._handleMarkMultiple(a, draughtData, false);
+					}
+					
 				}
 
 			}

@@ -114,7 +114,7 @@ export const ToStorybook = () => {
 			return `produced in ${d.Country}`
 		}
 
-		const styles = {"text": {"text-anchor":"middle", "x": 420, "y":alignY, "text": getText}};
+		const styles = {"text": {"text-anchor":"end", "x": 490, "y":alignY, "text": getText}};
 
 		newEmphasis.current.updateStyles(styles);
 

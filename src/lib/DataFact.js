@@ -44,4 +44,8 @@ export default class DataFact {
 
 	}
 
+	_sort(a, b) {
+		return a.rank - b.rank;
+	}
+
 }

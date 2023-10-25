@@ -16,7 +16,7 @@ export const ToStorybook = () => {
 
 	const [yConstant, setYConstant] = React.useState(5);
 
-	const style = {"markMultiple":{"fill":"steelblue"}};
+	const style = {"multiple":{"fill":"steelblue"}};
 
 	const ref = useRef("constant");
 	const chart = useRef(new Draught());

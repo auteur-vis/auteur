@@ -7,5 +7,9 @@ export default {
 	"text": {
 		"font-family":"sans-serif",
 		"font-size":11
+	},
+	"rect": {
+		"opacity": 0.1,
+		"fill": "black"
 	}
 }

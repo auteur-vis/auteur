@@ -6,96 +6,44 @@ import DataFact from "./DataFact.js";
 import markStyles from "./styles/markStyles.js";
 import encodingStyles from "./styles/encodingStyles.js";
 
-export default class Emphasis extends DataFact {
+// Just add data
+export default class LocalData extends DataFact {
 
-	// val can either be a single value or list of values
-	constructor(variable, val, styles={}) {
+	constructor(val, styles={}) {
 
 		super();
-		
-		this._name = "Emphasis";
 
-		this._variable = variable;
-		this._val = val;
+		this._name = "LocalData";
+
+		this._local = val;
 
 		this._customStyles = styles;
 
 	}
 
-	// generator for encoding type augmentations
-	generateEncoding(variable, val, type) {
-
-		return function(datum, xVar, yVar, xScale, yScale) {
-
-			if (Array.isArray(val)) {
-				if (val.indexOf(datum[variable]) >= 0) {
-					return true;
-				} else {
-					return false;
-				}
-			} else {
-				if (datum[variable] == val) {
-					return true;
-				}
-			}
-
-			return false;
-		}
-
-	}
-
-	// generator for text augmentation
-	generateText(variable, val, type) {
-
+	// generator for mark augmentation
+	generateMark(local=[]) {
+		
 		return function(data, xVar, yVar, xScale, yScale) {
-
-			let result;
-
-			if (Array.isArray(val)) {
-
-				result = data.filter(d => val.indexOf(d[variable]) >= 0).map(d => {
-					d.x = xScale(d[xVar]);
-					d.y = yScale(d[yVar]) - 10;
-					d.text = `${variable} = ${d[variable]}`;
-					return d
-				});
-
-			} else {
-
-				result = data.filter(d => val == d[variable]).map(d => {
-					d.x = xScale(d[xVar]);
-					d.y = yScale(d[yVar]) - 10;
-					d.text = `${variable} = ${d[variable]}`;
-					return d				
-				});
-			}
-
-			return result;
 			
+			return(local.map(ld => {
+				ld.x = xScale(ld[xVar]);
+				ld.y = yScale(ld[yVar]);
+				return ld
+			}))
+
 		}
- 
+
 	}
 
 	// returns a list of [Aug Class]
 	getAugs() {
 
-		let strokeAug = new Aug(`${this._id}_stroke`, "emphasis_stroke", "encoding", undefined,
-								   this.generateEncoding(this._variable, this._val, this._type),
-								   this.mergeStyles(this._customStyles.stroke, encodingStyles.stroke), 1);
+		let markAug = new Aug(`${this._id}_mark`, "derived_mark", "mark", {"mark":undefined},
+										 this.generateMark(this._local), 
+										 this.mergeStyles(this._customStyles.mark, undefined), 1);
 
-		let textAug = new Aug(`${this._id}_text`, "emphasis_text", "mark", {"mark":"text"},
-								 this.generateText(this._variable, this._val, this._type),
-								 this.mergeStyles(this._customStyles.text, markStyles.text), 2);
-
-		let fillAug = new Aug(`${this._id}_fill`, "emphasis_fill", "encoding", undefined,
-								  this.generateEncoding(this._variable, this._val, this._type),
-								  this.mergeStyles(this._customStyles.fill, encodingStyles.fill), 3);
-
-		let opacityAug = new Aug(`${this._id}_opacity`, "emphasis_opacity", "encoding", undefined,
-									this.generateEncoding(this._variable, this._val, this._type), 
-									this.mergeStyles(this._customStyles.opacity, encodingStyles.opacity), 4);
-
-		return [strokeAug.getSpec(), textAug.getSpec(), fillAug.getSpec(), opacityAug.getSpec()].sort(this._sort)
+		return [markAug.getSpec()].sort(this._sort)
 	}
 
 	updateVariable(variable) {
@@ -106,6 +54,10 @@ export default class Emphasis extends DataFact {
 		this._val = val;
 	}
 
+	updateFunction(fn) {
+		this._fn = fn;
+	}
+
 	updateStyles(styles, override = false) {
 		if (override) {
 			this._customStyles = styles;
@@ -114,8 +66,8 @@ export default class Emphasis extends DataFact {
 		}
 	}
 
-	// Merge augmentations between multiple data facts
-	// Merge by options: intersect, union, difference (in aug1 not in aug2), xor (in aug1 or aug2, not both)
+	// // Merge augmentations between multiple data facts
+	// // Merge by options: intersect, union, difference (in aug1 not in aug2), xor (in aug1 or aug2, not both)
 	// _mergeAugs(augs1, augs2, intersect_id, merge_by="intersect") {
 
 	// 	let merged = [];
@@ -164,7 +116,7 @@ export default class Emphasis extends DataFact {
 
 	// 				}
 
-	// 				let new_aug = new Aug(new_id, last.name, last.type, last.encoding, generator, last.styles, last.rank);
+	// 				let new_aug = new Aug(new_id, last.name, last.type, last.encoding, generator, last.rank);
 	// 				merged.push(new_aug.getSpec());
 
 	// 			}
