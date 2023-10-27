@@ -1,6 +1,6 @@
 import React, {useRef, useState, useEffect} from "react";
 import * as d3 from "d3";
-
+import { FormulaBuilder } from "./FormulaBuilder.js";
 import Draught from "../../src/lib/Draught.js";
 import DerivedValues from "../../src/lib/DerivedValues.js";
 
@@ -17,17 +17,18 @@ export const ToStorybook = () => {
 	const [yConstant, setYConstant] = React.useState(5);
 
 	const style = {"multiple":{"fill":"steelblue"}};
-
 	const ref = useRef("constant");
 	const chart = useRef(new Draught());
-
-	function myDerivedValue(d) {
-		return d.Flavor - d.Aroma / 2 - d.Balance / 3;
-	}
-
-	const newYConstant = useRef(new DerivedValues("Flavor", undefined, undefined, myDerivedValue, style));
-
+	const [formula, setFormula] = useState('return 0;');
 	const [data, setData] = React.useState(coffee.slice(0, 10));
+	const datapoint = useRef(JSON.parse(JSON.stringify(coffee.slice(0, 10)[0])))
+	const newYConstant = useRef(null);
+	
+	useEffect(() => {
+		newYConstant.current = new DerivedValues('Flavor', undefined, undefined, new Function('d', formula), style);
+		updatePlot()
+	  }, [formula,data]);
+
 
 	let layout={"width":500,
 	   		   "height":500,
@@ -36,8 +37,7 @@ export const ToStorybook = () => {
 	   		   "marginBottom":50,
 	   		   "marginLeft":50};
 
-	useEffect(() => {
-
+	function updatePlot() {
 		let svgElement = d3.select(ref.current);
 
 		// create a tooltip
@@ -127,37 +127,14 @@ export const ToStorybook = () => {
 					.x("FIELD1", xScale, xAxis)
 					.y("Flavor", yScale, yAxis)
 					.augment(newYConstant.current.getAugs());
+	}
 
-	}, [data])
-
-	// useEffect(() => {
-
-	// 	newYConstant.current.updateVal(yConstant);
-	// 	let newAug2 = newYConstant.current.getAugs();
-
-	// 	chart.current.augment(newAug2);
-
-	// }, [yConstant])
-
-	// function updateY(e) {
-	// 	setYConstant(e.target.value);
-	// }
-
-	// <div>
-	// 			<p>Showing Flavor - {yConstant}: </p>
-	// 			<input
-	// 				type="number"
-	// 				id="quantity"
-	// 				name="quantity"
-	// 				min="0" max="10"
-	// 				step="1"
-	// 				value={yConstant}
-	// 				onChange={(e) => updateY(e)} />
-	// 		</div>
 
 	return (
 		<div>
-			
+			<div>
+				<FormulaBuilder setFormula = {setFormula} dataPoint = {datapoint.current}/>
+			</div>
 			<svg id="less" ref={ref}>
 				<g id="mark" />
 				<g id="xAxis" />
@@ -165,6 +142,7 @@ export const ToStorybook = () => {
 				<text id="tooltip" />
 			</svg>
 		</div>
+		
 	)
 }
 

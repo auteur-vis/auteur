@@ -1,6 +1,6 @@
 import React, {useRef, useState, useEffect} from "react";
 import * as d3 from "d3";
-
+import { FormulaBuilder } from "./FormulaBuilder.js";
 import Draught from "../../src/lib/Draught.js";
 import DerivedValues from "../../src/lib/DerivedValues.js";
 
@@ -14,15 +14,16 @@ export default {
 
 export const ToStorybook = () => {
 
-	const [yConstant, setYConstant] = React.useState(0.5);
+	//const [yConstant, setYConstant] = React.useState(0.5);
 
 	const style = {"multiple":{"fill":"steelblue", "opacity":1}};
 
 	const ref = useRef("constant");
 	const chart = useRef(new Draught());
-	const newYConstant = useRef(new DerivedValues("Flavor", yConstant, "mult", undefined, style));
-
 	const [data, setData] = React.useState(coffee.slice(0, 10));
+	const [formula, setFormula] = useState('return 0;');
+	const newYConstant = useRef(null);
+	const datapoint = useRef(JSON.parse(JSON.stringify(coffee.slice(0, 10)[0])))
 
 	let layout={"width":500,
 	   		   "height":500,
@@ -31,7 +32,7 @@ export const ToStorybook = () => {
 	   		   "marginBottom":50,
 	   		   "marginLeft":50};
 
-	useEffect(() => {
+	function updatePlot() {
 
 		let svgElement = d3.select(ref.current);
 
@@ -120,25 +121,41 @@ export const ToStorybook = () => {
 				  .attr("transform", `translate(0, 40)`)
 				  .attr("fill", "black")
 				  .text(d => d);
-
-	}, [data])
+	}
 
 	useEffect(() => {
-
-		newYConstant.current.updateVal(yConstant);
+		newYConstant.current = new DerivedValues('Flavor', undefined, undefined, new Function('d', formula), style);
 		let newAug2 = newYConstant.current.getAugs();
-
 		chart.current.augment(newAug2);
+	}, [formula])
 
-	}, [yConstant])
+	useEffect(() => {
+		//newYConstant.current = new DerivedValues("Flavor", 0.5, "mult", undefined, style)
+		newYConstant.current = new DerivedValues('Flavor', undefined, undefined, new Function('d', formula), style);
+		updatePlot()
+		let newAug2 = newYConstant.current.getAugs();
+		chart.current.augment(newAug2);
+	}, [data])
 
-	function updateY(e) {
-		setYConstant(e.target.value);
-	}
+	// useEffect(() => {
+
+	// 	newYConstant.current.updateVal(yConstant);
+	// 	let newAug2 = newYConstant.current.getAugs();
+
+	// 	chart.current.augment(newAug2);
+
+	// }, [yConstant])
+
+	// function updateY(e) {
+	// 	setYConstant(e.target.value);
+	// }
 
 	return (
 		<div>
 			<div>
+			<FormulaBuilder setFormula = {setFormula} dataPoint = {datapoint.current}/>
+			</div>
+			{/* <div>
 				<p>Showing Flavor * {yConstant}: </p>
 				<input
 					type="range"
@@ -148,7 +165,7 @@ export const ToStorybook = () => {
 					step="0.1"
 					value={yConstant}
 					onChange={(e) => updateY(e)} />
-			</div>
+			</div> */}
 			<svg id="barless" ref={ref}>
 				<g id="mark" />
 				<g id="xAxis" />
