@@ -14,9 +14,14 @@ export default {
 
 export const ToStorybook = () => {
 
+	let countries = ["Colombia", "Guatemala", "Brazil", "Costa Rica", "Ethiopia"];
+	let varieties = ["Other", "Arusha", "Bourbon", "Caturra", "Catuai"];
+
+	let filteredCoffee = coffee.filter((d) => {return countries.indexOf(d.Country) >= 0 && varieties.indexOf(d.Variety) >= 0});
+
 	let series = d3.stack()
-					.keys(Array.from(new Set(coffee.map(d => d.Variety))))
-					.value(([, D], key) => D.get(key) ? D.get(key).length : 0)(d3.group(coffee, d => d["Country"], d => d.Variety));
+					.keys(Array.from(new Set(filteredCoffee.map(d => d.Variety))))
+					.value(([, D], key) => D.get(key) ? D.get(key).length : 0)(d3.group(filteredCoffee, d => d["Country"], d => d.Variety));
 	let flatten = [];
 
 	for (let t of series) {
@@ -32,8 +37,8 @@ export const ToStorybook = () => {
 
 	}
 	
-	const [maxThreshold, setMaxThreshold] = React.useState(15);
-	const [minThreshold, setMinThreshold] = React.useState(10);
+	const [maxThreshold, setMaxThreshold] = React.useState(10);
+	const [minThreshold, setMinThreshold] = React.useState(0);
 
 	const ref = useRef("barstacked");
 	const chart = useRef(new Draught());
@@ -42,8 +47,8 @@ export const ToStorybook = () => {
 
 	const [data, setData] = React.useState(flatten);
 
-	let layout={"width":960,
-	   		   "height":900,
+	let layout={"width":560,
+	   		   "height":400,
 	   		   "marginTop":50,
 	   		   "marginRight":50,
 	   		   "marginBottom":50,
@@ -64,7 +69,7 @@ export const ToStorybook = () => {
 				.attr("height", layout.height);
 
 		let xScale = d3.scaleBand()
-						.domain(data.map(d => d.country).sort())
+						.domain(countries)
 						.range([layout.marginLeft, layout.width - layout.marginRight]);
 
 		let yScale = d3.scaleBand()
@@ -73,7 +78,7 @@ export const ToStorybook = () => {
 
 		let sizeScale = d3.scaleLinear()
 							.domain(d3.extent(data, d => d.count))
-							.range([5, 15])
+							.range([5, 20])
 
 		let bars = svgElement.select("#mark")
 							.selectAll(".point")
@@ -85,6 +90,7 @@ export const ToStorybook = () => {
 							.attr("r", d => sizeScale(d.count))
 							.attr("fill", "white")
 							.attr("stroke", d => d.count != 0 ? "steelblue" : "none")
+							.attr("stroke-width", 2)
 							.on("mouseover", (event, d) => {
 
 								let xPos = xScale(d.country) + xScale.bandwidth() / 2;
@@ -109,11 +115,15 @@ export const ToStorybook = () => {
 				  .call(d3.axisLeft(yScale).ticks(5))
 				  .attr("transform", `translate(${layout.marginLeft}, 0)`);
 
+		const styles = {"stroke": {"stroke": "red", "stroke-width": "2px"}};
+
+		newMaxThreshold.current.updateStyles(styles);
+
 		chart.current.chart(ref.current)
 					.selection(bars)
 					.x("country", xScale)
 					.y("variety", yScale)
-					.include({"name":["stroke", "fill"]})
+					.include({"name":["stroke"]})
 					.augment(newMaxThreshold.current.intersect(newMinThreshold.current));
 
 	}, [data])
@@ -150,7 +160,7 @@ export const ToStorybook = () => {
 	return (
 		<div>
 			<div style={controlStyle}>
-				<p style={paragraphStyle}>highlighting coffees with between </p>
+				<p style={paragraphStyle}>highlighting groups with between </p>
 				<input
 					type="number"
 					id="quantity"
@@ -166,7 +176,7 @@ export const ToStorybook = () => {
 					min="0" max="23"
 					value={maxThreshold}
 					onChange={(e) => updateMax(e)} />
-				<p style={paragraphStyle}>varieties per country:</p>
+				<p style={paragraphStyle}>coffees:</p>
 			</div>
 			<svg id="barless" ref={ref}>
 				<g id="mark" />

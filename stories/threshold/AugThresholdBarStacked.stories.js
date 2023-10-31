@@ -14,9 +14,14 @@ export default {
 
 export const ToStorybook = () => {
 
+	let countries = ["Colombia", "Guatemala", "Brazil", "Costa Rica", "Ethiopia"];
+	let varieties = ["Other", "Arusha", "Bourbon", "Caturra", "Catuai"];
+
+	let filteredCoffee = coffee.filter((d) => {return countries.indexOf(d.Country) >= 0 && varieties.indexOf(d.Variety) >= 0});
+
 	let series = d3.stack()
-					.keys(Array.from(new Set(coffee.map(d => d.Variety))))
-					.value(([, D], key) => D.get(key) ? D.get(key).length : 0)(d3.group(coffee, d => d["Country"], d => d.Variety));
+					.keys(Array.from(new Set(filteredCoffee.map(d => d.Variety))))
+					.value(([, D], key) => D.get(key) ? D.get(key).length : 0)(d3.group(filteredCoffee, d => d["Country"], d => d.Variety));
 	let flatten = [];
 
 	for (let t of series) {
@@ -32,7 +37,7 @@ export const ToStorybook = () => {
 
 	}
 	
-	const [maxThreshold, setMaxThreshold] = React.useState(5);
+	const [maxThreshold, setMaxThreshold] = React.useState(10);
 	const [minThreshold, setMinThreshold] = React.useState(0);
 
 	const ref = useRef("barstacked");
@@ -42,8 +47,8 @@ export const ToStorybook = () => {
 
 	const [data, setData] = React.useState(flatten);
 
-	let layout={"width":1200,
-	   		   "height":500,
+	let layout={"width":500,
+	   		   "height":400,
 	   		   "marginTop":50,
 	   		   "marginRight":50,
 	   		   "marginBottom":50,
@@ -64,7 +69,7 @@ export const ToStorybook = () => {
 				.attr("height", layout.height);
 
 		let xScale = d3.scaleBand()
-						.domain(data.map(d => d.country).sort())
+						.domain(countries)
 						.range([layout.marginLeft, layout.width - layout.marginRight]);
 
 		let yScale = d3.scaleLinear()
@@ -79,12 +84,12 @@ export const ToStorybook = () => {
 							.data(data)
 							.join("rect")
 							.attr("class", "bar")
-							.attr("x", d => xScale(d.country) + 1)
+							.attr("x", d => xScale(d.country) + 8)
 							.attr("y", d => yScale(d["1"]))
-							.attr("width", xScale.bandwidth() - 2)
+							.attr("width", xScale.bandwidth() - 16)
 							.attr("height", d => yScale(d["0"]) - yScale(d["1"]))
 							.attr("fill", d => colorScale(d.variety))
-							.attr("opacity", 0.25)
+							.attr("fill-opacity", 0.5)
 							.on("mouseover", (event, d) => {
 
 								let xPos = xScale(d.country) + xScale.bandwidth() / 2;
@@ -101,6 +106,31 @@ export const ToStorybook = () => {
 
 							});
 
+		let legend = svgElement.select("#legend")
+							.selectAll(".legendRect")
+							.data(varieties)
+							.join("rect")
+							.attr("class", "legendRect")
+							.attr("x", (d, i) => layout.width - 100)
+							.attr("y", (d, i) => layout.marginTop + 16 * i)
+							.attr("width", 10)
+							.attr("height", 10)
+							.attr("fill", d => colorScale(d))
+							.attr("fill-opacity", 0.5)
+
+		let legendText = svgElement.select("#legend")
+							.selectAll(".legendText")
+							.data(varieties)
+							.join("text")
+							.attr("class", "legendText")
+							.attr("x", (d, i) => layout.width - 100 + 16)
+							.attr("y", (d, i) => layout.marginTop + 16 * i + 9)
+							.attr("fill", d => colorScale(d))
+							.attr("text-anchor", "start")
+							.attr("font-family", "sans-serif")
+							.attr("font-size", "10")
+							.text(d => d)
+
 		svgElement.select("#xAxis")
 				  .call(d3.axisBottom(xScale))
 				  .attr("transform", `translate(0, ${layout.height - layout.marginBottom})`);
@@ -109,11 +139,15 @@ export const ToStorybook = () => {
 				  .call(d3.axisLeft(yScale).ticks(5))
 				  .attr("transform", `translate(${layout.marginLeft}, 0)`);
 
+		const styles = {"stroke": {"stroke": "red", "stroke-width": "2px"}};
+
+		newMaxThreshold.current.updateStyles(styles);
+
 		chart.current.chart(ref.current)
 					.selection(bars)
 					.x("country", xScale)
 					.y("count", yScale)
-					.include({"name":["opacity"]})
+					.include({"name":["stroke"]})
 					.augment(newMaxThreshold.current.intersect(newMinThreshold.current));
 
 	}, [data])
@@ -150,7 +184,7 @@ export const ToStorybook = () => {
 	return (
 		<div>
 			<div style={controlStyle}>
-				<p style={paragraphStyle}>highlighting coffees with between </p>
+				<p style={paragraphStyle}>highlighting groups with between </p>
 				<input
 					type="number"
 					id="quantity"
@@ -166,12 +200,13 @@ export const ToStorybook = () => {
 					min="0" max="23"
 					value={maxThreshold}
 					onChange={(e) => updateMax(e)} />
-				<p style={paragraphStyle}>varieties per country:</p>
+				<p style={paragraphStyle}>coffees:</p>
 			</div>
 			<svg id="barless" ref={ref}>
 				<g id="mark" />
 				<g id="xAxis" />
 				<g id="yAxis" />
+				<g id="legend" />
 				<text id="tooltip" />
 			</svg>
 		</div>

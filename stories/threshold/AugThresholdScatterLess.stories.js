@@ -14,11 +14,14 @@ export default {
 
 export const ToStorybook = () => {
 
-	const [yThreshold, setYThreshold] = React.useState(6.5);
+	const [yThreshold, setYThreshold] = React.useState(8);
 
 	const ref = useRef("less");
+
 	const chart = useRef(new Draught());
-	const newYThreshold = useRef(new Threshold("Flavor", yThreshold, "leq"));
+	const newYThreshold = useRef(new Threshold("Flavor", 8, "geq"));
+
+	// ... some code omitted ...
 
 	const [data, setData] = React.useState(coffee);
 
@@ -65,21 +68,6 @@ export const ToStorybook = () => {
 									.attr("width", 6)
 									.attr("height", 6)
 									.attr("opacity", 0.3)
-									.on("mouseover", (event, d) => {
-
-										let xPos = xScale(d["Aroma"]);
-										let yPos = yScale(d["Flavor"]) - 8;
-
-										tooltip.attr("transform", `translate(${xPos}, ${yPos})`)
-												.attr("opacity", 1)
-												.text(d.name);
-
-									})
-									.on("mouseout", (event, d) => {
-
-										tooltip.attr("opacity", 0);
-
-									});
 
 		svgElement.select("#xAxis")
 				  .call(d3.axisBottom(xScale))
@@ -107,11 +95,20 @@ export const ToStorybook = () => {
 				  .attr("fill", "black")
 				  .text(d => d)
 
+		// ... some code omitted ...
+
+		let colorScale = d3.scaleSequential(d3.interpolateViridis)
+							.domain(d3.extent(data, d => d["Aroma"]));
+
+		const styles = {"fill": {"fill": (d, i) => colorScale(d.Aroma)}};
+
+		newYThreshold.current.updateStyles(styles);
+
 		chart.current.chart(ref.current)
 					.selection(scatterpoints)
 					.x("Aroma", xScale)
 					.y("Flavor", yScale)
-					.exclude({"rank":3})
+					.exclude({"rank":4})
 					.augment(newYThreshold.current.getAugs());
 
 	}, [data])
