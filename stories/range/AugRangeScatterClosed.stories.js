@@ -96,7 +96,7 @@ export const ToStorybook = () => {
 				  .text(d => d)
 
 		chart.current.chart(ref.current)
-					// .charttype("point") // point, bar, line...
+					.layer("#augmentations")
 					.selection(scatterpoints)
 					.x("Aroma", xScale)
 					.y("Flavor", yScale)
@@ -153,6 +153,7 @@ export const ToStorybook = () => {
 				<g id="xAxis" />
 				<g id="yAxis" />
 				<text id="tooltip" />
+				<g id="augmentations" />
 			</svg>
 		</div>
 	)

@@ -21,6 +21,8 @@ export default class Draught {
 		this._include = null;
 		this._exclude = null;
 
+		this._layer;
+
 	}
 
 	chart(el) {
@@ -30,6 +32,12 @@ export default class Draught {
 
 		return this;
 
+	}
+
+	layer(selector) {
+		this._layer = selector;
+
+		return this;
 	}
 
 	// Select elements by selector (e.g. class)
@@ -101,9 +109,9 @@ export default class Draught {
 
 	}
 
-	_handleLine(aug, data) {
+	_handleLine(aug, data, draughtLayer) {
 
-		let draughtLayer = this._chart.select("#draughty");
+		// let draughtLayer = this._chart.select("#draughty");
 
 		if (data.length >= 1) {
 			// let orient = data[0]["x1"] ? "x" : "y";
@@ -137,9 +145,9 @@ export default class Draught {
 
 	}
 
-	_handleRect(aug, data) {
+	_handleRect(aug, data, draughtLayer) {
 
-		let draughtLayer = this._chart.select("#draughty");
+		// let draughtLayer = this._chart.select("#draughty");
 
 		if (data.length >= 1) {
 			let newRects = draughtLayer.selectAll(`#${aug.id}`)
@@ -171,9 +179,9 @@ export default class Draught {
 
 	}
 
-	_handleText(aug, data) {
+	_handleText(aug, data, draughtLayer) {
 
-		let draughtLayer = this._chart.select("#draughty");
+		// let draughtLayer = this._chart.select(this._layer ? this._layer : "#draughty");
 
 		let newText;
 
@@ -240,9 +248,9 @@ export default class Draught {
 
 	}
 
-	_handleMarkMultiple(aug, data, clone=true) {
+	_handleMarkMultiple(aug, data, draughtLayer, clone=true) {
 
-		let draughtLayer = this._chart.select("#draughty");
+		// let draughtLayer = this._chart.select("#draughty");
 		let elements = this._selection.nodes();
 
 		let newMultiples;
@@ -424,6 +432,7 @@ export default class Draught {
 	augment(augmentations) {
 
 		let filteredAugs = augmentations;
+		let draughtLayer = this._chart.select(this._layer ? this._layer : "#draughty");
 
 		// first filter by rank
 		// rank filtering is exactly the same for both include and exclude
@@ -436,8 +445,6 @@ export default class Draught {
 		let newAxisExtents = {"x": [], "y": []};
 
 		for (let a of filteredAugs) {
-
-			console.log(a.selection);
 
 			let select = (a.selection && a.selection.size() > 0) ? a.selection : this._selection;
 			let selectData = (a.selection && a.selection.size() > 0) ? a.selection.data() : this._data;
@@ -522,19 +529,19 @@ export default class Draught {
 
 				if (draughtData && a.encoding.mark === "line") {
 					// Add a line mark (single straight line)
-					this._handleLine(a, draughtData);
+					this._handleLine(a, draughtData, draughtLayer);
 				} else if (draughtData && a.encoding.mark === "text") {
 					// Add a text mark
-					this._handleText(a, draughtData);
+					this._handleText(a, draughtData, draughtLayer);
 				} else if (draughtData && a.encoding.mark === "rect") {
 					// Add a text mark
-					this._handleRect(a, draughtData);
+					this._handleRect(a, draughtData, draughtLayer);
 				} else if (draughtData && !a.encoding.mark) {
 					// If no mark specified, duplicate existing mark(s)
 					if (a.name.endsWith("multiple")) {
-						this._handleMarkMultiple(a, draughtData);
+						this._handleMarkMultiple(a, draughtData, draughtLayer);
 					} else {
-						this._handleMarkMultiple(a, draughtData, false);
+						this._handleMarkMultiple(a, draughtData, draughtLayer, false);
 					}
 					
 				}
