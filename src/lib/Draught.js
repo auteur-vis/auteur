@@ -437,6 +437,11 @@ export default class Draught {
 
 		for (let a of filteredAugs) {
 
+			console.log(a.selection);
+
+			let select = (a.selection && a.selection.size() > 0) ? a.selection : this._selection;
+			let selectData = (a.selection && a.selection.size() > 0) ? a.selection.data() : this._data;
+
 			// filter by type: encoding/mark/axis/etc...
 			if (this._exclude && this._exclude["type"]) {
 				if (this._exclude["type"].indexOf(a.type) >= 0) {
@@ -467,14 +472,22 @@ export default class Draught {
 
 				for (let s of Object.keys(styles)) {
 
+					this._selection.style(s, undefined);
+
 					if (!s.startsWith(encoding)) {continue;}
 
 					if (s === "opacity") {
 
-						this._selection.style(s, d => {
+						select.style(s, d => {
 
 							if (a.generator(d, this._xVar, this._yVar, this._xScale, this._yScale)) {
-								return styles[s];
+								let customStyle = styles[s];
+
+								if (typeof customStyle === "function") {
+									return customStyle(d, i)
+								} else {
+									return customStyle
+								}
 							} else {
 								return 0.25
 							}
@@ -483,7 +496,7 @@ export default class Draught {
 
 					} else {
 
-						this._selection.style(s, (d, i) => {
+						select.style(s, (d, i) => {
 
 							if (a.generator(d, this._xVar, this._yVar, this._xScale, this._yScale)) {
 								let customStyle = styles[s];
@@ -505,7 +518,7 @@ export default class Draught {
 				// Handle augmentations that add marks
 
 				// Check that the right x and y variables are used in chart
-				let draughtData = a.generator(this._data, this._xVar, this._yVar, this._xScale, this._yScale);
+				let draughtData = a.generator(selectData, this._xVar, this._yVar, this._xScale, this._yScale);
 
 				if (draughtData && a.encoding.mark === "line") {
 					// Add a line mark (single straight line)

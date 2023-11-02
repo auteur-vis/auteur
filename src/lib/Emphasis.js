@@ -81,19 +81,19 @@ export default class Emphasis extends DataFact {
 
 		let strokeAug = new Aug(`${this._id}_stroke`, "emphasis_stroke", "encoding", undefined,
 								   this.generateEncoding(this._variable, this._val, this._type),
-								   this.mergeStyles(this._customStyles.stroke, encodingStyles.stroke), 1);
+								   this.mergeStyles(this._customStyles.stroke, encodingStyles.stroke), this._selection, 1);
 
 		let textAug = new Aug(`${this._id}_text`, "emphasis_text", "mark", {"mark":"text"},
 								 this.generateText(this._variable, this._val, this._type),
-								 this.mergeStyles(this._customStyles.text, markStyles.text), 2);
+								 this.mergeStyles(this._customStyles.text, markStyles.text), this._selection, 2);
 
 		let fillAug = new Aug(`${this._id}_fill`, "emphasis_fill", "encoding", undefined,
 								  this.generateEncoding(this._variable, this._val, this._type),
-								  this.mergeStyles(this._customStyles.fill, encodingStyles.fill), 3);
+								  this.mergeStyles(this._customStyles.fill, encodingStyles.fill), this._selection, 3);
 
 		let opacityAug = new Aug(`${this._id}_opacity`, "emphasis_opacity", "encoding", undefined,
 									this.generateEncoding(this._variable, this._val, this._type), 
-									this.mergeStyles(this._customStyles.opacity, encodingStyles.opacity), 4);
+									this.mergeStyles(this._customStyles.opacity, encodingStyles.opacity), this._selection, 4);
 
 		return [strokeAug.getSpec(), textAug.getSpec(), fillAug.getSpec(), opacityAug.getSpec()].sort(this._sort)
 	}

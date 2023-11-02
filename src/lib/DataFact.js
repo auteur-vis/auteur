@@ -7,6 +7,12 @@ export default class DataFact {
 	constructor() {
 		this._id = `df${uuidv4()}`;
 		this._name = "DFBase";
+		this._selection;
+	}
+
+	selection(selection) {
+		this._selection = selection;
+		return this
 	}
 
 	mergeStyles(customs, defaults) {
@@ -100,7 +106,7 @@ export default class DataFact {
 
 					}
 
-					let new_aug = new Aug(new_id, last.name, last.type, last.encoding, generator, last.styles, last.rank);
+					let new_aug = new Aug(new_id, last.name, last.type, last.encoding, generator, last.styles, last.selection, last.rank);
 					merged.push(new_aug.getSpec());
 
 				}

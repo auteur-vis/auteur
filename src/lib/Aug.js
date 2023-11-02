@@ -2,7 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 export default class Aug {
 
-	constructor(id, name="", type="", encoding={}, generator, styles, rank) {
+	constructor(id, name="", type="", encoding={}, generator, styles, selection, rank) {
 
 		this._id = id;
 		this._name = name;
@@ -11,16 +11,19 @@ export default class Aug {
 		this._generator = generator;
 		this._styles = styles;
 		this._rank = rank;
+		this._selection = selection;
 	}
 
 	getSpec() {
+
 		return {"id": this._id,
 				"name": this._name,
 				"type": this._type,
 				"encoding": this._encoding,
 				"generator": this._generator,
 				"styles": this._styles,
-				"rank": this._rank
+				"rank": this._rank,
+				"selection": this._selection
 			}
 	}
 

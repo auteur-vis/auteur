@@ -102,23 +102,23 @@ export default class Threshold extends DataFact {
 
 		let lineAug = new Aug(`${this._id}_line`, "threshold_line", "mark", {"mark":"line"},
 								 this.generateLine(this._variable, this._val, this._type),
-								 this.mergeStyles(this._customStyles.line, markStyles.line), 1);
+								 this.mergeStyles(this._customStyles.line, markStyles.line), this._selection, 1);
 
 		let opacityAug = new Aug(`${this._id}_opacity`, "threshold_opacity", "encoding", undefined,
 									this.generateEncoding(this._variable, this._val, this._type), 
-									this.mergeStyles(this._customStyles.opacity, encodingStyles.opacity), 2);
+									this.mergeStyles(this._customStyles.opacity, encodingStyles.opacity), this._selection, 2);
 
 		let strokeAug = new Aug(`${this._id}_stroke`, "threshold_stroke", "encoding", undefined,
 								   this.generateEncoding(this._variable, this._val, this._type),
-								   this.mergeStyles(this._customStyles.stroke, encodingStyles.stroke), 3);
+								   this.mergeStyles(this._customStyles.stroke, encodingStyles.stroke), this._selection, 3);
 
 		let fillAug = new Aug(`${this._id}_fill`, "threshold_fill", "encoding", undefined,
 								  this.generateEncoding(this._variable, this._val, this._type),
-								  this.mergeStyles(this._customStyles.fill, encodingStyles.fill), 4);
+								  this.mergeStyles(this._customStyles.fill, encodingStyles.fill), this._selection, 4);
 
 		let textAug = new Aug(`${this._id}_text`, "threshold_text", "mark", {"mark":"text"},
 								 this.generateText(this._variable, this._val, this._type),
-								 this.mergeStyles(this._customStyles.text, markStyles.text), 5);
+								 this.mergeStyles(this._customStyles.text, markStyles.text), this._selection, 5);
 
 		return [lineAug.getSpec(), opacityAug.getSpec(), strokeAug.getSpec(), fillAug.getSpec(), textAug.getSpec()].sort(this._sort)
 	}

@@ -41,7 +41,7 @@ export default class LocalData extends DataFact {
 
 		let markAug = new Aug(`${this._id}_mark`, "derived_mark", "mark", {"mark":undefined},
 										 this.generateMark(this._local), 
-										 this.mergeStyles(this._customStyles.mark, undefined), 1);
+										 this.mergeStyles(this._customStyles.mark, undefined), this._selection, 1);
 
 		return [markAug.getSpec()].sort(this._sort)
 	}

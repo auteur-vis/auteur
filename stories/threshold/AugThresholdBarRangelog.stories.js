@@ -9,7 +9,7 @@ import coffee from "../../public/arabica_data_cleaned_top15.json";
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
-  title: 'Aug/Threshold/Bar/Range',
+  title: 'Aug/Threshold/Bar/RangeLog',
 };
 
 export const ToStorybook = () => {
@@ -17,17 +17,19 @@ export const ToStorybook = () => {
 	let group = d3.group(coffee, d => d["Country"]);
 	let groupedData = [...group.entries()].map(d => { return {"Country":d[0], "entries":d[1], "count":d[1].length} }).sort((a, b) => a.count - b.count);
 	
+	const style = {"fill":{"fill":"#8f48a3"}};
+
 	const [maxThreshold, setMaxThreshold] = React.useState(65);
 	const [minThreshold, setMinThreshold] = React.useState(29);
 
 	const ref = useRef("barrange");
 	const chart = useRef(new Draught());
-	const newMaxThreshold = useRef(new Threshold("count", maxThreshold, "leq"));
-	const newMinThreshold = useRef(new Threshold("count", minThreshold, "geq"));
+	const newMaxThreshold = useRef(new Threshold("count", maxThreshold, "leq", style));
+	const newMinThreshold = useRef(new Threshold("count", minThreshold, "geq", style));
 
 	const [data, setData] = React.useState(groupedData);
 
-	let layout={"width":1200,
+	let layout={"width":900,
 	   		   "height":500,
 	   		   "marginTop":50,
 	   		   "marginRight":50,
@@ -52,8 +54,8 @@ export const ToStorybook = () => {
 						.domain(data.map(d => d["Country"]))
 						.range([layout.marginLeft, layout.width - layout.marginRight]);
 
-		let yScale = d3.scaleLinear()
-						.domain([0, d3.max(data, d => d["count"])])
+		let yScale = d3.scaleLog()
+						.domain([5, d3.max(data, d => d["count"])])
 						.range([layout.height - layout.marginBottom, layout.marginTop]);
 
 		let bars = svgElement.select("#mark")
@@ -64,7 +66,7 @@ export const ToStorybook = () => {
 							.attr("x", d => xScale(d["Country"]) + 1)
 							.attr("y", d => yScale(d["count"]))
 							.attr("width", xScale.bandwidth() - 2)
-							.attr("height", d => yScale(0) - yScale(d["count"]))
+							.attr("height", d => yScale(5) - yScale(d["count"]))
 							.attr("fill", "steelblue")
 							.attr("fill-opacity", 0.25)
 							.on("mouseover", (event, d) => {
@@ -88,14 +90,14 @@ export const ToStorybook = () => {
 				  .attr("transform", `translate(0, ${layout.height - layout.marginBottom})`);
 
 		svgElement.select("#yAxis")
-				  .call(d3.axisLeft(yScale).ticks(5))
+				  .call(d3.axisLeft(yScale))
 				  .attr("transform", `translate(${layout.marginLeft}, 0)`);
 
 		chart.current.chart(ref.current)
 					.selection(bars)
 					.x("country", xScale)
 					.y("count", yScale)
-					.include({"name":["line", "stroke", "text"]})
+					.include({"name":["line", "fill", "text"]})
 					.augment(newMaxThreshold.current.intersect(newMinThreshold.current));
 
 	}, [data])
@@ -136,7 +138,7 @@ export const ToStorybook = () => {
 					type="range"
 					id="quantity"
 					name="quantity"
-					min="0" max="65"
+					min="5" max={d3.max(data, d => d.count)}
 					step="0.5"
 					value={minThreshold}
 					onChange={(e) => updateMin(e)} />
@@ -165,5 +167,5 @@ export const ToStorybook = () => {
 }
 
 ToStorybook.story = {
-  name: 'Range',
+  name: 'RangeLog',
 };

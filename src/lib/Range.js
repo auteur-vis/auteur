@@ -124,15 +124,15 @@ export default class Range extends DataFact {
 
 		let rectAug = new Aug(`${this._id}_rect`, "range_rect", "mark", {"mark":"rect"},
 								 this.generateRect(this._variable, this._min, this._max, this._type),
-								 this.mergeStyles(this._customStyles.rect, markStyles.rect), 1);
+								 this.mergeStyles(this._customStyles.rect, markStyles.rect), this._selection, 1);
 
 		let opacityAug = new Aug(`${this._id}_opacity`, "range_opacity", "encoding", undefined,
 									this.generateEncoding(this._variable, this._min, this._max, this._type), 
-									this.mergeStyles(this._customStyles.opacity, encodingStyles.opacity), 2);
+									this.mergeStyles(this._customStyles.opacity, encodingStyles.opacity), this._selection, 2);
 
 		let fillAug = new Aug(`${this._id}_fill`, "range_fill", "encoding", undefined,
 								  this.generateEncoding(this._variable, this._min, this._max, this._type),
-								  this.mergeStyles(this._customStyles.fill, encodingStyles.fill), 3);
+								  this.mergeStyles(this._customStyles.fill, encodingStyles.fill), this._selection, 3);
 
 		// let textAug = new Aug(`${this._id}_text`, "threshold_text", "mark", {"mark":"text"},
 		// 						 this.generateText(this._variable, this._val, this._type),
