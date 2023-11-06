@@ -19,7 +19,9 @@ export const ToStorybook = () => {
 	const style = {"multiple":{"fill":"steelblue", "opacity":1}};
 
 	const ref = useRef("constant");
-	const chart = useRef(new Draught());
+	const chart = useRef(new Draught())
+	chart.current.chart(ref.current);
+
 	const [data, setData] = React.useState(coffee.slice(0, 10));
 	const [formula, setFormula] = useState('return 0;');
 	const newYConstant = useRef(null);
@@ -89,8 +91,7 @@ export const ToStorybook = () => {
 				  .call(d3.axisLeft(yScale).ticks(5))
 				  .attr("transform", `translate(${layout.marginLeft}, 0)`);
 
-		chart.current.chart(ref.current)
-					.selection(bars)
+		chart.current.selection(bars)
 					.x("FIELD1", xScale)
 					.y("Flavor", yScale)
 					.exclude({"name":["line"]})
@@ -124,31 +125,26 @@ export const ToStorybook = () => {
 	}
 
 	useEffect(() => {
-		newYConstant.current = new DerivedValues('Flavor', undefined, undefined, new Function('d', formula), style);
+
+		if (newYConstant.current) {
+			newYConstant.current.updateFunction(new Function('d', formula));
+		} else {
+			newYConstant.current = new DerivedValues('Flavor', undefined, undefined, new Function('d', formula), style);
+		}
+		
 		let newAug2 = newYConstant.current.getAugs();
 		chart.current.augment(newAug2);
+
 	}, [formula])
 
 	useEffect(() => {
-		//newYConstant.current = new DerivedValues("Flavor", 0.5, "mult", undefined, style)
+		
 		newYConstant.current = new DerivedValues('Flavor', undefined, undefined, new Function('d', formula), style);
 		updatePlot()
 		let newAug2 = newYConstant.current.getAugs();
 		chart.current.augment(newAug2);
+
 	}, [data])
-
-	// useEffect(() => {
-
-	// 	newYConstant.current.updateVal(yConstant);
-	// 	let newAug2 = newYConstant.current.getAugs();
-
-	// 	chart.current.augment(newAug2);
-
-	// }, [yConstant])
-
-	// function updateY(e) {
-	// 	setYConstant(e.target.value);
-	// }
 
 	return (
 		<div>

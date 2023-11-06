@@ -19,16 +19,12 @@ export const ToStorybook = () => {
 	const style = {"multiple":{"fill":"steelblue"}};
 	const ref = useRef("constant");
 	const chart = useRef(new Draught());
+	chart.current.chart(ref.current);
+	
 	const [formula, setFormula] = useState('return 0;');
 	const [data, setData] = React.useState(coffee.slice(0, 10));
 	const datapoint = useRef(JSON.parse(JSON.stringify(coffee.slice(0, 10)[0])))
 	const newYConstant = useRef(null);
-	
-	useEffect(() => {
-		newYConstant.current = new DerivedValues('Flavor', undefined, undefined, new Function('d', formula), style);
-		updatePlot()
-	  }, [formula,data]);
-
 
 	let layout={"width":500,
 	   		   "height":500,
@@ -129,6 +125,27 @@ export const ToStorybook = () => {
 					.augment(newYConstant.current.getAugs());
 	}
 
+	useEffect(() => {
+
+		if (newYConstant.current) {
+			newYConstant.current.updateFunction(new Function('d', formula));
+		} else {
+			newYConstant.current = new DerivedValues('Flavor', undefined, undefined, new Function('d', formula), style);
+		}
+		
+		let newAug2 = newYConstant.current.getAugs();
+		chart.current.augment(newAug2);
+
+	}, [formula])
+
+	useEffect(() => {
+		
+		newYConstant.current = new DerivedValues('Flavor', undefined, undefined, new Function('d', formula), style);
+		updatePlot()
+		let newAug2 = newYConstant.current.getAugs();
+		chart.current.augment(newAug2);
+
+	}, [data])
 
 	return (
 		<div>
