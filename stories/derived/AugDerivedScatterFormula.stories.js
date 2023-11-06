@@ -9,12 +9,10 @@ import coffee from "../../public/arabica_data_cleaned_top15.json";
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
-  title: 'Aug/Derived/Scatter/Constant',
+  title: 'Aug/Derived/Scatter/Formula',
 };
 
 export const ToStorybook = () => {
-
-	const [yConstant, setYConstant] = React.useState(5);
 
 	const style = {"multiple":{"fill":"steelblue"}};
 	const ref = useRef("constant");
@@ -164,5 +162,5 @@ export const ToStorybook = () => {
 }
 
 ToStorybook.story = {
-  name: 'Constant',
+  name: 'Formula',
 };

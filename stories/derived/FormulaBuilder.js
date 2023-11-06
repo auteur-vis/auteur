@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 
 export const FormulaBuilder = ({ setFormula, dataPoint }) => {
     function getNumericalVariables(dataPoint) {
-        console.log(dataPoint)
         const numericalValue = Object.entries(dataPoint)
           .filter(([key, value]) => typeof value === 'number' 
             && key != "FIELD1" && !key.includes('.')

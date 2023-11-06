@@ -27,7 +27,7 @@ export const ToStorybook = () => {
 
 	const [data, setData] = React.useState(groupedData);
 
-	let layout={"width":1200,
+	let layout={"width":900,
 	   		   "height":500,
 	   		   "marginTop":50,
 	   		   "marginRight":50,

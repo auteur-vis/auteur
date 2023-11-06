@@ -9,12 +9,10 @@ import coffee from "../../public/arabica_data_cleaned_top15.json";
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
-  title: 'Aug/Derived/Bar/Constant',
+  title: 'Aug/Derived/Bar/Formula',
 };
 
 export const ToStorybook = () => {
-
-	//const [yConstant, setYConstant] = React.useState(0.5);
 
 	const style = {"multiple":{"fill":"steelblue", "opacity":1}};
 
@@ -22,12 +20,12 @@ export const ToStorybook = () => {
 	const chart = useRef(new Draught())
 	chart.current.chart(ref.current);
 
-	const [data, setData] = React.useState(coffee.slice(0, 10));
+	const [data, setData] = React.useState(coffee.slice(0, 15));
 	const [formula, setFormula] = useState('return 0;');
 	const newYConstant = useRef(null);
 	const datapoint = useRef(JSON.parse(JSON.stringify(coffee.slice(0, 10)[0])))
 
-	let layout={"width":500,
+	let layout={"width":900,
 	   		   "height":500,
 	   		   "marginTop":50,
 	   		   "marginRight":50,
@@ -173,5 +171,5 @@ export const ToStorybook = () => {
 }
 
 ToStorybook.story = {
-  name: 'Constant',
+  name: 'Formula',
 };

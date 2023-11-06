@@ -45,9 +45,89 @@ export default class DerivedValues extends DataFact {
 			if (xVar != variable && yVar != variable) {
 				return undefined;
 			}
+
+			if (data.length < 1) {
+				return undefined;
+			}
 	
 			let result;
 
+			// special condition for line paths
+			if (Array.isArray(data[0])) {
+
+				if (type === "custom") {
+					result = data.map(lineData => {
+						return lineData.map(datum => [fn(datum), datum[variable]]);
+					});
+				} else if (type === "constant") {
+					if (calc === "add") {
+						result = data.map(lineData => {
+							return lineData.map(datum => [datum[variable] + val, datum[variable]]);
+						});
+					} else if (calc === "sub") {
+						result = data.map(lineData => {
+							return lineData.map(datum => [datum[variable] - val, datum[variable]]);
+						});
+					} else if (calc === "mult") {
+						result = data.map(lineData => {
+							return lineData.map(datum => [datum[variable] * val, datum[variable]]);
+						});
+					} else if (calc === "div") {
+						result = data.map(lineData => {
+							return lineData.map(datum => [datum[variable] / val, datum[variable]]);
+						});
+					} else {
+						console.warn(`DerivedValue calc argument ${calc} not recognized.`);
+					}
+				} else {
+					if (calc === "add") {
+						result = data.map(lineData => {
+							return lineData.map(datum => [datum[variable] + datum[val], datum[variable]]);
+						});
+					} else if (calc === "sub") {
+						result = data.map(lineData => {
+							return lineData.map(datum => [datum[variable] - datum[val], datum[variable]]);
+						});
+					} else if (calc === "mult") {
+						result = data.map(lineData => {
+							return lineData.map(datum => [datum[variable] * datum[val], datum[variable]]);
+						});
+					} else if (calc === "div") {
+						result = data.map(lineData => {
+							return lineData.map(datum => [datum[variable] / datum[val], datum[variable]]);
+						});
+					} else {
+						console.warn(`DerivedValue calc argument ${calc} not recognized.`);
+					}
+				}
+
+				if (!result) {
+					return undefined
+				}
+
+				if (xVar == variable) {
+					return data.map((lineData, i) => {
+						return lineData.map((d, j) => {
+							d.x = xScale(result[i][j][0]);
+							d.deltx = xScale(result[i][j][0]) - xScale(result[i][j][1]);
+							return d
+						})
+					});
+				} else if (yVar == variable) {
+					return data.map((lineData, i) => {
+						return lineData.map((d, j) => {
+							d.y = yScale(result[i][j][0]);
+							d.delty = yScale(result[i][j][0]) - yScale(result[i][j][1]);
+							return d
+						})
+					});
+				}
+
+				return undefined;
+
+			}
+
+			// All other mark/data types
 			if (type === "custom") {
 				result = data.map(datum => [fn(datum), datum[variable]]);
 			} else if (type === "constant") {
@@ -105,6 +185,10 @@ export default class DerivedValues extends DataFact {
 		return function(data, xVar, yVar, xScale, yScale) {
 			// If variable not mapped to x or y position, do not render line
 			if (xVar != variable && yVar != variable) {
+				return undefined;
+			}
+
+			if (Array.isArray(data[0])) {
 				return undefined;
 			}
 	

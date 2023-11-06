@@ -28,16 +28,32 @@ export default class Threshold extends DataFact {
 	generateEncoding(variable, val, type) {
 
 		return function(datum, xVar, yVar, xScale, yScale) {
-			if (type === "eq" && datum[variable] == val) {
-				return true;
-			} else if (type === "le" && datum[variable] < val) {
-				return true;
-			} else if (type === "leq" && datum[variable] <= val) {
-				return true;
-			} else if (type === "ge" && datum[variable] > val) {
-				return true;
-			} else if (type === "geq" && datum[variable] >= val) {
-				return true;
+			
+			if (Array.isArray(datum)) {
+				if (type === "eq") {
+					return datum.reduce((acc, current) => acc && current[variable] == val, true);
+				} else if (type === "le") {
+					return datum.reduce((acc, current) => acc && current[variable] < val, true);
+				} else if (type === "leq") {
+					return datum.reduce((acc, current) => acc && current[variable] <= val, true);
+				} else if (type === "ge") {
+					return datum.reduce((acc, current) => acc && current[variable] > val, true);
+				} else if (type === "geq") {
+					return datum.reduce((acc, current) => acc && current[variable] >= val, true);
+				}
+
+			} else {
+				if (type === "eq" && datum[variable] == val) {
+					return true;
+				} else if (type === "le" && datum[variable] < val) {
+					return true;
+				} else if (type === "leq" && datum[variable] <= val) {
+					return true;
+				} else if (type === "ge" && datum[variable] > val) {
+					return true;
+				} else if (type === "geq" && datum[variable] >= val) {
+					return true;
+				}
 			}
 
 			return false;
@@ -125,14 +141,17 @@ export default class Threshold extends DataFact {
 
 	updateVariable(variable) {
 		this._variable = variable;
+		return this;
 	}
 
 	updateVal(val) {
 		this._val = val;
+		return this;
 	}
 
 	updateType(type) {
 		this._type = type;
+		return this;
 	}
 
 	updateStyles(styles, override = false) {
@@ -141,6 +160,7 @@ export default class Threshold extends DataFact {
 		} else {
 			this._customStyles = this._updateStyles(this._customStyles, styles);
 		}
+		return this;
 	}
 
 	// returns a list of [Aug Class]

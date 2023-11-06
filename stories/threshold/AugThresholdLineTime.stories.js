@@ -4,28 +4,28 @@ import * as d3 from "d3";
 import Draught from "../../src/lib/Draught.js";
 import Threshold from "../../src/lib/Threshold.js";
 
-// data from https://rkabacoff.github.io/qacData/reference/coffee.html
-import coffee from "../../public/arabica_data_cleaned_top15.json";
+// data from https://www.kaggle.com/datasets/berkeleyearth/climate-change-earth-surface-temperature-data
+import climate from "../../public/climate.json";
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
-  title: 'Aug/Threshold/Scatter/Less',
+  title: 'Aug/Threshold/Line/Time',
 };
 
 export const ToStorybook = () => {
 
-	const [yThreshold, setYThreshold] = React.useState(8);
+	const [xThreshold, setXThreshold] = React.useState(new Date(2006, 3, 10));
 
-	const ref = useRef("less");
+	const ref = useRef("lineless");
 
 	const chart = useRef(new Draught());
-	const newYThreshold = useRef(new Threshold("Flavor", yThreshold, "geq"));
+	const newXThreshold = useRef(new Threshold("date", xThreshold, "geq"));
 
 	// ... some code omitted ...
 
-	const [data, setData] = React.useState(coffee);
+	const [data, setData] = React.useState(climate);
 
-	let layout={"width":500,
+	let layout={"width":900,
 	   		   "height":500,
 	   		   "marginTop":50,
 	   		   "marginRight":50,
@@ -35,6 +35,15 @@ export const ToStorybook = () => {
 	useEffect(() => {
 
 		let svgElement = d3.select(ref.current);
+
+		const dataTime = data.map((d) => {
+			let dateSplit = d.dt.split("-");
+			let formatDate = new Date(dateSplit[0], dateSplit[1] - 1, dateSplit[2]);
+			d.date = formatDate;
+			return d;
+		})
+
+		let grouped = d3.group(dataTime, d => d.City);
 
 		// create a tooltip
 		var tooltip = svgElement.select("#tooltip")
@@ -46,35 +55,48 @@ export const ToStorybook = () => {
 		svgElement.attr("width", layout.width)
 				.attr("height", layout.height);
 
-		let xScale = d3.scaleLinear()
-							.domain(d3.extent(data, d => d["Aroma"]))
-							.range([layout.marginLeft, layout.width - layout.marginRight]);
+		let xScale = d3.scaleTime()
+					.domain(d3.extent(dataTime, d => d["date"]))
+					.range([layout.marginLeft, layout.width - layout.marginRight]);
 
 		let yScale = d3.scaleLinear()
-							.domain(d3.extent(data, d => d["Flavor"]))
+							.domain(d3.extent(dataTime, d => d["AverageTemperature"]))
 							.range([layout.height - layout.marginBottom, layout.marginTop]);
 
 		let sizeScale = d3.scaleLinear()
-							.domain(d3.extent(data, d => d["Flavor"]))
+							.domain(d3.extent(dataTime, d => d["AverageTemperature"]))
 							.range([3, 6]);
 
-		let scatterpoints = svgElement.select("#mark")
-									.selectAll(".scatterpoint")
-									.data(data)
-									.join("rect")
-									.attr("class", "scatterpoint")
-									.attr("x", d => xScale(d["Aroma"]) - 3)
-									.attr("y", d => yScale(d["Flavor"]) - 3)
-									.attr("width", 6)
-									.attr("height", 6)
-									.attr("opacity", 0.3)
+		let colorScale = d3.scaleOrdinal(d3.schemeTableau10)
+							.domain(['Chicago', 'Los Angeles', 'New York']);
+
+		let lineFunction = d3.line()
+							 .x(d => xScale(d["date"]))
+							 .y(d => yScale(d["AverageTemperature"]));
+
+		let flattenGroup = [...grouped].map(d => {
+			return d[1].map(di => {di.City = d[0]; return di});
+			return d[1]
+		});
+
+		let lines = svgElement.select("#mark")
+									.selectAll(".climateLine")
+									.data(flattenGroup)
+									.join("path")
+									.attr("class", "climateLine")
+									.attr('fill', 'none')
+									.attr('stroke-width', 1)
+									.attr('stroke', "black")
+									.attr("d", d => {
+										return lineFunction(d)
+									})
 
 		svgElement.select("#xAxis")
 				  .call(d3.axisBottom(xScale))
 				  .attr("transform", `translate(0, ${layout.height - layout.marginBottom})`);
 
 		svgElement.select("#xAxis").selectAll("#xTitle")
-				  .data(["Aroma"])
+				  .data(["date"])
 				  .join("text")
 				  .attr("id", "xTitle")
 				  .attr("text-anchor", "middle")
@@ -87,7 +109,7 @@ export const ToStorybook = () => {
 				  .attr("transform", `translate(${layout.marginLeft}, 0)`);
 
 		svgElement.select("#yAxis").selectAll("#yTitle")
-				  .data(["Flavor"])
+				  .data(["Average Temperature"])
 				  .join("text")
 				  .attr("id", "yTitle")
 				  .attr("text-anchor", "middle")
@@ -97,48 +119,21 @@ export const ToStorybook = () => {
 
 		// ... some code omitted ...
 
-		let colorScale = d3.scaleSequential(d3.interpolateViridis)
-							.domain(d3.extent(data, d => d["Aroma"]));
+		const styles = {"line": {"stroke": (d, i) => "red", "stroke-width": "2px"}};
 
-		const styles = {"fill": {"fill": (d, i) => colorScale(d.Aroma)}};
-
-		newYThreshold.current.updateStyles(styles);
+		newXThreshold.current.updateStyles(styles);
 
 		chart.current.chart(ref.current)
-					.selection(scatterpoints)
-					.x("Aroma", xScale)
-					.y("Flavor", yScale)
-					.exclude({"rank":4})
-					.augment(newYThreshold.current.getAugs());
+					.selection(lines)
+					.x("date", xScale)
+					.y("AverageTemperature", yScale)
+					.exclude({"rank":1})
+					.augment(newXThreshold.current.getAugs());
 
 	}, [data])
 
-	useEffect(() => {
-
-		newYThreshold.current.updateVal(yThreshold);
-		let newAug2 = newYThreshold.current.getAugs();
-		
-		chart.current.augment(newAug2);
-
-	}, [yThreshold])
-
-	function updateY(e) {
-		setYThreshold(e.target.value);
-	}
-
 	return (
 		<div>
-			<div>
-				<p>y-axis threshold: </p>
-				<input
-					type="range"
-					id="quantity"
-					name="quantity"
-					min="6" max="9"
-					step="0.01"
-					value={yThreshold}
-					onChange={(e) => updateY(e)} />
-			</div>
 			<svg id="less" ref={ref}>
 				<g id="mark" />
 				<g id="xAxis" />
@@ -150,5 +145,5 @@ export const ToStorybook = () => {
 }
 
 ToStorybook.story = {
-  name: 'Less',
+  name: 'Time',
 };

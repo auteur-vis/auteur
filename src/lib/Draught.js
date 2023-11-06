@@ -255,76 +255,123 @@ export default class Draught {
 
 		let newMultiples;
 
-		if (data[0]["x"] && !data[0]["y"]) {
+		// handle paths
+		if (Array.isArray(data[0]) && elements[0].nodeName.startsWith("path")) {
 
-			newMultiples = draughtLayer.selectAll(`.${aug.id}_multiple`)
-										.data(data)
-										.join(
-											enter => enter.append((d, i) => clone ? elements[i].cloneNode(true) : elements[0].cloneNode(true)))
-										.attr("class", `${aug.id}_multiple`)
-										.attr("cx", (d, i) => {
-											if (!elements[i].cx) {return}
-											return d.deltx != null ? elements[i].cx.baseVal.value + d.deltx : d.x
-										})
-										.attr("x", (d, i) => {
-											if (!elements[i].x) {return} 
-											return d.deltx != null ? elements[i].x.baseVal.value + d.deltx : d.x
-										})
-										.attr("width", (d, i) => {
-											if (!elements[i].width) {return}
-											return d.deltx != null ? elements[i].width.baseVal.value + d.deltx : d.x
-										});
+			if (data[0][0]["x"] && !data[0][0]["y"]) {
 
-		} else if (data[0]["y"] && !data[0]["x"]) {
+				newMultiples = draughtLayer.selectAll(`.${aug.id}_multiple`)
+											.data(data)
+											.join(
+												enter => enter.append((d, i) => clone ? elements[i].cloneNode(true) : elements[0].cloneNode(true)))
+											.attr("class", `${aug.id}_multiple`)
+											.attr("d", (d, i) => {
+												return d3.line()
+													.x(d => d.x)
+													.y(d => this._yScale(d[this._yVar]))(d);
+											});
 
-			newMultiples = draughtLayer.selectAll(`.${aug.id}_multiple`)
-										.data(data)
-										.join(
-											enter => enter.append((d, i) => clone ? elements[i].cloneNode(true) : elements[0].cloneNode(true)))
-										.attr("class", `${aug.id}_multiple`)
-										.attr("cy", (d, i) => {
-											if (!elements[i].cy) {return}
-											return d.delty != null ? elements[i].cy.baseVal.value + d.delty : d.y
-										})
-										.attr("y", (d, i) => {
-											if (!elements[i].y) {return}
-											return d.delty != null ? elements[i].y.baseVal.value + d.delty : d.y
-										})
-										.attr("height", (d, i) => {
-											if (!elements[i].height) {return}
-											return d.delty != null ? elements[i].height.baseVal.value - d.delty : d.y
-										});
+			} else if (data[0][0]["y"] && !data[0][0]["x"]) {
+
+				newMultiples = draughtLayer.selectAll(`.${aug.id}_multiple`)
+											.data(data)
+											.join(
+												enter => enter.append((d, i) => clone ? elements[i].cloneNode(true) : elements[0].cloneNode(true)))
+											.attr("class", `${aug.id}_multiple`)
+											.attr("d", (d, i) => {
+												return d3.line()
+													.x(di => this._xScale(di[this._xVar]))
+													.y(di => di.y)(d);
+											});
+
+			} else {
+
+				newMultiples = draughtLayer.selectAll(`.${aug.id}_multiple`)
+											.data(data)
+											.join(
+												enter => enter.append((d, i) => clone ? elements[i].cloneNode(true) : elements[0].cloneNode(true)))
+											.attr("d", (d, i) => {
+												return d3.line()
+													.x(d => d.x)
+													.y(d => d.y);
+											});
+
+			}
 
 		} else {
 
-			newMultiples = draughtLayer.selectAll(`.${aug.id}_multiple`)
-										.data(data)
-										.join(
-											enter => enter.append((d, i) => clone ? elements[i].cloneNode(true) : elements[0].cloneNode(true)))
-										.attr("cx", (d, i) => {
-											if (!elements[i].cx) {return}
-											return d.deltx != null ? elements[i].cx.baseVal.value + d.deltx : d.x
-										})
-										.attr("x", (d, i) => {
-											if (!elements[i].x) {return} 
-											return d.deltx != null ? elements[i].x.baseVal.value + d.deltx : d.x
-										})
-										.attr("width", (d, i) => {
-											if (!elements[i].width) {return}
-											return d.deltx != null ? elements[i].width.baseVal.value + d.deltx : d.x
-										})
-										.attr("cy", (d, i) => {
-											if (!elements[i].cy) {return}
-											return d.delty != null ? elements[i].cy.baseVal.value + d.delty : d.y
-										})
-										.attr("y", (d, i) => {
-											if (!elements[i].y) {return}
-											return d.delty != null ? elements[i].y.baseVal.value + d.delty : d.y
-										})
-										.attr("height", (d, i) => {
-											if (!elements[i].height) {return}
-											return d.delty != null ? elements[i].height.baseVal.value - d.delty : d.y
-										});
+			if (data[0]["x"] && !data[0]["y"]) {
+
+				newMultiples = draughtLayer.selectAll(`.${aug.id}_multiple`)
+											.data(data)
+											.join(
+												enter => enter.append((d, i) => clone ? elements[i].cloneNode(true) : elements[0].cloneNode(true)))
+											.attr("class", `${aug.id}_multiple`)
+											.attr("cx", (d, i) => {
+												if (!elements[i].cx) {return}
+												return d.deltx != null ? elements[i].cx.baseVal.value + d.deltx : d.x
+											})
+											.attr("x", (d, i) => {
+												if (!elements[i].x) {return} 
+												return d.deltx != null ? elements[i].x.baseVal.value + d.deltx : d.x
+											})
+											.attr("width", (d, i) => {
+												if (!elements[i].width) {return}
+												return d.deltx != null ? elements[i].width.baseVal.value + d.deltx : d.x
+											});
+
+			} else if (data[0]["y"] && !data[0]["x"]) {
+
+				newMultiples = draughtLayer.selectAll(`.${aug.id}_multiple`)
+											.data(data)
+											.join(
+												enter => enter.append((d, i) => clone ? elements[i].cloneNode(true) : elements[0].cloneNode(true)))
+											.attr("class", `${aug.id}_multiple`)
+											.attr("cy", (d, i) => {
+												if (!elements[i].cy) {return}
+												return d.delty != null ? elements[i].cy.baseVal.value + d.delty : d.y
+											})
+											.attr("y", (d, i) => {
+												if (!elements[i].y) {return}
+												return d.delty != null ? elements[i].y.baseVal.value + d.delty : d.y
+											})
+											.attr("height", (d, i) => {
+												if (!elements[i].height) {return}
+												return d.delty != null ? elements[i].height.baseVal.value - d.delty : d.y
+											});
+
+			} else {
+
+				newMultiples = draughtLayer.selectAll(`.${aug.id}_multiple`)
+											.data(data)
+											.join(
+												enter => enter.append((d, i) => clone ? elements[i].cloneNode(true) : elements[0].cloneNode(true)))
+											.attr("cx", (d, i) => {
+												if (!elements[i].cx) {return}
+												return d.deltx != null ? elements[i].cx.baseVal.value + d.deltx : d.x
+											})
+											.attr("x", (d, i) => {
+												if (!elements[i].x) {return} 
+												return d.deltx != null ? elements[i].x.baseVal.value + d.deltx : d.x
+											})
+											.attr("width", (d, i) => {
+												if (!elements[i].width) {return}
+												return d.deltx != null ? elements[i].width.baseVal.value + d.deltx : d.x
+											})
+											.attr("cy", (d, i) => {
+												if (!elements[i].cy) {return}
+												return d.delty != null ? elements[i].cy.baseVal.value + d.delty : d.y
+											})
+											.attr("y", (d, i) => {
+												if (!elements[i].y) {return}
+												return d.delty != null ? elements[i].y.baseVal.value + d.delty : d.y
+											})
+											.attr("height", (d, i) => {
+												if (!elements[i].height) {return}
+												return d.delty != null ? elements[i].height.baseVal.value - d.delty : d.y
+											});
+
+			}
 
 		}
 
@@ -562,6 +609,8 @@ export default class Draught {
 		}
 
 		// this._handleAxes(newAxisExtents);
+
+		return this;
 
 	}
 
