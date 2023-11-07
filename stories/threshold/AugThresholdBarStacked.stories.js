@@ -77,7 +77,7 @@ export const ToStorybook = () => {
 						.range([layout.height - layout.marginBottom, layout.marginTop]);
 
 		let colorScale = d3.scaleOrdinal(d3.schemeTableau10)
-							.domain(d3.extent(data, d => d.variety))
+							.domain(d3.extent(data, d => d.variety));
 
 		let bars = svgElement.select("#mark")
 							.selectAll(".bar")

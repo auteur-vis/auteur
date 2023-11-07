@@ -9,7 +9,8 @@ import encodingStyles from "./styles/encodingStyles.js";
 export default class Emphasis extends DataFact {
 
 	// val can either be a single value or list of values
-	constructor(variable, val, styles={}) {
+	// type can be "any" or "all", for data in array form
+	constructor(variable, val, type="any", styles={}) {
 
 		super();
 		
@@ -27,16 +28,31 @@ export default class Emphasis extends DataFact {
 
 		return function(datum, xVar, yVar, xScale, yScale) {
 
-			if (Array.isArray(val)) {
-				if (val.indexOf(datum[variable]) >= 0) {
-					return true;
+			function isValid(singleVal) {
+				
+				if (Array.isArray(val)) {
+					if (val.indexOf(singleVal) >= 0) {
+						return true;
+					} else {
+						return false;
+					}
 				} else {
-					return false;
+					if (singleVal == val) {
+						return true;
+					}
+				}
+
+				return false
+			}
+
+			if (Array.isArray(datum)) {
+				if (type === "any") {
+					return datum.reduce((acc, current) => acc || isValid(current[variable]), false);
+				} else {
+					return datum.reduce((acc, current) => acc && isValid(current[variable]), true);
 				}
 			} else {
-				if (datum[variable] == val) {
-					return true;
-				}
+				return isValid(datum[variable])
 			}
 
 			return false;

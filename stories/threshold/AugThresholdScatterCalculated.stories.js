@@ -19,7 +19,7 @@ export const ToStorybook = () => {
 
 	const ref = useRef("calculated");
 	const chart = useRef(new Draught());
-	const newYThreshold = useRef(new Threshold("Flavor", yThreshold, "eq"));
+	const newYThreshold = useRef(new Threshold("Flavor", yThreshold, "leq"));
 
 	const [data, setData] = React.useState(coffee);
 
@@ -57,8 +57,8 @@ export const ToStorybook = () => {
 									.data(data)
 									.join("circle")
 									.attr("class", "scatterpoint")
-									.attr("cx", d => xScale(d["Aroma"]) + Math.random() * 8 - 4)
-									.attr("cy", d => yScale(d["Flavor"]) + Math.random() * 8 - 4)
+									.attr("cx", d => xScale(d["Aroma"]))
+									.attr("cy", d => yScale(d["Flavor"]))
 									.attr("r", d => 3)
 									.attr("fill", "none")
 									.attr("stroke", "steelblue")

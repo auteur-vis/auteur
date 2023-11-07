@@ -20,7 +20,10 @@ export const ToStorybook = () => {
 	const chart = useRef(new Draught())
 	chart.current.chart(ref.current);
 
-	const [data, setData] = React.useState(coffee.slice(0, 15));
+	const [data, setData] = React.useState(coffee.slice(0, 15).map(d => {
+		d.Rating = d["Total.Cup.Points"] / 10;
+		return d;
+	}));
 	const [formula, setFormula] = useState('return 0;');
 	const newYConstant = useRef(null);
 	const datapoint = useRef(JSON.parse(JSON.stringify(coffee.slice(0, 10)[0])))
@@ -51,7 +54,7 @@ export const ToStorybook = () => {
 						.range([layout.marginLeft, layout.width - layout.marginRight]);
 
 		let yScale = d3.scaleLinear()
-						.domain([0, d3.max(data, d => d["Flavor"])])
+						.domain([7, d3.max(data, d => d.Rating)])
 						.range([layout.height - layout.marginBottom, layout.marginTop]);
 
 		let bars = svgElement.select("#mark")
@@ -60,19 +63,19 @@ export const ToStorybook = () => {
 							.join("rect")
 							.attr("class", "bar")
 							.attr("x", d => xScale(d["FIELD1"]) + 1)
-							.attr("y", d => yScale(d["Flavor"]))
+							.attr("y", d => yScale(d["Rating"]))
 							.attr("width", xScale.bandwidth() - 2)
-							.attr("height", d => yScale(0) - yScale(d["Flavor"]))
+							.attr("height", d => yScale(7) - yScale(d["Rating"]))
 							.attr("fill", "steelblue")
 							.attr("opacity", "0.5")
 							.on("mouseover", (event, d) => {
 
 								let xPos = xScale(d["FIELD1"]) + xScale.bandwidth() / 2;
-								let yPos = yScale(d["Flavor"]) - 8;
+								let yPos = yScale(d["Rating"]) - 8;
 
 								tooltip.attr("transform", `translate(${xPos}, ${yPos})`)
 										.attr("opacity", 1)
-										.text(`${d.Flavor} Flavor`);
+										.text(`${d["Rating"]} Expert Rating`);
 
 							})
 							.on("mouseout", (event, d) => {
@@ -91,7 +94,7 @@ export const ToStorybook = () => {
 
 		chart.current.selection(bars)
 					.x("FIELD1", xScale)
-					.y("Flavor", yScale)
+					.y("Rating", yScale)
 					.exclude({"name":["line"]})
 					.augment(newYConstant.current.getAugs());
 
@@ -127,7 +130,7 @@ export const ToStorybook = () => {
 		if (newYConstant.current) {
 			newYConstant.current.updateFunction(new Function('d', formula));
 		} else {
-			newYConstant.current = new DerivedValues('Flavor', undefined, undefined, new Function('d', formula), style);
+			newYConstant.current = new DerivedValues('Rating', undefined, undefined, new Function('d', formula), style);
 		}
 		
 		let newAug2 = newYConstant.current.getAugs();
@@ -137,7 +140,7 @@ export const ToStorybook = () => {
 
 	useEffect(() => {
 		
-		newYConstant.current = new DerivedValues('Flavor', undefined, undefined, new Function('d', formula), style);
+		newYConstant.current = new DerivedValues('Rating', undefined, undefined, new Function('d', formula), style);
 		updatePlot()
 		let newAug2 = newYConstant.current.getAugs();
 		chart.current.augment(newAug2);
