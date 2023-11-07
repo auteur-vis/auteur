@@ -19,7 +19,7 @@ export const ToStorybook = () => {
 	const ref = useRef("less");
 
 	const chart = useRef(new Draught());
-	const newYThreshold = useRef(new Threshold("Aroma", 8, "geq"));
+	const newYThreshold = useRef(new Threshold("Aroma", yThreshold, "geq"));
 
 	// ... some code omitted ...
 

@@ -39,10 +39,21 @@ export default class Range extends DataFact {
 				return false;
 			}
 
-			if (type === "closed" && datum[variable] >= min && datum[variable] <= max) {
-				return true;
-			} else if (type === "open" && datum[variable] > min && datum[variable] < max) {
-				return true;
+			if (Array.isArray(datum)) {
+				if (type === "closed") {
+					return datum.reduce((acc, current) => acc && current[variable] >= min && current[variable] <= max, true);
+				} else if (type === "open") {
+					return datum.reduce((acc, current) => acc && current[variable] > min && current[variable] < max, true);
+				}
+
+			} else {
+
+				if (type === "closed" && datum[variable] >= min && datum[variable] <= max) {
+					return true;
+				} else if (type === "open" && datum[variable] > min && datum[variable] < max) {
+					return true;
+				}
+
 			}
 
 			return false;
@@ -143,15 +154,18 @@ export default class Range extends DataFact {
 
 	updateVariable(variable) {
 		this._variable = variable;
+		return this;
 	}
 
 	updateVal(val) {
 		this._min = val[0];
 		this._max = val[1];
+		return this;
 	}
 
 	updateType(type) {
 		this._type = type;
+		return this;
 	}
 
 	updateStyles(styles, override = false) {
@@ -160,6 +174,7 @@ export default class Range extends DataFact {
 		} else {
 			this._customStyles = this._updateStyles(this._customStyles, styles);
 		}
+		return this;
 	}
 
 	// returns a list of [Aug Class]
