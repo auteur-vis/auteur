@@ -1,7 +1,7 @@
 import React, {useRef, useState, useEffect} from "react";
 import * as d3 from "d3";
 
-import Draught from "../../src/lib/Draught.js";
+import Draft from "../../src/lib/Draft.js";
 import Threshold from "../../src/lib/Threshold.js";
 import Range from "../../src/lib/Range.js";
 
@@ -16,7 +16,7 @@ export const ToStorybook = () => {
 
 	const ref = useRef("lineless");
 
-	const chart = useRef(new Draught());
+	const chart = useRef(new Draft());
 	const yThreshold = useRef(new Threshold("Revenue", 10, "eq"));
 	const yRange = useRef(new Range("Revenue", [5, 15]));
 

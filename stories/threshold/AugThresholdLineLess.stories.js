@@ -1,7 +1,7 @@
 import React, {useRef, useState, useEffect} from "react";
 import * as d3 from "d3";
 
-import Draught from "../../src/lib/Draught.js";
+import Draft from "../../src/lib/Draft.js";
 import Threshold from "../../src/lib/Threshold.js";
 
 // data from https://www.kaggle.com/datasets/berkeleyearth/climate-change-earth-surface-temperature-data
@@ -18,7 +18,7 @@ export const ToStorybook = () => {
 
 	const ref = useRef("lineless");
 
-	const chart = useRef(new Draught());
+	const chart = useRef(new Draft());
 	const newYThreshold = useRef(new Threshold("AverageTemperature", yThreshold, "geq"));
 
 	// ... some code omitted ...

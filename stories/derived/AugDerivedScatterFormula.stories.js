@@ -1,7 +1,7 @@
 import React, {useRef, useState, useEffect} from "react";
 import * as d3 from "d3";
 import { FormulaBuilder } from "./FormulaBuilder.js";
-import Draught from "../../src/lib/Draught.js";
+import Draft from "../../src/lib/Draft.js";
 import DerivedValues from "../../src/lib/DerivedValues.js";
 
 // data from https://rkabacoff.github.io/qacData/reference/coffee.html
@@ -16,7 +16,7 @@ export const ToStorybook = () => {
 
 	const style = {"multiple":{"fill":"steelblue"}};
 	const ref = useRef("constant");
-	const chart = useRef(new Draught());
+	const chart = useRef(new Draft());
 	chart.current.chart(ref.current);
 	
 	const [formula, setFormula] = useState('return 0;');

@@ -1,7 +1,7 @@
 import React, {useRef, useState, useEffect} from "react";
 import * as d3 from "d3";
 
-import Draught from "../../src/lib/Draught.js";
+import Draft from "../../src/lib/Draft.js";
 import Range from "../../src/lib/Range.js";
 
 // data from https://rkabacoff.github.io/qacData/reference/coffee.html
@@ -21,7 +21,7 @@ export const ToStorybook = () => {
 	const [minYThreshold, setMinYThreshold] = React.useState(6.5);
 
 	const ref = useRef("rangeMulti");
-	const chart = useRef(new Draught());
+	const chart = useRef(new Draft());
 	const newXRange = useRef(new Range("Aroma", [minXThreshold, maxXThreshold], "open"));
 	const newYRange = useRef(new Range("Flavor", [minYThreshold, maxYThreshold], "closed"));
 

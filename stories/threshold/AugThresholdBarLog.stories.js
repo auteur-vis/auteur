@@ -1,7 +1,7 @@
 import React, {useRef, useState, useEffect} from "react";
 import * as d3 from "d3";
 
-import Draught from "../../src/lib/Draught.js";
+import Draft from "../../src/lib/Draft.js";
 import Threshold from "../../src/lib/Threshold.js";
 
 // data from https://rkabacoff.github.io/qacData/reference/coffee.html
@@ -21,7 +21,7 @@ export const ToStorybook = () => {
 	const [barOperation, setBarOperation] = useState("leq");
 
 	const ref = useRef("barless");
-	const chart = useRef(new Draught());
+	const chart = useRef(new Draft());
 	const newBarThreshold = useRef(new Threshold("count", barThreshold, barOperation));
 
 	const [data, setData] = React.useState(groupedData);

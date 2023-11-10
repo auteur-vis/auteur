@@ -1,7 +1,7 @@
 import React, {useRef, useState, useEffect} from "react";
 import * as d3 from "d3";
 
-import Draught from "../../src/lib/Draught.js";
+import Draft from "../../src/lib/Draft.js";
 import LocalData from "../../src/lib/LocalData.js";
 
 // data from https://rkabacoff.github.io/qacData/reference/coffee.html
@@ -15,7 +15,7 @@ export default {
 export const ToStorybook = () => {
 
 	const ref = useRef("localScatter");
-	const chart = useRef(new Draught());
+	const chart = useRef(new Draft());
 
 	const [data, setData] = React.useState(coffee.slice(0, 110));
 	const local = useRef(coffee.slice(110, 120));

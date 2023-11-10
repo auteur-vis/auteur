@@ -1,7 +1,7 @@
 import React, {useRef, useState, useEffect} from "react";
 import * as d3 from "d3";
 
-import Draught from "../../src/lib/Draught.js";
+import Draft from "../../src/lib/Draft.js";
 import Range from "../../src/lib/Range.js";
 
 // data from https://www.kaggle.com/datasets/berkeleyearth/climate-change-earth-surface-temperature-data
@@ -19,7 +19,7 @@ export const ToStorybook = () => {
 
 	const ref = useRef("linerange");
 
-	const chart = useRef(new Draught());
+	const chart = useRef(new Draft());
 	const newRange = useRef(new Range("AverageTemperature", [minThreshold, maxThreshold], "closed"));
 
 	// ... some code omitted ...

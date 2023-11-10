@@ -1,7 +1,7 @@
 import React, {useRef, useState, useEffect} from "react";
 import * as d3 from "d3";
 
-import Draught from "../../src/lib/Draught.js";
+import Draft from "../../src/lib/Draft.js";
 import Regression from "../../src/lib/Regression.js";
 
 // data from https://rkabacoff.github.io/qacData/reference/coffee.html
@@ -15,7 +15,7 @@ export default {
 export const ToStorybook = () => {
 
 	const ref = useRef("regressionMulti");
-	const chart = useRef(new Draught());
+	const chart = useRef(new Draft());
 	const mainRegression = useRef(new Regression());
 
 	const [data, setData] = React.useState(iris);

@@ -1,7 +1,7 @@
 import React, {useRef, useState, useEffect} from "react";
 import * as d3 from "d3";
 
-import Draught from "../../src/lib/Draught.js";
+import Draft from "../../src/lib/Draft.js";
 import Threshold from "../../src/lib/Threshold.js";
 
 import study from "../../public/study_data.json";
@@ -17,7 +17,7 @@ export const ToStorybook = () => {
 	let groupedData = [...group.entries()].map(d => { return {"Store":d[0], "entries":d[1], "Revenue":d3.sum(d[1], d => d["Revenue (in thousands)"])} });
 
 	const ref = useRef("barless");
-	const chart = useRef(new Draught());
+	const chart = useRef(new Draft());
 	const newPointThreshold = useRef(new Threshold("Revenue", 150, "geq"));
 
 	const [data, setData] = React.useState(groupedData);

@@ -1,7 +1,7 @@
 import React, {useRef, useState, useEffect} from "react";
 import * as d3 from "d3";
 
-import Draught from "../../src/lib/Draught.js";
+import Draft from "../../src/lib/Draft.js";
 import Emphasis from "../../src/lib/Emphasis.js";
 
 // data from https://rkabacoff.github.io/qacData/reference/coffee.html
@@ -20,7 +20,7 @@ export const ToStorybook = () => {
 	const [categories, setCategories] = React.useState(["Colombia", "Ethiopia"]);
 
 	const ref = useRef("barrange");
-	const chart = useRef(new Draught());
+	const chart = useRef(new Draft());
 	const newEmphasis = useRef(new Emphasis("Country", categories));
 
 	const [data, setData] = React.useState(groupedData);

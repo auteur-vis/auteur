@@ -1,7 +1,7 @@
 import React, {useRef, useState, useEffect} from "react";
 import * as d3 from "d3";
 
-import Draught from "../../src/lib/Draught.js";
+import Draft from "../../src/lib/Draft.js";
 import Emphasis from "../../src/lib/Emphasis.js";
 
 import study from "../../public/study_data.json";
@@ -15,7 +15,7 @@ export const ToStorybook = () => {
 
 	const ref = useRef("lineless");
 
-	const chart = useRef(new Draught());
+	const chart = useRef(new Draft());
 	const emphasis = useRef(new Emphasis("Region", "South America"));
 
 	// ... some code omitted ...

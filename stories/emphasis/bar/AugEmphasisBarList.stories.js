@@ -1,7 +1,7 @@
 import React, {useRef, useState, useEffect} from "react";
 import * as d3 from "d3";
 
-import Draught from "../../../src/lib/Draught.js";
+import Draft from "../../../src/lib/Draft.js";
 import Emphasis from "../../../src/lib/Emphasis.js";
 
 // data from https://rkabacoff.github.io/qacData/reference/coffee.html
@@ -20,7 +20,7 @@ export const ToStorybook = () => {
 	const options = Array.from(new Set(coffee.map(d => d.Variety)));
 
 	const ref = useRef("emphVal");
-	const chart = useRef(new Draught());
+	const chart = useRef(new Draft());
 	const newEmphasis = useRef(new Emphasis("Variety", [emphVal1, emphVal2]));
 
 	const [data, setData] = React.useState(coffee.slice(0, 10));

@@ -1,7 +1,7 @@
 import React, {useRef, useState, useEffect} from "react";
 import * as d3 from "d3";
 
-import Draught from "../../src/lib/Draught.js";
+import Draft from "../../src/lib/Draft.js";
 import Threshold from "../../src/lib/Threshold.js";
 
 // data from https://rkabacoff.github.io/qacData/reference/coffee.html
@@ -19,7 +19,7 @@ export const ToStorybook = () => {
 	const [mergeBy, setMergeBy] = useState("xor");
 
 	const ref = useRef("quadrant");
-	const chart = useRef(new Draught());
+	const chart = useRef(new Draft());
 	const newXThreshold = useRef(new Threshold("Aroma", xThreshold, "leq"));
 	const newYThreshold = useRef(new Threshold("Flavor", yThreshold, "leq"));
 

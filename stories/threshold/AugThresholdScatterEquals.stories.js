@@ -1,7 +1,7 @@
 import React, {useRef, useState, useEffect} from "react";
 import * as d3 from "d3";
 
-import Draught from "../../src/lib/Draught.js";
+import Draft from "../../src/lib/Draft.js";
 import Threshold from "../../src/lib/Threshold.js";
 import * as Papa from 'papaparse';
 import * as XLSX from 'xlsx';
@@ -26,7 +26,7 @@ export const ToStorybook = () => {
 	const [yOperation, setYOperation] = useState("eq");
 
 	const ref = useRef("multi");
-	const chart = useRef(new Draught());
+	const chart = useRef(new Draft());
 	const newXThreshold = useRef(new Threshold(x, xThreshold, xOperation));
 	const newYThreshold = useRef(new Threshold(y, yThreshold, yOperation));
 

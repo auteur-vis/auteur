@@ -1,7 +1,7 @@
 import React, {useRef, useState, useEffect} from "react";
 import * as d3 from "d3";
 
-import Draught from "../../src/lib/Draught.js";
+import Draft from "../../src/lib/Draft.js";
 import DerivedValues from "../../src/lib/DerivedValues.js";
 
 // data from https://www.kaggle.com/datasets/berkeleyearth/climate-change-earth-surface-temperature-data
@@ -26,7 +26,7 @@ export const ToStorybook = () => {
 
 	const ref = useRef("lineformula");
 
-	const chart = useRef(new Draught());
+	const chart = useRef(new Draft());
 	const newDerivedUpper = useRef(new DerivedValues('AverageTemperature', "AverageTemperatureUncertainty", "add", undefined, style));
 	const newDerivedLower = useRef(new DerivedValues('AverageTemperature', "AverageTemperatureUncertainty", "sub", undefined, style));
 
