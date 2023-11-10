@@ -28,6 +28,11 @@ export default class Emphasis extends DataFact {
 
 		return function(datum, xVar, yVar, xScale, yScale) {
 
+			// If no variable or value defined, emphasize entire selection
+			if (!variable || !val) {
+				return true;
+			}
+
 			function isValid(singleVal) {
 				
 				if (Array.isArray(val)) {
@@ -111,7 +116,7 @@ export default class Emphasis extends DataFact {
 									this.generateEncoding(this._variable, this._val, this._type), 
 									this.mergeStyles(this._customStyles.opacity, encodingStyles.opacity), this._selection, 4);
 
-		return [strokeAug.getSpec(), textAug.getSpec(), fillAug.getSpec(), opacityAug.getSpec()].sort(this._sort)
+		return this._filter([strokeAug.getSpec(), textAug.getSpec(), fillAug.getSpec(), opacityAug.getSpec()]).sort(this._sort)
 	}
 
 	updateVariable(variable) {

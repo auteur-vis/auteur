@@ -108,7 +108,7 @@ export const ToStorybook = () => {
 				  .attr("fill", "black")
 				  .text(d => d);
 
-		let colorScale = d3.scaleSequential(d3.interpolateViridis)
+		let colorScale = d3.scaleSequential(d3.interpolateYlOrRd)
 							.domain(d3.extent(data, d => d["Flavor"]));
 
 		const styles = {"fill": {"fill": (d, i) => colorScale(d.Flavor)}};

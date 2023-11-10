@@ -39,23 +39,26 @@ export default class LocalData extends DataFact {
 	// returns a list of [Aug Class]
 	getAugs() {
 
-		let markAug = new Aug(`${this._id}_mark`, "derived_mark", "mark", {"mark":undefined},
+		let markAug = new Aug(`${this._id}_mark`, "local_mark", "mark", {"mark":undefined},
 										 this.generateMark(this._local), 
 										 this.mergeStyles(this._customStyles.mark, undefined), this._selection, 1);
 
-		return [markAug.getSpec()].sort(this._sort)
+		return this._filter([markAug.getSpec()]).sort(this._sort)
 	}
 
 	updateVariable(variable) {
 		this._variable = variable;
+		return this;
 	}
 
 	updateVal(val) {
 		this._val = val;
+		return this;
 	}
 
 	updateFunction(fn) {
 		this._fn = fn;
+		return this;
 	}
 
 	updateStyles(styles, override = false) {
@@ -64,6 +67,7 @@ export default class LocalData extends DataFact {
 		} else {
 			this._customStyles = this._updateStyles(this._customStyles, styles);
 		}
+		return this;
 	}
 
 	// // Merge augmentations between multiple data facts

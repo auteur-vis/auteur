@@ -149,7 +149,7 @@ export default class Range extends DataFact {
 		// 						 this.generateText(this._variable, this._val, this._type),
 		// 						 this.mergeStyles(this._customStyles.text, markStyles.text), 5);
 
-		return [rectAug.getSpec(), opacityAug.getSpec(), fillAug.getSpec()].sort(this._sort)
+		return this._filter([rectAug.getSpec(), opacityAug.getSpec(), fillAug.getSpec()]).sort(this._sort)
 	}
 
 	updateVariable(variable) {

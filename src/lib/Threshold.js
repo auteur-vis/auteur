@@ -136,7 +136,7 @@ export default class Threshold extends DataFact {
 								 this.generateText(this._variable, this._val, this._type),
 								 this.mergeStyles(this._customStyles.text, markStyles.text), this._selection, 5);
 
-		return [lineAug.getSpec(), opacityAug.getSpec(), strokeAug.getSpec(), fillAug.getSpec(), textAug.getSpec()].sort(this._sort)
+		return this._filter([lineAug.getSpec(), opacityAug.getSpec(), strokeAug.getSpec(), fillAug.getSpec(), textAug.getSpec()]).sort(this._sort)
 	}
 
 	updateVariable(variable) {

@@ -15,6 +15,25 @@ export default class DataFact {
 		return this
 	}
 
+	// {"type": ["encoding", "mark", ...], "rank": 1, 2, 3..., "name": ["line", "color", "opacity", ...]}
+	include(inclusions) {
+
+		this._include = inclusions;
+
+		return this;
+
+	}
+
+	// exclusions take priority
+	// {"type": [encoding", "mark", ...], "rank": 1, 2, 3..., "name": ["line", "color", "opacity", ...]}
+	exclude(exclusions) {
+
+		this._exclude = exclusions;
+
+		return this;
+
+	}
+
 	mergeStyles(customs, defaults) {
 
 		if (customs && !defaults) {
@@ -54,6 +73,46 @@ export default class DataFact {
 
 	_sort(a, b) {
 		return a.rank - b.rank;
+	}
+
+	_filter(augs) {
+
+		let filteredAugs = augs;
+
+		// first filter by rank
+		// rank filtering is exactly the same for both include and exclude
+		// exclude takes precedence
+		if (this._exclude) {
+			if (this._exclude["rank"]) {
+				filteredAugs = filteredAugs.filter(d => d.rank <= this._exclude["rank"]);
+			}
+			
+			if (this._exclude["type"]) {
+				filteredAugs = filteredAugs.filter(d => this._exclude["type"].indexOf(d.type) < 0);
+			}
+
+			if (this._exclude["name"]) {
+				filteredAugs = filteredAugs.filter(d => this._exclude["name"].indexOf(d.name.split("_")[1]) < 0);
+			}
+
+		} else if (this._include && this._include["name"]) {
+			if (this._include["rank"]) {
+				filteredAugs = filteredAugs.filter(d => d.rank <= this._include["rank"]);
+			}
+
+			if (this._exclude["type"]) {
+				filteredAugs = filteredAugs.filter(d => this._exclude["type"].indexOf(d.type) >= 0);
+			}
+
+			if (this._exclude["name"]) {
+				filteredAugs = filteredAugs.filter(d => this._exclude["name"].indexOf(d.name.split("_")[1]) >= 0);
+			}
+		}
+
+		// console.log(filteredAugs)
+
+		return filteredAugs;
+
 	}
 
 	// Merge augmentations between multiple data facts

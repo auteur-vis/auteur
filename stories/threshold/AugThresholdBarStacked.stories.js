@@ -108,7 +108,7 @@ export const ToStorybook = () => {
 
 		let legend = svgElement.select("#legend")
 							.selectAll(".legendRect")
-							.data(varieties)
+							.data(varieties.reverse())
 							.join("rect")
 							.attr("class", "legendRect")
 							.attr("x", (d, i) => layout.width - 100)
@@ -120,7 +120,7 @@ export const ToStorybook = () => {
 
 		let legendText = svgElement.select("#legend")
 							.selectAll(".legendText")
-							.data(varieties)
+							.data(varieties.reverse())
 							.join("text")
 							.attr("class", "legendText")
 							.attr("x", (d, i) => layout.width - 100 + 16)

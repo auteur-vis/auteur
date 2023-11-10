@@ -8,15 +8,6 @@ export default class Draught {
 	constructor() {
 
 		this._id = `chart${uuidv4()}`;
-		this._defaultStyles = {"line": {"stroke":"black",
-									     "stroke-width":1,
-									     "stroke-dasharray":"none"},
-								"point":{"fill":"black",
-										 "r":3,
-										 "stroke":"none"},
-								"bar":{"fill":"steelblue",
-									   "stroke":"none"}
-								}
 
 		this._include = null;
 		this._exclude = null;
@@ -526,13 +517,14 @@ export default class Draught {
 
 				for (let s of Object.keys(styles)) {
 
-					this._selection.style(s, undefined);
+					// Local selections override global selections
+					if (this._selection) {this._selection.style(s, undefined)};
 
 					if (!s.startsWith(encoding)) {continue;}
 
 					if (s === "opacity") {
 
-						select.style(s, d => {
+						select.style(s, (d, i, n) => {
 
 							if (a.generator(d, this._xVar, this._yVar, this._xScale, this._yScale)) {
 								let customStyle = styles[s];
@@ -543,7 +535,7 @@ export default class Draught {
 									return customStyle
 								}
 							} else {
-								return 0.25
+								return 0.25;
 							}
 							
 						});

@@ -95,7 +95,7 @@ export default class Regression extends DataFact {
 								 this.generateLine(),
 								 this.mergeStyles(this._customStyles.line, markStyles.line), this._selection, 1);
 
-		return [lineAug.getSpec()].sort(this._sort)
+		return this._filter([lineAug.getSpec()]).sort(this._sort)
 	}
 
 	updateStyles(styles, override = false) {

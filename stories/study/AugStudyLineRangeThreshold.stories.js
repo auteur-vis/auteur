@@ -2,37 +2,27 @@ import React, {useRef, useState, useEffect} from "react";
 import * as d3 from "d3";
 
 import Draught from "../../src/lib/Draught.js";
-import DerivedValues from "../../src/lib/DerivedValues.js";
+import Threshold from "../../src/lib/Threshold.js";
+import Range from "../../src/lib/Range.js";
 
-// data from https://www.kaggle.com/datasets/berkeleyearth/climate-change-earth-surface-temperature-data
-import climate from "../../public/climate.json";
+import study from "../../public/study_data.json";
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
-  title: 'Aug/Derived/Line/Formula',
+  title: 'Aug/Study/Line/PlusMinus10',
 };
 
 export const ToStorybook = () => {
 
-	function uncertaintyLowerBound(d) {
-		return d.AverageTemperature - d.AverageTemperatureUncertainty;
-	}
-
-	function uncertaintyUpperBound(d) {
-		return d.AverageTemperature + d.AverageTemperatureUncertainty;
-	}
-
-	const style = {"multiple":{"stroke-width":"1px", "stroke-dasharray":"2px 2px"}};
-
-	const ref = useRef("lineformula");
+	const ref = useRef("lineless");
 
 	const chart = useRef(new Draught());
-	const newDerivedUpper = useRef(new DerivedValues('AverageTemperature', undefined, undefined, uncertaintyUpperBound, style));
-	const newDerivedLower = useRef(new DerivedValues('AverageTemperature', undefined, undefined, uncertaintyLowerBound, style));
+	const yThreshold = useRef(new Threshold("Revenue", 10, "eq"));
+	const yRange = useRef(new Range("Revenue", [5, 15]));
 
 	// ... some code omitted ...
 
-	const [data, setData] = React.useState(climate.filter(d => d.year >= 2011));
+	const [data, setData] = React.useState(study.All);
 
 	let layout={"width":900,
 	   		   "height":500,
@@ -45,14 +35,12 @@ export const ToStorybook = () => {
 
 		let svgElement = d3.select(ref.current);
 
-		const dataTime = data.map((d) => {
-			let dateSplit = d.dt.split("-");
-			let formatDate = new Date(dateSplit[0], dateSplit[1] - 1, dateSplit[2]);
-			d.date = formatDate;
+		const dataGroup = data.map((d) => {
+			d.Revenue = d["Revenue (in thousands)"];
 			return d;
 		})
 
-		let grouped = d3.group(dataTime, d => d.City);
+		let grouped = d3.group(dataGroup, d => d.Store);
 
 		// create a tooltip
 		var tooltip = svgElement.select("#tooltip")
@@ -64,27 +52,27 @@ export const ToStorybook = () => {
 		svgElement.attr("width", layout.width)
 				.attr("height", layout.height);
 
-		let xScale = d3.scaleTime()
-					.domain(d3.extent(dataTime, d => d["date"]))
+		let xScale = d3.scaleLinear()
+					.domain(d3.extent(dataGroup, d => d["Month"]))
 					.range([layout.marginLeft, layout.width - layout.marginRight]);
 
 		let yScale = d3.scaleLinear()
-							.domain([d3.min(dataTime, d => d.AverageTemperature - d.AverageTemperatureUncertainty), d3.max(dataTime, d => d.AverageTemperature + d.AverageTemperatureUncertainty)])
+							.domain([0, d3.max(dataGroup, d => d["Revenue"])])
 							.range([layout.height - layout.marginBottom, layout.marginTop]);
 
 		let sizeScale = d3.scaleLinear()
-							.domain(d3.extent(dataTime, d => d["AverageTemperature"]))
+							.domain(d3.extent(dataGroup, d => d["Revenue"]))
 							.range([3, 6]);
 
 		let colorScale = d3.scaleOrdinal(d3.schemeTableau10)
-							.domain(['Chicago', 'Los Angeles', 'New York']);
+							.domain(Array.from(new Set(dataGroup)));
 
 		let lineFunction = d3.line()
-							 .x(d => xScale(d["date"]))
-							 .y(d => yScale(d["AverageTemperature"]));
+							 .x(d => xScale(d["Month"]))
+							 .y(d => yScale(d["Revenue"]));
 
 		let flattenGroup = [...grouped].map(d => {
-			return d[1].map(di => {di.City = d[0]; return di});
+			return d[1].map(di => {di.Store = d[0]; return di});
 			return d[1]
 		});
 
@@ -94,8 +82,8 @@ export const ToStorybook = () => {
 									.join("path")
 									.attr("class", "climateLine")
 									.attr('fill', 'none')
-									.attr('stroke-width', 1.5)
-									.attr("stroke", d => colorScale(d[0].City))
+									.attr('stroke-width', 1)
+									.attr("stroke", d => "black")
 									.attr("d", d => {
 										return lineFunction(d)
 									})
@@ -105,7 +93,7 @@ export const ToStorybook = () => {
 				  .attr("transform", `translate(0, ${layout.height - layout.marginBottom})`);
 
 		svgElement.select("#xAxis").selectAll("#xTitle")
-				  .data(["date"])
+				  .data(["Month"])
 				  .join("text")
 				  .attr("id", "xTitle")
 				  .attr("text-anchor", "middle")
@@ -118,7 +106,7 @@ export const ToStorybook = () => {
 				  .attr("transform", `translate(${layout.marginLeft}, 0)`);
 
 		svgElement.select("#yAxis").selectAll("#yTitle")
-				  .data(["Average Temperature"])
+				  .data(["Revenue"])
 				  .join("text")
 				  .attr("id", "yTitle")
 				  .attr("text-anchor", "middle")
@@ -128,17 +116,20 @@ export const ToStorybook = () => {
 
 		// ... some code omitted ...
 
-		// const styles = {"stroke": {"stroke": (d, i) => colorScale(d[0].City), "stroke-width": "2px"}};
+		const thresholdStyles = {"line": {"stroke-width": "3px"}};
 
-		// newYThreshold.current.updateStyles(styles);
+		const rangeStyles = {"rect": {"opacity": 0.25, "fill":"#ffe138"}};
+
+		yThreshold.current.updateStyles(thresholdStyles);
+		yRange.current.updateStyles(rangeStyles);
 
 		chart.current.chart(ref.current)
 					.selection(lines)
-					.x("date", xScale)
-					.y("AverageTemperature", yScale)
-					.exclude({"name":["fill"]})
-					.augment(newDerivedUpper.current.getAugs())
-					.augment(newDerivedLower.current.getAugs());
+					.x("Month", xScale)
+					.y("Revenue", yScale)
+					.exclude({"name":["fill", "opacity", "text"]})
+					.augment(yThreshold.current.getAugs())
+					.augment(yRange.current.getAugs());
 
 	}, [data])
 
@@ -155,5 +146,5 @@ export const ToStorybook = () => {
 }
 
 ToStorybook.story = {
-  name: 'Formula',
+  name: 'PlusMinus10',
 };

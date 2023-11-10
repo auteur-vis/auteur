@@ -322,7 +322,7 @@ export default class DerivedValues extends DataFact {
 								 this.generateLine(this._variable, this._val, this._type, this._calc, this._fn),
 								 this.mergeStyles(this._customStyles.line, markStyles.line), this._selection, 2);
 
-		return [multipleAug.getSpec(), lineAug.getSpec()].sort(this._sort)
+		return this._filter([multipleAug.getSpec(), lineAug.getSpec()]).sort(this._sort)
 	}
 
 	updateVariable(variable) {

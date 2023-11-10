@@ -19,12 +19,12 @@ export const ToStorybook = () => {
 	const ref = useRef("range");
 	const chart = useRef(new Draught());
 	const newRange = useRef(new Range("Flavor", [minThreshold, maxThreshold], "closed", style));
-	const [data, setData] = React.useState(coffee.slice(0, 10));
+	const [data, setData] = React.useState(coffee.slice(0, 15));
 	const [maxThreshold, setMaxThreshold] = React.useState(d3.max(data, d => d.Flavor));
 	const [minThreshold, setMinThreshold] = React.useState(d3.min(data, d => d.Flavor) - 0.5);
 
 
-	let layout={"width":500,
+	let layout={"width":900,
 	   		   "height":500,
 	   		   "marginTop":50,
 	   		   "marginRight":50,
