@@ -1,15 +1,12 @@
 import React, {useRef, useState, useEffect} from "react";
 import * as d3 from "d3";
 
-import Draft from "../../src/lib/Draft.js";
-import Threshold from "../../src/lib/Threshold.js";
-
 // data from https://rkabacoff.github.io/qacData/reference/coffee.html
 import coffee from "../../public/arabica_data_cleaned_top15.json";
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
-  title: 'Aug/Threshold/Scatter/Less',
+  title: 'Aug/Threshold/Scatter/BasicD3',
 };
 
 export const ToStorybook = () => {
@@ -17,9 +14,6 @@ export const ToStorybook = () => {
 	const [yThreshold, setYThreshold] = React.useState(8);
 
 	const ref = useRef("less");
-
-	const chart = useRef(new Draft());
-	const newYThreshold = useRef(new Threshold("Flavor", yThreshold, "geq"));
 
 	// ... some code omitted ...
 
@@ -34,16 +28,16 @@ export const ToStorybook = () => {
 
 	useEffect(() => {
 
-		let svgElement = d3.select(ref.current);
+		let svg = d3.select(ref.current);
 
 		// create a tooltip
-		var tooltip = svgElement.select("#tooltip")
+		var tooltip = svg.select("#tooltip")
 						.attr("text-anchor", "middle")
 						.attr("font-family", "sans-serif")
 						.attr("font-size", 10)
 					    .attr("opacity", 0);
 
-		svgElement.attr("width", layout.width)
+		svg.attr("width", layout.width)
 				.attr("height", layout.height);
 
 		let xScale = d3.scaleLinear()
@@ -58,22 +52,45 @@ export const ToStorybook = () => {
 							.domain(d3.extent(data, d => d["Flavor"]))
 							.range([3, 6]);
 
-		let scatterpoints = svgElement.select("#mark")
-									.selectAll(".scatterpoint")
-									.data(data)
-									.join("rect")
-									.attr("class", "scatterpoint")
-									.attr("x", d => xScale(d["Aroma"]) - 3)
-									.attr("y", d => yScale(d["Flavor"]) - 3)
-									.attr("width", 6)
-									.attr("height", 6)
-									.attr("opacity", 0.3)
+		let thresholdValue = 7.5;
 
-		svgElement.select("#xAxis")
+		let scatterpoints = svg.select("#mark")
+								.selectAll("circle")
+								.data(data)
+								.join("circle")
+								.attr("cx", d => xScale(d["Aroma"]))
+								.attr("cy", d => yScale(d["Flavor"]))
+								.attr("r", 3)
+								.attr("opacity", d => d.Flavor >= thresholdValue ? 1 : 0.25)
+								.attr("fill", d => d.Flavor >= thresholdValue ? "red" : "steelblue")
+								.attr("stroke", d => d.Flavor >= thresholdValue ? "black" : "none");
+
+		let thresholdLine = svg.select("#mark")
+								.selectAll("line")
+								.data([thresholdValue])
+								.join("line")
+								.attr("x1", xScale.range()[0])
+								.attr("y1", yScale(thresholdValue))
+								.attr("x2", xScale.range()[1])
+								.attr("y2", yScale(thresholdValue))
+								.attr("stroke", "black");
+
+		let thresholdText = svg.select("#mark")
+								.selectAll("text")
+								.data([thresholdValue])
+								.join("text")
+								.attr("x", xScale.range()[0])
+								.attr("y", yScale(thresholdValue) + 10)
+								.attr("alignment-baseline", "hanging")
+								.attr("font-family", "sans-serif")
+								.attr("font-size", 11)
+								.text(d => `Flavor greater than or equal to ${d}`);
+
+		svg.select("#xAxis")
 				  .call(d3.axisBottom(xScale))
 				  .attr("transform", `translate(0, ${layout.height - layout.marginBottom})`);
 
-		svgElement.select("#xAxis").selectAll("#xTitle")
+		svg.select("#xAxis").selectAll("#xTitle")
 				  .data(["Aroma"])
 				  .join("text")
 				  .attr("id", "xTitle")
@@ -82,11 +99,11 @@ export const ToStorybook = () => {
 				  .attr("fill", "black")
 				  .text(d => d);
 
-		svgElement.select("#yAxis")
+		svg.select("#yAxis")
 				  .call(d3.axisLeft(yScale).ticks(5))
 				  .attr("transform", `translate(${layout.marginLeft}, 0)`);
 
-		svgElement.select("#yAxis").selectAll("#yTitle")
+		svg.select("#yAxis").selectAll("#yTitle")
 				  .data(["Flavor"])
 				  .join("text")
 				  .attr("id", "yTitle")
@@ -95,49 +112,10 @@ export const ToStorybook = () => {
 				  .attr("fill", "black")
 				  .text(d => d)
 
-		// ... some code omitted ...
-
-		let colorScale = d3.scaleSequential(d3.interpolateViridis)
-							.domain(d3.extent(data, d => d["Aroma"]));
-
-		const styles = {"fill": {"fill": (d, i) => colorScale(d.Aroma)}};
-
-		newYThreshold.current.updateStyles(styles);
-
-		chart.current.chart(ref.current)
-					.selection(scatterpoints)
-					.x("Aroma", xScale)
-					.y("Flavor", yScale)
-					.augment(newYThreshold.current.getAugs());
-
 	}, [data])
-
-	useEffect(() => {
-
-		newYThreshold.current.updateVal(yThreshold);
-		let newAug2 = newYThreshold.current.getAugs();
-		
-		chart.current.augment(newAug2);
-
-	}, [yThreshold])
-
-	function updateY(e) {
-		setYThreshold(e.target.value);
-	}
 
 	return (
 		<div>
-			<div>
-				<p>y-axis threshold: </p>
-				<input
-					type="range"
-					id="quantity"
-					name="quantity"
-					min="6" max="9"
-					step="0.01"
-					value={yThreshold}
-					onChange={(e) => updateY(e)} />
-			</div>
 			<svg id="less" ref={ref}>
 				<g id="mark" />
 				<g id="xAxis" />
@@ -149,5 +127,5 @@ export const ToStorybook = () => {
 }
 
 ToStorybook.story = {
-  name: 'Less',
+  name: 'BasicD3',
 };

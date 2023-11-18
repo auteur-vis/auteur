@@ -11,5 +11,8 @@ export default {
 	"rect": {
 		"opacity": 0.1,
 		"fill": "black"
+	},
+	"multiple": {
+		"stroke-opacity": 0.25,
 	}
 }

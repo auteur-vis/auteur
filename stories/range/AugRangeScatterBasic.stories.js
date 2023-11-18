@@ -2,33 +2,23 @@ import React, {useRef, useState, useEffect} from "react";
 import * as d3 from "d3";
 
 import Draft from "../../src/lib/Draft.js";
-import Threshold from "../../src/lib/Threshold.js";
+import Range from "../../src/lib/Range.js";
 
 // data from https://rkabacoff.github.io/qacData/reference/coffee.html
 import coffee from "../../public/arabica_data_cleaned_top15.json";
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
-  title: 'Aug/Threshold/Scatter/Range',
+  title: 'Aug/Range/Scatter/Basic',
 };
 
 export const ToStorybook = () => {
 
-	const [maxThreshold, setMaxThreshold] = React.useState(7.5);
-	const [minThreshold, setMinThreshold] = React.useState(6.5);
-
-	const style = {"fill":{"fill":"steelblue"},
-				   "line":{"stroke-dasharray":"2px 5px 5px 5px"}};
-
 	const ref = useRef("range");
-	const draft = useRef(new Draft());
-	const newMaxThreshold = useRef(new Threshold("Flavor", maxThreshold, "leq", style));
-	const newMinThreshold = useRef(new Threshold("Flavor", minThreshold, "geq", style));
-
 	const [data, setData] = React.useState(coffee);
 
 	let layout={"width":500,
-	   		   "height":500,
+	   		   "height":400,
 	   		   "marginTop":50,
 	   		   "marginRight":50,
 	   		   "marginBottom":50,
@@ -65,25 +55,11 @@ export const ToStorybook = () => {
 									.data(data)
 									.join("circle")
 									.attr("class", "scatterpoint")
-									.attr("cx", d => xScale(d["Aroma"]) + Math.random() * 8 - 4)
-									.attr("cy", d => yScale(d["Flavor"]) + Math.random() * 8 - 4)
+									.attr("cx", d => xScale(d["Aroma"]))
+									.attr("cy", d => yScale(d["Flavor"]))
 									.attr("r", d => 3)
 									.attr("opacity", 0.25)
-									.on("mouseover", (event, d) => {
-
-										let xPos = xScale(d["Aroma"]);
-										let yPos = yScale(d["Flavor"]) - 8;
-
-										tooltip.attr("transform", `translate(${xPos}, ${yPos})`)
-												.attr("opacity", 1)
-												.text(d.name);
-
-									})
-									.on("mouseout", (event, d) => {
-
-										tooltip.attr("opacity", 0);
-
-									});
+									.attr("fill", "steelblue");
 
 		svgElement.select("#xAxis")
 				  .call(d3.axisBottom(xScale))
@@ -111,81 +87,38 @@ export const ToStorybook = () => {
 				  .attr("fill", "black")
 				  .text(d => d)
 
-		// let minThreshold = new Threshold("Flavor", 6.5, "geq");
-		// let maxThreshold = new Threshold("Flavor", 7.5, "geq");
+		const range = new Range("Flavor", [6.5, 7.5]);
 
-		draft.current.chart(ref.current)
+		let colorScale = d3.scaleSequential(d3.interpolateTurbo)
+			.domain(d3.extent(data, d => d["Aroma"]));
+
+		const styles = {"fill": {
+			"fill": d => colorScale(d.Aroma) }};
+
+		range.updateStyles(styles);
+
+		const draft = new Draft();
+		draft.chart("#svg")
 			.selection(scatterpoints)
 			.x("Aroma", xScale)
 			.y("Flavor", yScale)
-			.exclude({"name":["stroke", "opacity"]});
-		
-		draft.current.augment(newMaxThreshold.current.intersect(newMinThreshold.current));
+			.augment(range.getAugs());
 
 	}, [data])
 
-	useEffect(() => {
-
-		newMaxThreshold.current.updateVal(maxThreshold);
-		let newAugs = newMaxThreshold.current.intersect(newMinThreshold.current);
-
-		draft.current.augment(newAugs);
-
-	}, [maxThreshold])
-
-	useEffect(() => {
-
-		newMinThreshold.current.updateVal(minThreshold);
-		let newAugs = newMaxThreshold.current.intersect(newMinThreshold.current);
-
-		draft.current.augment(newAugs);
-
-	}, [minThreshold])
-
-	function updateMax(e) {
-		setMaxThreshold(e.target.value);
-	}
-
-	function updateMin(e) {
-		setMinThreshold(e.target.value);
-	}
-
 	return (
 		<div>
-			<div>
-				<p>max threshold: </p>
-				<input
-					type="range"
-					id="quantity"
-					name="quantity"
-					min={d3.min(data, d => d.Flavor)}
-					max={d3.max(data, d => d.Flavor)}
-					step="0.01"
-					value={maxThreshold}
-					onChange={(e) => updateMax(e)} />
-			</div>
-			<div>
-				<p>min threshold: </p>
-				<input
-					type="range"
-					id="quantity"
-					name="quantity"
-					min={d3.min(data, d => d.Flavor)}
-					max={d3.max(data, d => d.Flavor)}
-					step="0.01"
-					value={minThreshold}
-					onChange={(e) => updateMin(e)} />
-			</div>
-			<svg id="less" ref={ref}>
+			<svg id="svg" ref={ref}>
 				<g id="mark" />
 				<g id="xAxis" />
 				<g id="yAxis" />
 				<text id="tooltip" />
+				<g id="augmentations" />
 			</svg>
 		</div>
 	)
 }
 
 ToStorybook.story = {
-  name: 'Range',
+  name: 'Basic',
 };

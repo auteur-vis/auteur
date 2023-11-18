@@ -1,30 +1,26 @@
 import React, {useRef, useState, useEffect} from "react";
 import * as d3 from "d3";
 
-import Draft from "../../../src/lib/Draft.js";
-import Emphasis from "../../../src/lib/Emphasis.js";
+import Draft from "../../src/lib/Draft.js";
+import Emphasis from "../../src/lib/Emphasis.js";
 
 // data from https://rkabacoff.github.io/qacData/reference/coffee.html
-import coffee from "../../../public/arabica_data_cleaned_top15.json";
+import coffee from "../../public/arabica_data_cleaned_top15.json";
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
-  title: 'Aug/Emphasis/Scatter/Multi',
+  title: 'Aug/Emphasis/Scatter/Categorical',
 };
 
 export const ToStorybook = () => {
 
-	const [emphVal, setEmphVal] = React.useState(6);
-	const [emphVar, setEmphVar] = React.useState("Sweetness");
-
-	const [emphCatVal, setEmphCatVal] = React.useState("Other");
-	const [emphCatVar, setEmphCatVar] = React.useState("Variety");
+	const [emphVal, setEmphVal] = React.useState("Other");
+	const [emphVar, setEmphVar] = React.useState("Variety");
 	const [emphOptions, setEmphOptions] = React.useState(Array.from(new Set(coffee.map(d => d.Variety))));
 
-	const ref = useRef("emphMulti");
+	const ref = useRef("emphVal");
 	const chart = useRef(new Draft());
 	const newEmphasis = useRef(new Emphasis(emphVar, emphVal));
-	const newCatEmphasis = useRef(new Emphasis(emphCatVar, emphCatVal));
 
 	const [data, setData] = React.useState(coffee);
 
@@ -109,55 +105,35 @@ export const ToStorybook = () => {
 				  .attr("text-anchor", "middle")
 				  .attr("transform", `translate(0, 40)`)
 				  .attr("fill", "black")
-				  .text(d => d);
-
-		function alignY(d, i) {
-			return yScale(d["Flavor"])
-		}
-
-		function getText(d, i) {
-			return `produced in ${d.Country}`
-		}
-
-		const styles = {"text": {"text-anchor":"end", "x": 490, "y":alignY, "text": getText}};
-
-		newEmphasis.current.updateStyles(styles);
+				  .text(d => d)
 
 		chart.current.chart(ref.current)
 					.selection(scatterpoints)
 					.x("Aroma", xScale)
 					.y("Flavor", yScale)
 					.exclude({"name":["text"]})
-					.augment(newEmphasis.current.intersect(newCatEmphasis.current));
+					.augment(newEmphasis.current.getAugs());
 
 	}, [data])
 
 	useEffect(() => {
 
-		newEmphasis.current.updateVariable(emphVar);
-		let newAugs = newEmphasis.current.intersect(newCatEmphasis.current);
+		let newEmphOptions = Array.from(new Set(coffee.map(d => d[emphVar])));
+		setEmphOptions(newEmphOptions);
+		setEmphVal(newEmphOptions[0]);
 
-		chart.current.augment(newAugs);
+		newEmphasis.current.updateVariable(emphVar);
 
 	}, [emphVar])
 
 	useEffect(() => {
 
 		newEmphasis.current.updateVal(emphVal);
-		let newAugs = newEmphasis.current.intersect(newCatEmphasis.current);
+		let newAugs = newEmphasis.current.getAugs();
 
 		chart.current.augment(newAugs);
 
 	}, [emphVal])
-
-	useEffect(() => {
-
-		newCatEmphasis.current.updateVal(emphCatVal);
-		let newAugs = newEmphasis.current.intersect(newCatEmphasis.current);
-
-		chart.current.augment(newAugs);
-
-	}, [emphCatVal])
 
 	function updateEmphVar(e) {
 		setEmphVar(e.target.value);
@@ -165,10 +141,6 @@ export const ToStorybook = () => {
 
 	function updateEmphVal(e) {
 		setEmphVal(e.target.value);
-	}
-
-	function updateEmphCatVal(e) {
-		setEmphCatVal(e.target.value);
 	}
 
 	let controlStyle = {"display":"flex"};
@@ -179,27 +151,12 @@ export const ToStorybook = () => {
 			<div style={controlStyle}>
 				<p style={paragraphStyle}>Highlight variable </p>
 				<select value={emphVar} onChange={(e) => updateEmphVar(e)}>
-					<option value="Aroma">Aroma</option>
-					<option value="Flavor">Flavor</option>
-					<option value="Aftertaste">Aftertaste</option>
-					<option value="Acidity">Acidity</option>
-					<option value="Body">Body</option>
-					<option value="Balance">Balance</option>
-					<option value="Uniformity">Uniformity</option>
-					<option value="Clean.Cup">Clean.Cup</option>
-					<option value="Sweetness">Sweetness</option>
+					<option value="Country">Country</option>
+					<option value="Color">Color</option>
+					<option value="Variety">Variety</option>
 				</select>
 				<p style={paragraphStyle}>when value is: </p>
-				<input
-					type="number"
-					id="quantity"
-					name="quantity"
-					min="0" max="10"
-					step="0.01"
-					value={emphVal}
-					onChange={(e) => updateEmphVal(e)} />
-				<p style={paragraphStyle}>and when Variety is: </p>
-				<select value={emphCatVal} onChange={(e) => updateEmphCatVal(e)}>
+				<select value={emphVal} onChange={(e) => updateEmphVal(e)}>
 					{emphOptions.map((d, i) => {
 						return <option value={d} key={`option${i}`}>{d}</option>
 					})}
@@ -216,5 +173,5 @@ export const ToStorybook = () => {
 }
 
 ToStorybook.story = {
-  name: 'Multi',
+  name: 'Categorical',
 };

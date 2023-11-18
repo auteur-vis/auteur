@@ -141,15 +141,19 @@ export default class Range extends DataFact {
 									this.generateEncoding(this._variable, this._min, this._max, this._type), 
 									this.mergeStyles(this._customStyles.opacity, encodingStyles.opacity), this._selection, 2);
 
+		let strokeAug = new Aug(`${this._id}_stroke`, "range_stroke", "encoding", undefined,
+								   this.generateEncoding(this._variable, this._min, this._max, this._type),
+								   this.mergeStyles(this._customStyles.stroke, encodingStyles.stroke), this._selection, 3);
+
 		let fillAug = new Aug(`${this._id}_fill`, "range_fill", "encoding", undefined,
 								  this.generateEncoding(this._variable, this._min, this._max, this._type),
-								  this.mergeStyles(this._customStyles.fill, encodingStyles.fill), this._selection, 3);
+								  this.mergeStyles(this._customStyles.fill, encodingStyles.fill), this._selection, 4);
 
 		// let textAug = new Aug(`${this._id}_text`, "threshold_text", "mark", {"mark":"text"},
 		// 						 this.generateText(this._variable, this._val, this._type),
 		// 						 this.mergeStyles(this._customStyles.text, markStyles.text), 5);
 
-		return this._filter([rectAug.getSpec(), opacityAug.getSpec(), fillAug.getSpec()]).sort(this._sort)
+		return this._filter([rectAug.getSpec(), opacityAug.getSpec(), strokeAug.getSpec(), fillAug.getSpec()]).sort(this._sort)
 	}
 
 	updateVariable(variable) {

@@ -1,25 +1,27 @@
 import React, {useRef, useState, useEffect} from "react";
 import * as d3 from "d3";
 
-import Draft from "../../../src/lib/Draft.js";
-import Emphasis from "../../../src/lib/Emphasis.js";
+import Draft from "../../src/lib/Draft.js";
+import Emphasis from "../../src/lib/Emphasis.js";
 
 // data from https://rkabacoff.github.io/qacData/reference/coffee.html
-import coffee from "../../../public/arabica_data_cleaned_top15.json";
+import coffee from "../../public/arabica_data_cleaned_top15.json";
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
-  title: 'Aug/Emphasis/Scatter/Value',
+  title: 'Aug/Emphasis/Scatter/List',
 };
 
 export const ToStorybook = () => {
 
-	const [emphVal, setEmphVal] = React.useState(6);
-	const [emphVar, setEmphVar] = React.useState("Sweetness");
+	const [emphVal1, setEmphVal1] = React.useState("Other");
+	const [emphVal2, setEmphVal2] = React.useState("Bourbon");
+
+	const options = Array.from(new Set(coffee.map(d => d.Variety)));
 
 	const ref = useRef("emphVal");
 	const chart = useRef(new Draft());
-	const newEmphasis = useRef(new Emphasis(emphVar, emphVal));
+	const newEmphasis = useRef(new Emphasis("Variety", [emphVal1, emphVal2]));
 
 	const [data, setData] = React.useState(coffee);
 
@@ -106,15 +108,10 @@ export const ToStorybook = () => {
 				  .attr("fill", "black")
 				  .text(d => d);
 
-		function alignY(d, i) {
-			return yScale(d["Flavor"])
-		}
+		let colorScale = d3.scaleSequential(d3.interpolateYlOrRd)
+							.domain(d3.extent(data, d => d["Flavor"]));
 
-		function getText(d, i) {
-			return `produced in ${d.Country}`
-		}
-
-		const styles = {"text": {"text-anchor":"end", "x": 490, "y":alignY, "text": getText}};
+		const styles = {"fill": {"fill": (d, i) => colorScale(d.Flavor)}};
 
 		newEmphasis.current.updateStyles(styles);
 
@@ -122,35 +119,27 @@ export const ToStorybook = () => {
 					.selection(scatterpoints)
 					.x("Aroma", xScale)
 					.y("Flavor", yScale)
-					.exclude()
+					.exclude({"name":["text"]})
 					.augment(newEmphasis.current.getAugs());
 
 	}, [data])
 
 	useEffect(() => {
 
-		newEmphasis.current.updateVariable(emphVar);
+		let newEmphVals = [emphVal1, emphVal2];
+		newEmphasis.current.updateVal(newEmphVals);
+		
 		let newAugs = newEmphasis.current.getAugs();
-
 		chart.current.augment(newAugs);
 
-	}, [emphVar])
+	}, [emphVal1, emphVal2])
 
-	useEffect(() => {
-
-		newEmphasis.current.updateVal(emphVal);
-		let newAugs = newEmphasis.current.getAugs();
-
-		chart.current.augment(newAugs);
-
-	}, [emphVal])
-
-	function updateEmphVar(e) {
-		setEmphVar(e.target.value);
+	function updateEmphVal1(e) {
+		setEmphVal1(e.target.value);
 	}
 
-	function updateEmphVal(e) {
-		setEmphVal(e.target.value);
+	function updateEmphVal2(e) {
+		setEmphVal2(e.target.value);
 	}
 
 	let controlStyle = {"display":"flex"};
@@ -159,27 +148,18 @@ export const ToStorybook = () => {
 	return (
 		<div>
 			<div style={controlStyle}>
-				<p style={paragraphStyle}>Highlight variable </p>
-				<select value={emphVar} onChange={(e) => updateEmphVar(e)}>
-					<option value="Aroma">Aroma</option>
-					<option value="Flavor">Flavor</option>
-					<option value="Aftertaste">Aftertaste</option>
-					<option value="Acidity">Acidity</option>
-					<option value="Body">Body</option>
-					<option value="Balance">Balance</option>
-					<option value="Uniformity">Uniformity</option>
-					<option value="Clean.Cup">Clean.Cup</option>
-					<option value="Sweetness">Sweetness</option>
+				<p style={paragraphStyle}>Highlight varieties </p>
+				<select value={emphVal1} onChange={(e) => updateEmphVal1(e)}>
+					{options.map((d, i) => {
+						return <option value={d} key={`option1${i}`}>{d}</option>
+					})}
 				</select>
-				<p style={paragraphStyle}>when value is: </p>
-				<input
-					type="number"
-					id="quantity"
-					name="quantity"
-					min="0" max="10"
-					step="0.01"
-					value={emphVal}
-					onChange={(e) => updateEmphVal(e)} />
+				<p style={paragraphStyle}> and </p>
+				<select value={emphVal2} onChange={(e) => updateEmphVal2(e)}>
+					{options.map((d, i) => {
+						return <option value={d} key={`option2${i}`}>{d}</option>
+					})}
+				</select>
 			</div>
 			<svg id="less" ref={ref}>
 				<g id="mark" />
@@ -192,5 +172,5 @@ export const ToStorybook = () => {
 }
 
 ToStorybook.story = {
-  name: 'Value',
+  name: 'List',
 };

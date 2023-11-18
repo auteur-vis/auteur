@@ -125,11 +125,9 @@ export const ToStorybook = () => {
 				  .text(d => d)
 
 		chart.current.chart(ref.current)
-					// .charttype("point") // point, bar, line...
 					.selection(scatterpoints)
 					.x("Aroma", xScale)
 					.y("Flavor", yScale)
-					// .exclude({"type":["encoding"]})
 					.augment(merge(newXThreshold.current, newYThreshold.current, mergeBy));
 
 	}, [data])

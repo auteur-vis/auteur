@@ -2,29 +2,37 @@ import React, {useRef, useState, useEffect} from "react";
 import * as d3 from "d3";
 
 import Draft from "../../src/lib/Draft.js";
-import Threshold from "../../src/lib/Threshold.js";
+import DerivedValues from "../../src/lib/DerivedValues.js";
 
 // data from https://www.kaggle.com/datasets/berkeleyearth/climate-change-earth-surface-temperature-data
 import climate from "../../public/climate.json";
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
-  title: 'Aug/Threshold/Line/Layer',
+  title: 'Aug/Derived/Line/Small',
 };
 
 export const ToStorybook = () => {
 
-	const [yThreshold, setYThreshold] = React.useState(8);
+	function uncertaintyLowerBound(d) {
+		return d.AverageTemperature - d.AverageTemperatureUncertainty;
+	}
 
-	const ref = useRef("linelayer");
+	function uncertaintyUpperBound(d) {
+		return d.AverageTemperature + d.AverageTemperatureUncertainty;
+	}
+
+	const style = {"multiple":{"stroke-width":"1.5px", "stroke-dasharray":"2px 2px"}};
+
+	const ref = useRef("lineformula");
 
 	const chart = useRef(new Draft());
-	const lineYThreshold = useRef(new Threshold("AverageTemperature", yThreshold, "geq"));
-	const pointYThreshold = useRef(new Threshold("AverageTemperature", yThreshold, "geq"));
+	const newDerivedUpper = useRef(new DerivedValues('AverageTemperature', "AverageTemperatureUncertainty", "add", undefined, style));
+	const newDerivedLower = useRef(new DerivedValues('AverageTemperature', "AverageTemperatureUncertainty", "sub", undefined, style));
 
 	// ... some code omitted ...
 
-	const [data, setData] = React.useState(climate.filter(d => d.year > 2010));
+	const [data, setData] = React.useState(climate.filter(d => d.year >= 2012));
 
 	let layout={"width":500,
 	   		   "height":500,
@@ -61,12 +69,12 @@ export const ToStorybook = () => {
 					.range([layout.marginLeft, layout.width - layout.marginRight]);
 
 		let yScale = d3.scaleLinear()
-							.domain(d3.extent(dataTime, d => d["AverageTemperature"]))
+							.domain([d3.min(dataTime, d => d.AverageTemperature - d.AverageTemperatureUncertainty), d3.max(dataTime, d => d.AverageTemperature + d.AverageTemperatureUncertainty)])
 							.range([layout.height - layout.marginBottom, layout.marginTop]);
 
 		let sizeScale = d3.scaleLinear()
 							.domain(d3.extent(dataTime, d => d["AverageTemperature"]))
-							.range([2, 4]);
+							.range([3, 6]);
 
 		let colorScale = d3.scaleOrdinal(d3.schemeTableau10)
 							.domain(['Chicago', 'Los Angeles', 'New York']);
@@ -79,6 +87,18 @@ export const ToStorybook = () => {
 			return d[1].map(di => {di.City = d[0]; return di});
 			return d[1]
 		});
+
+		let lines = svgElement.select("#mark")
+									.selectAll(".climateLine")
+									.data(flattenGroup)
+									.join("path")
+									.attr("class", "climateLine")
+									.attr('fill', 'none')
+									.attr('stroke-width', 1.5)
+									.attr("stroke", d => colorScale(d[0].City))
+									.attr("d", d => {
+										return lineFunction(d)
+									})
 
 		svgElement.select("#xAxis")
 				  .call(d3.axisBottom(xScale))
@@ -108,58 +128,23 @@ export const ToStorybook = () => {
 
 		// ... some code omitted ...
 
-		// const lineStyles = {"stroke": {"stroke": (d, i) => colorScale(d[0].City), "stroke-width": "2px"}};
+		// const styles = {"stroke": {"stroke": (d, i) => colorScale(d[0].City), "stroke-width": "2px"}};
 
-		// lineYThreshold.current.updateStyles(lineStyles)
-							// .selection(lines);
+		// newYThreshold.current.updateStyles(styles);
 
-		let lines = svgElement.select("#mark")
-							.selectAll(".climateLine")
-							.data(flattenGroup)
-							.join("path")
-							.attr("class", "climateLine")
-							.attr('fill', 'none')
-							.attr('stroke-width', 1.5)
-							.attr("stroke", d => colorScale(d[0].City))
-							.attr("d", d => {
-								return lineFunction(d)
-							})
-
-		let scatterpoints = svgElement.select("#mark")
-							.selectAll(".climatePoints")
-							.data(data)
-							.join("circle")
-							.attr("class", "climatePoints")
-							.attr("cx", d => xScale(d.date))
-							.attr("cy", d => yScale(d.AverageTemperature))
-							.attr("r", d => sizeScale(d.AverageTemperature))
-							.attr("fill", "white")
-							.attr("stroke", d => colorScale(d.City));
-
-		const yThreshold = new Threshold("AverageTemperature", 7, "leq");
-
-		const pointStyles = {"stroke": {
-								"stroke": (d) => colorScale(d.City),
-								"stroke-width": "2px"}};
-
-		yThreshold.updateStyles(pointStyles)
-				  .selection(scatterpoints);
-
-		const draft = new Draft();
-
-		draft.chart("#svg")
-			.x("date", xScale)
-			.y("AverageTemperature", yScale)
-			.exclude({"name":["fill", "text"]})
-			.augment(yThreshold.getAugs());
-
-		// .augment(lineYThreshold.current.exclude({"name": ["line", "text"]}).getAugs())
+		chart.current.chart(ref.current)
+					.selection(lines)
+					.x("date", xScale)
+					.y("AverageTemperature", yScale)
+					.exclude({"name":["fill"]})
+					.augment(newDerivedUpper.current.getAugs())
+					.augment(newDerivedLower.current.getAugs());
 
 	}, [data])
 
 	return (
 		<div>
-			<svg id="svg" ref={ref}>
+			<svg id="less" ref={ref}>
 				<g id="mark" />
 				<g id="xAxis" />
 				<g id="yAxis" />
@@ -170,5 +155,5 @@ export const ToStorybook = () => {
 }
 
 ToStorybook.story = {
-  name: 'Layer',
+  name: 'Small',
 };

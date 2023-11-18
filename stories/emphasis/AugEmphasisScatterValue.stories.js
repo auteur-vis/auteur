@@ -1,22 +1,21 @@
 import React, {useRef, useState, useEffect} from "react";
 import * as d3 from "d3";
 
-import Draft from "../../../src/lib/Draft.js";
-import Emphasis from "../../../src/lib/Emphasis.js";
+import Draft from "../../src/lib/Draft.js";
+import Emphasis from "../../src/lib/Emphasis.js";
 
 // data from https://rkabacoff.github.io/qacData/reference/coffee.html
-import coffee from "../../../public/arabica_data_cleaned_top15.json";
+import coffee from "../../public/arabica_data_cleaned_top15.json";
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
-  title: 'Aug/Emphasis/Scatter/Categorical',
+  title: 'Aug/Emphasis/Scatter/Value',
 };
 
 export const ToStorybook = () => {
 
-	const [emphVal, setEmphVal] = React.useState("Other");
-	const [emphVar, setEmphVar] = React.useState("Variety");
-	const [emphOptions, setEmphOptions] = React.useState(Array.from(new Set(coffee.map(d => d.Variety))));
+	const [emphVal, setEmphVal] = React.useState(6);
+	const [emphVar, setEmphVar] = React.useState("Sweetness");
 
 	const ref = useRef("emphVal");
 	const chart = useRef(new Draft());
@@ -105,24 +104,35 @@ export const ToStorybook = () => {
 				  .attr("text-anchor", "middle")
 				  .attr("transform", `translate(0, 40)`)
 				  .attr("fill", "black")
-				  .text(d => d)
+				  .text(d => d);
+
+		function alignY(d, i) {
+			return yScale(d["Flavor"])
+		}
+
+		function getText(d, i) {
+			return `produced in ${d.Country}`
+		}
+
+		const styles = {"text": {"text-anchor":"end", "x": 490, "y":alignY, "text": getText}};
+
+		newEmphasis.current.updateStyles(styles);
 
 		chart.current.chart(ref.current)
 					.selection(scatterpoints)
 					.x("Aroma", xScale)
 					.y("Flavor", yScale)
-					.exclude({"name":["text"]})
+					.exclude()
 					.augment(newEmphasis.current.getAugs());
 
 	}, [data])
 
 	useEffect(() => {
 
-		let newEmphOptions = Array.from(new Set(coffee.map(d => d[emphVar])));
-		setEmphOptions(newEmphOptions);
-		setEmphVal(newEmphOptions[0]);
-
 		newEmphasis.current.updateVariable(emphVar);
+		let newAugs = newEmphasis.current.getAugs();
+
+		chart.current.augment(newAugs);
 
 	}, [emphVar])
 
@@ -151,16 +161,25 @@ export const ToStorybook = () => {
 			<div style={controlStyle}>
 				<p style={paragraphStyle}>Highlight variable </p>
 				<select value={emphVar} onChange={(e) => updateEmphVar(e)}>
-					<option value="Country">Country</option>
-					<option value="Color">Color</option>
-					<option value="Variety">Variety</option>
+					<option value="Aroma">Aroma</option>
+					<option value="Flavor">Flavor</option>
+					<option value="Aftertaste">Aftertaste</option>
+					<option value="Acidity">Acidity</option>
+					<option value="Body">Body</option>
+					<option value="Balance">Balance</option>
+					<option value="Uniformity">Uniformity</option>
+					<option value="Clean.Cup">Clean.Cup</option>
+					<option value="Sweetness">Sweetness</option>
 				</select>
 				<p style={paragraphStyle}>when value is: </p>
-				<select value={emphVal} onChange={(e) => updateEmphVal(e)}>
-					{emphOptions.map((d, i) => {
-						return <option value={d} key={`option${i}`}>{d}</option>
-					})}
-				</select>
+				<input
+					type="number"
+					id="quantity"
+					name="quantity"
+					min="0" max="10"
+					step="0.01"
+					value={emphVal}
+					onChange={(e) => updateEmphVal(e)} />
 			</div>
 			<svg id="less" ref={ref}>
 				<g id="mark" />
@@ -173,5 +192,5 @@ export const ToStorybook = () => {
 }
 
 ToStorybook.story = {
-  name: 'Categorical',
+  name: 'Value',
 };

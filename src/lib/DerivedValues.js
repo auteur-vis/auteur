@@ -317,7 +317,7 @@ export default class DerivedValues extends DataFact {
 
 		let multipleAug = new Aug(`${this._id}_multiple`, "derived_multiple", "mark", {"mark":undefined},
 										 this.generateMark(this._variable, this._val, this._type, this._calc, this._fn), 
-										 this.mergeStyles(this._customStyles.multiple, undefined), this._selection, 1);
+										 this.mergeStyles(this._customStyles.multiple, markStyles.multiple), this._selection, 1);
 		let lineAug = new Aug(`${this._id}_line`, "derived_line", "mark", {"mark":"line"},
 								 this.generateLine(this._variable, this._val, this._type, this._calc, this._fn),
 								 this.mergeStyles(this._customStyles.line, markStyles.line), this._selection, 2);

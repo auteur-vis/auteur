@@ -14,12 +14,12 @@ export default {
 
 export const ToStorybook = () => {
 
-	const [yThreshold, setYThreshold] = React.useState(7);
+	const [yThreshold, setYThreshold] = React.useState(7.25);
 
 	const ref = useRef("less");
 
 	const chart = useRef(new Draft());
-	const newYThreshold = useRef(new Threshold("Flavor", 8, "geq"));
+	const newYThreshold = useRef(new Threshold("Flavor", yThreshold, "geq"));
 	const [selectedPoints, setSelectedPoints] = useState();
 
 	// ... some code omitted ...
@@ -235,8 +235,8 @@ export const ToStorybook = () => {
 
 	return (
 		<div>
-			<div>
-				<p>y-axis threshold: </p>
+			<div style={{"display":"flex", "margin-left":"30px"}}>
+				<p>Preferred Flavor threshold: </p>
 				<input
 					type="range"
 					id="quantity"
@@ -244,7 +244,9 @@ export const ToStorybook = () => {
 					min="6" max="9"
 					step="0.01"
 					value={yThreshold}
+					style={{"margin-left":"5px", "margin-right":"5px"}}
 					onChange={(e) => updateY(e)} />
+				<p>{yThreshold}</p>
 			</div>
 			<svg id="less" ref={ref}>
 				<g id="mark" />

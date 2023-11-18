@@ -9,7 +9,7 @@ import coffee from "../../public/arabica_data_cleaned_top15.json";
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
-  title: 'Aug/Threshold/Sunburst/Range',
+  title: 'Aug/Emphasis/Sunburst/Range',
 };
 
 export const ToStorybook = () => {
@@ -154,6 +154,8 @@ export const ToStorybook = () => {
 			.attr("font-family", "sans-serif")
 			.attr("font-size", "10")
 			.text(d => d.data.name);
+
+		console.log(path.data())
 
 		const styles = {"stroke": {"stroke": "red", "stroke-width": "2px"}};
 

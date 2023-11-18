@@ -9,7 +9,7 @@ import coffee from "../../public/arabica_data_cleaned_top15.json";
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
-  title: 'Aug/Threshold/Scatter/Less',
+  title: 'Aug/Threshold/Scatter/Basic',
 };
 
 export const ToStorybook = () => {
@@ -17,9 +17,6 @@ export const ToStorybook = () => {
 	const [yThreshold, setYThreshold] = React.useState(8);
 
 	const ref = useRef("less");
-
-	const chart = useRef(new Draft());
-	const newYThreshold = useRef(new Threshold("Flavor", yThreshold, "geq"));
 
 	// ... some code omitted ...
 
@@ -34,16 +31,16 @@ export const ToStorybook = () => {
 
 	useEffect(() => {
 
-		let svgElement = d3.select(ref.current);
+		let svg = d3.select(ref.current);
 
 		// create a tooltip
-		var tooltip = svgElement.select("#tooltip")
+		var tooltip = svg.select("#tooltip")
 						.attr("text-anchor", "middle")
 						.attr("font-family", "sans-serif")
 						.attr("font-size", 10)
 					    .attr("opacity", 0);
 
-		svgElement.attr("width", layout.width)
+		svg.attr("width", layout.width)
 				.attr("height", layout.height);
 
 		let xScale = d3.scaleLinear()
@@ -58,22 +55,11 @@ export const ToStorybook = () => {
 							.domain(d3.extent(data, d => d["Flavor"]))
 							.range([3, 6]);
 
-		let scatterpoints = svgElement.select("#mark")
-									.selectAll(".scatterpoint")
-									.data(data)
-									.join("rect")
-									.attr("class", "scatterpoint")
-									.attr("x", d => xScale(d["Aroma"]) - 3)
-									.attr("y", d => yScale(d["Flavor"]) - 3)
-									.attr("width", 6)
-									.attr("height", 6)
-									.attr("opacity", 0.3)
-
-		svgElement.select("#xAxis")
+		svg.select("#xAxis")
 				  .call(d3.axisBottom(xScale))
 				  .attr("transform", `translate(0, ${layout.height - layout.marginBottom})`);
 
-		svgElement.select("#xAxis").selectAll("#xTitle")
+		svg.select("#xAxis").selectAll("#xTitle")
 				  .data(["Aroma"])
 				  .join("text")
 				  .attr("id", "xTitle")
@@ -82,11 +68,11 @@ export const ToStorybook = () => {
 				  .attr("fill", "black")
 				  .text(d => d);
 
-		svgElement.select("#yAxis")
+		svg.select("#yAxis")
 				  .call(d3.axisLeft(yScale).ticks(5))
 				  .attr("transform", `translate(${layout.marginLeft}, 0)`);
 
-		svgElement.select("#yAxis").selectAll("#yTitle")
+		svg.select("#yAxis").selectAll("#yTitle")
 				  .data(["Flavor"])
 				  .join("text")
 				  .attr("id", "yTitle")
@@ -95,50 +81,31 @@ export const ToStorybook = () => {
 				  .attr("fill", "black")
 				  .text(d => d)
 
-		// ... some code omitted ...
+		let scatterpoints = svg.select("#mark")
+							.selectAll("circle")
+							.data(data)
+							.join("circle")
+							.attr("cx", d => xScale(d["Aroma"]))
+							.attr("cy", d => yScale(d["Flavor"]))
+							.attr("r", 3)
+							.attr("fill", "steelblue");
 
-		let colorScale = d3.scaleSequential(d3.interpolateViridis)
-							.domain(d3.extent(data, d => d["Aroma"]));
+		const yThreshold = new Threshold("Flavor", 7.5, "geq");
+		const augmentations = yThreshold.getAugs();
 
-		const styles = {"fill": {"fill": (d, i) => colorScale(d.Aroma)}};
+		const draft = new Draft();
 
-		newYThreshold.current.updateStyles(styles);
-
-		chart.current.chart(ref.current)
-					.selection(scatterpoints)
-					.x("Aroma", xScale)
-					.y("Flavor", yScale)
-					.augment(newYThreshold.current.getAugs());
+		draft.chart("#svg")
+			.selection(scatterpoints)
+			.x("Aroma", xScale)
+			.y("Flavor", yScale)
+			.augment(augmentations);
 
 	}, [data])
 
-	useEffect(() => {
-
-		newYThreshold.current.updateVal(yThreshold);
-		let newAug2 = newYThreshold.current.getAugs();
-		
-		chart.current.augment(newAug2);
-
-	}, [yThreshold])
-
-	function updateY(e) {
-		setYThreshold(e.target.value);
-	}
-
 	return (
 		<div>
-			<div>
-				<p>y-axis threshold: </p>
-				<input
-					type="range"
-					id="quantity"
-					name="quantity"
-					min="6" max="9"
-					step="0.01"
-					value={yThreshold}
-					onChange={(e) => updateY(e)} />
-			</div>
-			<svg id="less" ref={ref}>
+			<svg id="svg" ref={ref}>
 				<g id="mark" />
 				<g id="xAxis" />
 				<g id="yAxis" />
@@ -149,5 +116,5 @@ export const ToStorybook = () => {
 }
 
 ToStorybook.story = {
-  name: 'Less',
+  name: 'Basic',
 };

@@ -19,12 +19,12 @@ export const ToStorybook = () => {
 	const ref = useRef("range");
 	const chart = useRef(new Draft());
 	const newRange = useRef(new Range("Flavor", [minThreshold, maxThreshold], "closed", style));
-	const [data, setData] = React.useState(coffee.slice(0, 15));
+	const [data, setData] = React.useState(coffee.slice(0, 10));
 	const [maxThreshold, setMaxThreshold] = React.useState(d3.max(data, d => d.Flavor));
 	const [minThreshold, setMinThreshold] = React.useState(d3.min(data, d => d.Flavor) - 0.5);
 
 
-	let layout={"width":900,
+	let layout={"width":700,
 	   		   "height":500,
 	   		   "marginTop":50,
 	   		   "marginRight":50,
@@ -145,7 +145,26 @@ export const ToStorybook = () => {
 
 	return (
 		<div>
-			<div>
+			<div style={{"display":"flex", "height":"20px", "align-items":"center", "margin-bottom":"10px"}}>
+				<p>min threshold: </p>
+				<input
+					type="range"
+					id="quantity"
+					name="quantity"
+					min={d3.min(data, d => d.Flavor) - 0.5}
+					max={d3.max(data, d => d.Flavor)}
+					step="0.01"
+					value={minThreshold}
+					onChange={(e) => updateMin(e)} />
+				<input
+					type="number"
+					id="quantity"
+					name="quantity"
+					value={minThreshold}
+					onChange={(e) => updateMin(e)}
+					style={{ marginLeft: '10px', width: '60px' }}/>
+			</div>
+			<div style={{"display":"flex", "height":"20px", "align-items":"center"}}>
 				<p>max threshold: </p>
 				<input
 					type="range"
@@ -164,25 +183,6 @@ export const ToStorybook = () => {
 					onChange={(e) => updateMax(e)}
 					style={{ marginLeft: '10px', width: '60px' }}
 				/>	
-			</div>
-			<div>
-				<p>min threshold: </p>
-				<input
-					type="range"
-					id="quantity"
-					name="quantity"
-					min={d3.min(data, d => d.Flavor) - 0.5}
-					max={d3.max(data, d => d.Flavor)}
-					step="0.01"
-					value={minThreshold}
-					onChange={(e) => updateMin(e)} />
-				<input
-					type="number"
-					id="quantity"
-					name="quantity"
-					value={minThreshold}
-					onChange={(e) => updateMin(e)}
-					style={{ marginLeft: '10px', width: '60px' }}/>
 			</div>
 			<svg id="less" ref={ref}>
 				<g id="mark" />

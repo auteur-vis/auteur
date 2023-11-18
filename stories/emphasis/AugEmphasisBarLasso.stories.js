@@ -19,13 +19,13 @@ export const ToStorybook = () => {
 	const ref = useRef("range");
 	const chart = useRef(new Draft());
 				
-	const [data, setData] = React.useState(coffee.slice(0, 5));
+	const [data, setData] = React.useState(coffee.slice(0, 10));
 
 	const [selectedBars, setSelectedBars] = useState();
 
 	const newRange = useRef(new Emphasis(undefined, undefined, undefined, style));
 
-	let layout={"width":900,
+	let layout={"width":500,
 	   		   "height":500,
 	   		   "marginTop":50,
 	   		   "marginRight":50,
@@ -100,13 +100,11 @@ export const ToStorybook = () => {
 							.data(data)
 							.join("rect")
 							.attr("class", "bar")
-							.attr("x", d => xScale(d["FIELD1"]) + 25)
+							.attr("x", d => xScale(d["FIELD1"]) + 10)
 							.attr("y", d => yScale(d["Flavor"]))
-							.attr("width", xScale.bandwidth() - 50)
+							.attr("width", xScale.bandwidth() - 20)
 							.attr("height", d => layout.height - layout.marginBottom - yScale(d["Flavor"]))
-							.attr("fill", "none")
-							.attr("stroke", "black")
-							.attr("opacity", "0.25")
+							.attr("fill", "#a9c5cc")
 							.on("mouseover", (event, d) => {
 
 								let xPos = xScale(d["FIELD1"]) + xScale.bandwidth() / 2;
@@ -127,7 +125,7 @@ export const ToStorybook = () => {
 					.selection(bars)
 					.x("FIELD1", xScale)
 					.y("Flavor", yScale)
-					.exclude({"name":["text", "fill"]})
+					.exclude({"name":["text", "stroke"]})
 					.augment(newRange.current.getAugs());
 
 		// Lasso adapted from https://observablehq.com/@fil/lasso-selection
