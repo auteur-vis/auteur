@@ -73,7 +73,7 @@ export default class DataFact {
 	}
 
 	_sort(a, b) {
-		return a.rank - b.rank;
+		return b.rank - a.rank;
 	}
 
 	_filter(augs) {
@@ -253,7 +253,7 @@ export default class DataFact {
 	    let [x1, x2] = d3.extent(values_x);
 	    let [y1, y2] = [x1 * m + b, x2 * m + b];
 
-	    return [[x1, y1], [x2, y2]];
+	    return [{"x1":x1, "y1":y1, "x2":x2, "y2":y2}]
 	}
 
 }

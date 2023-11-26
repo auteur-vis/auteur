@@ -24,8 +24,8 @@ export default class Threshold extends DataFact {
 
 	}
 
-	// generator for encoding type augmentations
-	generateEncoding(variable, val, type) {
+	// general generator, usually for encoding type augmentations
+	_generator(variable, val, type) {
 
 		let parseVal = this._parseVal;
 
@@ -91,33 +91,18 @@ export default class Threshold extends DataFact {
 	generateLinearRegression(variable, val, type) {
 
 		let regression = this._findLineByLeastSquares;
+		let regressionFilter = this._generator(variable, val, type);
 
-		return function(data, xVar, yVar, xScale, yScale) {
-			// If variable not mapped to x or y position, do not render line
-			if (xVar != variable && yVar != variable) {
-				return false;
-			}
-
-			let filtered;
-
-			if (type === "eq") {
-				filtered = data.filter(d => d[variable] == val);
-			} else if (type === "le") {
-				filtered = data.filter(d => d[variable] < val);
-			} else if (type === "leq") {
-				filtered = data.filter(d => d[variable] <= val);
-			} else if (type === "ge") {
-				filtered = data.filter(d => d[variable] > val);
-			} else if (type === "geq") {
-				filtered = data.filter(d => d[variable] >= val);
-			}
+		return function(data, xVar, yVar, xScale, yScale, stats) {
+			
+			let filtered = data.filter(d => regressionFilter(d, xVar, yVar, xScale, yScale, stats));
 
 			let xValues = filtered.map(d => xScale(d[xVar]));
 			let yValues = filtered.map(d => yScale(d[yVar]));
 
 			let coords = regression(xValues, yValues);
 
-			return [{"x1":coords[0][0], "y1":coords[0][1], "x2":coords[1][0], "y2":coords[1][1]}];
+			return coords;
 		}
 
 	}
@@ -168,15 +153,15 @@ export default class Threshold extends DataFact {
 								 this.mergeStyles(this._customStyles.line, markStyles.line), this._selection, 1);
 
 		let opacityAug = new Aug(`${this._id}_opacity`, "threshold_opacity", "encoding", undefined,
-									this.generateEncoding(this._variable, this._val, this._type), 
+									this._generator(this._variable, this._val, this._type), 
 									this.mergeStyles(this._customStyles.opacity, encodingStyles.opacity), this._selection, 2);
 
 		let strokeAug = new Aug(`${this._id}_stroke`, "threshold_stroke", "encoding", undefined,
-								   this.generateEncoding(this._variable, this._val, this._type),
+								   this._generator(this._variable, this._val, this._type),
 								   this.mergeStyles(this._customStyles.stroke, encodingStyles.stroke), this._selection, 3);
 
 		let fillAug = new Aug(`${this._id}_fill`, "threshold_fill", "encoding", undefined,
-								  this.generateEncoding(this._variable, this._val, this._type),
+								  this._generator(this._variable, this._val, this._type),
 								  this.mergeStyles(this._customStyles.fill, encodingStyles.fill), this._selection, 4);
 
 		let textAug = new Aug(`${this._id}_text`, "threshold_text", "mark", {"mark":"text"},
@@ -187,7 +172,10 @@ export default class Threshold extends DataFact {
 								 this.generateLinearRegression(this._variable, this._val, this._type),
 								 this.mergeStyles(this._customStyles.regression, markStyles.line), this._selection, 6);
 
-		return this._filter([lineAug.getSpec(), opacityAug.getSpec(), strokeAug.getSpec(), fillAug.getSpec(), textAug.getSpec(), regressionAug.getSpec()]).sort(this._sort)
+		let regressionAugs = regressionAug.getSpec();
+		regressionAugs._filter = this._generator(this._variable, this._val, this._type);
+
+		return this._filter([lineAug.getSpec(), opacityAug.getSpec(), strokeAug.getSpec(), fillAug.getSpec(), textAug.getSpec(), regressionAugs]).sort(this._sort)
 	}
 
 	updateVariable(variable) {
@@ -228,11 +216,77 @@ export default class Threshold extends DataFact {
 			// mark type augmentations are not merged
 			if (last.type === "mark") {
 
-				merged.push(last);
+				if (last.name.endsWith("regression")) {
 
-			} else if (last.name.endsWith("regression")) {
+					let foundIndex = augs2.findIndex(ag => {
+						let split_name = last.name.split('_');
+						let split_ag = ag.name.split('_');
 
-				continue
+						return split_name[1] === split_ag[1] && ag.type === "mark"
+					});
+
+					// if no augmentation of the same name is found, add to list without merging
+					if (foundIndex < 0) {
+
+						merged.push(last);
+
+					}
+
+					let matched_aug = augs2.splice(foundIndex, 1)[0];
+
+					// new id is combination of aug ids
+					let split_id = last.id.split('_');
+					split_id[0] = intersect_id;
+					let new_id = split_id.join('_');
+
+					// new name is combination of aug names
+					let split_name = last.name.split('_');
+					split_name[0] = "merged";
+					let new_name = split_name.join('_');
+
+					let regression = this._findLineByLeastSquares;
+
+					// combine filter
+					function combinedFilter(datum, xVar, yVar, xScale, yScale, stats) {
+
+						if (merge_by === "intersect" && (last._filter(datum, xVar, yVar, xScale, yScale, stats) && matched_aug._filter(datum, xVar, yVar, xScale, yScale, stats))) {
+							return true;
+						} else if (merge_by === "union" && (last._filter(datum, xVar, yVar, xScale, yScale, stats) || matched_aug._filter(datum, xVar, yVar, xScale, yScale, stats))) {
+							return true;
+						} else if (merge_by === "difference" && (last._filter(datum, xVar, yVar, xScale, yScale, stats) && !matched_aug._filter(datum, xVar, yVar, xScale, yScale, stats))) {
+							return true;
+						} else if (merge_by === "xor"
+									&& ((last._filter(datum, xVar, yVar, xScale, yScale, stats) || matched_aug._filter(datum, xVar, yVar, xScale, yScale, stats))
+									&& !(last._filter(datum, xVar, yVar, xScale, yScale, stats) && matched_aug._filter(datum, xVar, yVar, xScale, yScale, stats)))) {
+							return true;
+						}
+
+						return false;
+
+					}
+
+					// combine regression generators
+					function regressionGenerator(data, xVar, yVar, xScale, yScale, stats) {
+
+						let filtered =  data.filter(d => combinedFilter(d, xVar, yVar, xScale, yScale, stats));
+
+						let xValues = filtered.map(d => xScale(d[xVar]));
+						let yValues = filtered.map(d => yScale(d[yVar]));
+
+						let coords = regression(xValues, yValues);
+
+						return coords
+
+					}
+
+					let new_aug = new Aug(new_id, new_name, last.type, last.encoding, regressionGenerator, last.styles, last.selection, last.rank);
+					let new_augs = new_aug.getSpec();
+					new_augs._filter = combinedFilter;
+					merged.push(new_augs);
+
+				} else {
+					merged.push(last);
+				}
 
 			} else {
 
@@ -290,25 +344,25 @@ export default class Threshold extends DataFact {
 	}
 
 	// returns a list of [Aug Class]
-	// drft can be a single augmentation or a list of augmentations [aug, aug, ...]
-	intersect(drft) {
+	// criteria can be a single augmentation or a list of augmentations [aug, aug, ...]
+	intersect(criteria) {
 
-		let augs = drft;
+		let allCriteria = criteria;
 
-		if (!Array.isArray(drft)) {
-			augs = [drft];
+		if (!Array.isArray(criteria)) {
+			allCriteria = [criteria];
 		}
 
 		let merged_id = this._id;
 		let all_merged = this.getAugs();
 
-		for (let d of augs) {
+		for (let d of allCriteria) {
 			if (d._name.startsWith("Threshold")) {
 
 				merged_id = `${merged_id}-${d._id}`;
 
 				let new_augs = d.getAugs();
-				all_merged = this._mergeAugs(all_merged, new_augs, merged_id);
+				all_merged = this._mergeThresholds(all_merged, new_augs, merged_id);
 			} else if (d._name.startsWith("Emphasis") || d._name.startsWith("Range")) {
 
 				merged_id = `${merged_id}-${d._id}`;
@@ -322,24 +376,24 @@ export default class Threshold extends DataFact {
 	}
 
 	// returns a list of [Aug Class]
-	union(drft) {
+	union(criteria) {
 
-		let augs = drft;
+		let allCriteria = criteria;
 
-		if (!Array.isArray(drft)) {
-			augs = [drft];
+		if (!Array.isArray(criteria)) {
+			allCriteria = [criteria];
 		}
 
 		let merged_id = this._id;
 		let all_merged = this.getAugs();
 
-		for (let d of augs) {
+		for (let d of allCriteria) {
 			if (d._name.startsWith("Threshold")) {
 
 				merged_id = `${merged_id}-${d._id}`;
 
 				let new_augs = d.getAugs();
-				all_merged = this._mergeAugs(all_merged, new_augs, merged_id, "union");
+				all_merged = this._mergeThresholds(all_merged, new_augs, merged_id, "union");
 			} else if (d._name.startsWith("Emphasis") || d._name.startsWith("Range")) {
 
 				merged_id = `${merged_id}-${d._id}`;
@@ -358,15 +412,15 @@ export default class Threshold extends DataFact {
 	// EXCLUDED FOR NOW
 
 	// returns a list of [Aug Class]
-	// difference(drft) {
+	// difference(criteria) {
 
-	// 	if (drft._name.startsWith("Threshold")) {
+	// 	if (criteria._name.startsWith("Threshold")) {
 
-	// 		let intersect_id = `${this._id}-${drft._id}`;
+	// 		let intersect_id = `${this._id}-${criteria._id}`;
 
 	// 		let my_augs = this.getAugs();
-	// 		let drft_augs = drft.getAugs();
-	// 		let merged_augs = this._mergeAugs(my_augs, drft_augs, intersect_id, "difference");
+	// 		let criteria_augs = criteria.getAugs();
+	// 		let merged_augs = this._mergeAugs(my_augs, criteria_augs, intersect_id, "difference");
 
 	// 		return merged_augs
 	// 	}
@@ -378,24 +432,24 @@ export default class Threshold extends DataFact {
 	// EXCLUDED FOR NOW
 
 	// returns a list of [Aug Class]
-	xor(drft) {
+	xor(criteria) {
 
-		let augs = drft;
+		let allCriteria = criteria;
 
-		if (!Array.isArray(drft)) {
-			augs = [drft];
+		if (!Array.isArray(criteria)) {
+			allCriteria = [criteria];
 		}
 
 		let merged_id = this._id;
 		let all_merged = this.getAugs();
 
-		for (let d of augs) {
+		for (let d of allCriteria) {
 			if (d._name.startsWith("Threshold")) {
 
 				merged_id = `${merged_id}-${d._id}`;
 
 				let new_augs = d.getAugs();
-				all_merged = this._mergeAugs(all_merged, new_augs, merged_id, "xor");
+				all_merged = this._mergeThresholds(all_merged, new_augs, merged_id, "xor");
 			} else if (d._name.startsWith("Emphasis") || d._name.startsWith("Range")) {
 
 				merged_id = `${merged_id}-${d._id}`;
