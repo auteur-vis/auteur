@@ -38,6 +38,7 @@ export default class Draft {
 		this._selector = selector;
 		this._selection = this._chart.selectAll(selector);
 		this._data = this._selection.data();
+		this._stats = this._getStats(this._data);
 
 		return this;
 
@@ -49,6 +50,7 @@ export default class Draft {
 
 		this._selection = selected;
 		this._data = selected.data();
+		this._stats = this._getStats(this._data);
 
 		return this;
 
@@ -467,6 +469,51 @@ export default class Draft {
 	// EXCLUDED FOR NOW
 	// EXCLUDED FOR NOW
 
+	_getStats(data) {
+
+		let variables = Object.keys(data[0]);
+
+		let variableStats = {}
+
+		for (let v of variables) {
+
+			let mean = d3.mean(data, d => d[v]);
+
+			// If median cannot be calculated, assume categorical variable
+			if (!mean) {
+				continue
+			} else {
+				
+				let sorted = data.map(d => d.v).sort(d3.ascending);
+
+				let median = d3.quantileSorted(sorted, 0.5);
+
+				let Q3 = d3.quantileSorted(sorted, 0.75);
+				let Q1 = d3.quantileSorted(sorted, 0.25);
+
+				let min = sorted[0];
+				let max = sorted[-1];
+
+				// Outlier lower and upper bounds
+				let lowerBound = Q1 - 1.5 * (Q3 - Q1);
+				let upperBound = Q3 + 1.5 * (Q3 - Q1);
+
+				variableStats[v] = {"min": min,
+									"Q1": Q1,
+									"mean": mean,
+									"median": median,
+									"Q3": Q3,
+									"max": max,
+									"lowerBound": lowerBound,
+									"upperBound": upperBound}
+			}
+
+		}
+
+		return variableStats
+
+	}
+
 	augment(augmentations) {
 
 		let filteredAugs = augmentations;
@@ -480,12 +527,13 @@ export default class Draft {
 			filteredAugs = filteredAugs.filter(d => d.rank <= this._include["rank"]);
 		}
 
-		let newAxisExtents = {"x": [], "y": []};
+		// let newAxisExtents = {"x": [], "y": []};
 
 		for (let a of filteredAugs) {
 
 			let select = (a.selection && a.selection.size() > 0) ? a.selection : this._selection;
 			let selectData = (a.selection && a.selection.size() > 0) ? a.selection.data() : this._data;
+			let stats = (a.selection && a.selection.size() > 0) ? this._getStats(selectData) : this._stats;
 
 			// filter by type: encoding/mark/axis/etc...
 			if (this._exclude && this._exclude["type"]) {
@@ -526,7 +574,7 @@ export default class Draft {
 
 						select.style(s, (d, i, n) => {
 
-							if (a.generator(d, this._xVar, this._yVar, this._xScale, this._yScale)) {
+							if (a.generator(d, this._xVar, this._yVar, this._xScale, this._yScale, stats)) {
 								let customStyle = styles[s];
 
 								if (typeof customStyle === "function") {
@@ -544,7 +592,7 @@ export default class Draft {
 
 						select.style(s, (d, i) => {
 
-							if (a.generator(d, this._xVar, this._yVar, this._xScale, this._yScale)) {
+							if (a.generator(d, this._xVar, this._yVar, this._xScale, this._yScale, stats)) {
 								let customStyle = styles[s];
 
 								if (typeof customStyle === "function") {
@@ -564,7 +612,7 @@ export default class Draft {
 				// Handle augmentations that add marks
 
 				// Check that the right x and y variables are used in chart
-				let draughtData = a.generator(selectData, this._xVar, this._yVar, this._xScale, this._yScale);
+				let draughtData = a.generator(selectData, this._xVar, this._yVar, this._xScale, this._yScale, stats);
 
 				if (draughtData && a.encoding.mark === "line") {
 					// Add a line mark (single straight line)

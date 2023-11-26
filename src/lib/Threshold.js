@@ -27,31 +27,35 @@ export default class Threshold extends DataFact {
 	// generator for encoding type augmentations
 	generateEncoding(variable, val, type) {
 
-		return function(datum, xVar, yVar, xScale, yScale) {
+		let parseVal = this._parseVal;
+
+		return function(datum, xVar, yVar, xScale, yScale, stats) {
+
+			let parsed = parseVal(variable, val, xVar, yVar, stats);
 			
 			if (Array.isArray(datum)) {
 				if (type === "eq") {
-					return datum.reduce((acc, current) => acc && current[variable] == val, true);
+					return datum.reduce((acc, current) => acc && current[variable] == parsed, true);
 				} else if (type === "le") {
-					return datum.reduce((acc, current) => acc && current[variable] < val, true);
+					return datum.reduce((acc, current) => acc && current[variable] < parsed, true);
 				} else if (type === "leq") {
-					return datum.reduce((acc, current) => acc && current[variable] <= val, true);
+					return datum.reduce((acc, current) => acc && current[variable] <= parsed, true);
 				} else if (type === "ge") {
-					return datum.reduce((acc, current) => acc && current[variable] > val, true);
+					return datum.reduce((acc, current) => acc && current[variable] > parsed, true);
 				} else if (type === "geq") {
-					return datum.reduce((acc, current) => acc && current[variable] >= val, true);
+					return datum.reduce((acc, current) => acc && current[variable] >= parsed, true);
 				}
 
 			} else {
-				if (type === "eq" && datum[variable] == val) {
+				if (type === "eq" && datum[variable] == parsed) {
 					return true;
-				} else if (type === "le" && datum[variable] < val) {
+				} else if (type === "le" && datum[variable] < parsed) {
 					return true;
-				} else if (type === "leq" && datum[variable] <= val) {
+				} else if (type === "leq" && datum[variable] <= parsed) {
 					return true;
-				} else if (type === "ge" && datum[variable] > val) {
+				} else if (type === "ge" && datum[variable] > parsed) {
 					return true;
-				} else if (type === "geq" && datum[variable] >= val) {
+				} else if (type === "geq" && datum[variable] >= parsed) {
 					return true;
 				}
 			}
@@ -64,17 +68,56 @@ export default class Threshold extends DataFact {
 	// generator for line augmentation
 	generateLine(variable, val, type) {
 
+		let parseVal = this._parseVal;
+
+		return function(data, xVar, yVar, xScale, yScale, stats) {
+			// If variable not mapped to x or y position, do not render line
+			if (xVar != variable && yVar != variable) {
+				return false;
+			}
+
+			let parsed = parseVal(variable, val, xVar, yVar, stats);
+
+			if (xVar == variable) {
+				return [{"x1": xScale(parsed), "x2": xScale(parsed), "y1":yScale.range()[0], "y2":yScale.range()[1]}];
+			} else if (yVar == variable) {
+				return [{"x1": xScale.range()[0], "x2": xScale.range()[1], "y1": yScale(parsed), "y2": yScale(parsed)}];
+			}
+		}
+
+	}
+
+	// generator for linear regression augmentation
+	generateLinearRegression(variable, val, type) {
+
+		let regression = this._findLineByLeastSquares;
+
 		return function(data, xVar, yVar, xScale, yScale) {
 			// If variable not mapped to x or y position, do not render line
 			if (xVar != variable && yVar != variable) {
 				return false;
 			}
 
-			if (xVar == variable) {
-				return [{"x1": xScale(val), "x2": xScale(val), "y1":yScale.range()[0], "y2":yScale.range()[1]}];
-			} else if (yVar == variable) {
-				return [{"x1": xScale.range()[0], "x2": xScale.range()[1], "y1": yScale(val), "y2": yScale(val)}];
+			let filtered;
+
+			if (type === "eq") {
+				filtered = data.filter(d => d[variable] == val);
+			} else if (type === "le") {
+				filtered = data.filter(d => d[variable] < val);
+			} else if (type === "leq") {
+				filtered = data.filter(d => d[variable] <= val);
+			} else if (type === "ge") {
+				filtered = data.filter(d => d[variable] > val);
+			} else if (type === "geq") {
+				filtered = data.filter(d => d[variable] >= val);
 			}
+
+			let xValues = filtered.map(d => xScale(d[xVar]));
+			let yValues = filtered.map(d => yScale(d[yVar]));
+
+			let coords = regression(xValues, yValues);
+
+			return [{"x1":coords[0][0], "y1":coords[0][1], "x2":coords[1][0], "y2":coords[1][1]}];
 		}
 
 	}
@@ -82,29 +125,33 @@ export default class Threshold extends DataFact {
 	// generator for text augmentation
 	generateText(variable, val, type) {
 
-		return function(data, xVar, yVar, xScale, yScale) {
+		let parseVal = this._parseVal;
+
+		return function(data, xVar, yVar, xScale, yScale, stats) {
 			// If variable not mapped to x or y position, do not render line
 			if (xVar != variable && yVar != variable) {
 				return false;
 			}
 
+			let parsed = parseVal(variable, val, xVar, yVar, stats);
+
 			if (type === "le" || type === "leq") {
 				if (xVar == variable) {
-					return [{"x": xScale(val) + 10, "y": yScale.range()[1], "text": `${variable} ${"le" == type ? "less than" : "less than or equal to"} ${val}`}];
+					return [{"x": xScale(parsed) + 10, "y": yScale.range()[1], "text": `${variable} ${"le" == type ? "less than" : "less than or equal to"} ${parsed}`}];
 				} else if (yVar == variable) {
-					return [{"x": xScale.range()[0], "y": yScale(val) + 10, "text": `${variable} ${"le" == type ? "less than" : "less than or equal to"} ${val}`}];
+					return [{"x": xScale.range()[0], "y": yScale(parsed) + 10, "text": `${variable} ${"le" == type ? "less than" : "less than or equal to"} ${parsed}`}];
 				}
 			} else if (type === "ge" || type === "geq") {
 				if (xVar == variable) {
-					return [{"x": xScale(val) + 10, "y": yScale.range()[1], "text": `${variable} ${"ge" == type ? "greater than" : "greater than or equal to"} ${val}`}];
+					return [{"x": xScale(parsed) + 10, "y": yScale.range()[1], "text": `${variable} ${"ge" == type ? "greater than" : "greater than or equal to"} ${parsed}`}];
 				} else if (yVar == variable) {
-					return [{"x": xScale.range()[0], "y": yScale(val) + 10, "text": `${variable} ${"ge" == type ? "greater than" : "greater than or equal to"} ${val}`}];
+					return [{"x": xScale.range()[0], "y": yScale(parsed) + 10, "text": `${variable} ${"ge" == type ? "greater than" : "greater than or equal to"} ${parsed}`}];
 				}
 			} else {
 				if (xVar == variable) {
-					return [{"x": xScale(val) + 10, "y": yScale.range()[1], "text": `${variable} ${"equal to"} ${val}`}];
+					return [{"x": xScale(parsed) + 10, "y": yScale.range()[1], "text": `${variable} ${"equal to"} ${parsed}`}];
 				} else if (yVar == variable) {
-					return [{"x": xScale.range()[0], "y": yScale(val) - 10, "text": `${variable} ${"equal to"} ${val}`}];
+					return [{"x": xScale.range()[0], "y": yScale(parsed) - 10, "text": `${variable} ${"equal to"} ${parsed}`}];
 				}
 			}
 
@@ -136,7 +183,11 @@ export default class Threshold extends DataFact {
 								 this.generateText(this._variable, this._val, this._type),
 								 this.mergeStyles(this._customStyles.text, markStyles.text), this._selection, 5);
 
-		return this._filter([lineAug.getSpec(), opacityAug.getSpec(), strokeAug.getSpec(), fillAug.getSpec(), textAug.getSpec()]).sort(this._sort)
+		let regressionAug = new Aug(`${this._id}_regression`, "threshold_regression", "mark", {"mark":"line"},
+								 this.generateLinearRegression(this._variable, this._val, this._type),
+								 this.mergeStyles(this._customStyles.regression, markStyles.line), this._selection, 6);
+
+		return this._filter([lineAug.getSpec(), opacityAug.getSpec(), strokeAug.getSpec(), fillAug.getSpec(), textAug.getSpec(), regressionAug.getSpec()]).sort(this._sort)
 	}
 
 	updateVariable(variable) {
@@ -163,6 +214,81 @@ export default class Threshold extends DataFact {
 		return this;
 	}
 
+	// If merging mutliple thresholds, use custom merge function
+	// Creates only a single regression line
+	// Merge by options: intersect, union, difference (in aug1 not in aug2), xor (in aug1 or aug2, not both)
+	_mergeThresholds(augs1, augs2, intersect_id, merge_by="intersect") {
+
+		let merged = [];
+
+		while (augs1.length > 0) {
+
+			let last = augs1.pop();
+
+			// mark type augmentations are not merged
+			if (last.type === "mark") {
+
+				merged.push(last);
+
+			} else if (last.name.endsWith("regression")) {
+
+				continue
+
+			} else {
+
+				let foundIndex = augs2.findIndex(ag => ag.name === last.name && ag.type === "encoding");
+
+				// if no augmentation of the same name is found, add to list without merging
+				if (foundIndex < 0) {
+
+					merged.push(last);
+
+				} else {
+
+					let matched_aug = augs2.splice(foundIndex, 1)[0];
+
+					// new id is combination of aug ids
+					let split_id = last.id.split('_');
+					split_id[0] = intersect_id;
+					let new_id = split_id.join('_');
+
+					// new name is combination of aug names
+					let split_name = last.name.split('_');
+					split_name[0] = "merged";
+					let new_name = split_name.join('_');
+
+					// combine generators
+					function generator(datum, xVar, yVar, xScale, yScale, stats) {
+
+						if (merge_by === "intersect" && (last.generator(datum, xVar, yVar, xScale, yScale, stats) && matched_aug.generator(datum, xVar, yVar, xScale, yScale, stats))) {
+							return true;
+						} else if (merge_by === "union" && (last.generator(datum, xVar, yVar, xScale, yScale, stats) || matched_aug.generator(datum, xVar, yVar, xScale, yScale, stats))) {
+							return true;
+						} else if (merge_by === "difference" && (last.generator(datum, xVar, yVar, xScale, yScale, stats) && !matched_aug.generator(datum, xVar, yVar, xScale, yScale, stats))) {
+							return true;
+						} else if (merge_by === "xor"
+									&& ((last.generator(datum, xVar, yVar, xScale, yScale, stats) || matched_aug.generator(datum, xVar, yVar, xScale, yScale, stats))
+									&& !(last.generator(datum, xVar, yVar, xScale, yScale, stats) && matched_aug.generator(datum, xVar, yVar, xScale, yScale, stats)))) {
+							return true;
+						}
+
+						return false;
+
+					}
+
+					let new_aug = new Aug(new_id, new_name, last.type, last.encoding, generator, last.styles, last.selection, last.rank);
+					merged.push(new_aug.getSpec());
+
+				}
+
+			}
+
+		}
+
+		return merged.concat(augs2).sort(this._sort)
+
+	}
+
 	// returns a list of [Aug Class]
 	// drft can be a single augmentation or a list of augmentations [aug, aug, ...]
 	intersect(drft) {
@@ -178,6 +304,12 @@ export default class Threshold extends DataFact {
 
 		for (let d of augs) {
 			if (d._name.startsWith("Threshold")) {
+
+				merged_id = `${merged_id}-${d._id}`;
+
+				let new_augs = d.getAugs();
+				all_merged = this._mergeAugs(all_merged, new_augs, merged_id);
+			} else if (d._name.startsWith("Emphasis") || d._name.startsWith("Range")) {
 
 				merged_id = `${merged_id}-${d._id}`;
 
@@ -203,6 +335,12 @@ export default class Threshold extends DataFact {
 
 		for (let d of augs) {
 			if (d._name.startsWith("Threshold")) {
+
+				merged_id = `${merged_id}-${d._id}`;
+
+				let new_augs = d.getAugs();
+				all_merged = this._mergeAugs(all_merged, new_augs, merged_id, "union");
+			} else if (d._name.startsWith("Emphasis") || d._name.startsWith("Range")) {
 
 				merged_id = `${merged_id}-${d._id}`;
 
@@ -253,6 +391,12 @@ export default class Threshold extends DataFact {
 
 		for (let d of augs) {
 			if (d._name.startsWith("Threshold")) {
+
+				merged_id = `${merged_id}-${d._id}`;
+
+				let new_augs = d.getAugs();
+				all_merged = this._mergeAugs(all_merged, new_augs, merged_id, "xor");
+			} else if (d._name.startsWith("Emphasis") || d._name.startsWith("Range")) {
 
 				merged_id = `${merged_id}-${d._id}`;
 

@@ -19,7 +19,7 @@ export const ToStorybook = () => {
 
 	const ref = useRef("calculated");
 	const chart = useRef(new Draft());
-	const newYThreshold = useRef(new Threshold("Flavor", yThreshold, "leq"));
+	const newYThreshold = useRef(new Threshold("Flavor", yStatistic, "leq"));
 
 	const [data, setData] = React.useState(coffee);
 
@@ -114,27 +114,27 @@ export const ToStorybook = () => {
 
 	useEffect(() => {
 
-		newYThreshold.current.updateVal(yThreshold);
+		newYThreshold.current.updateVal(yStatistic);
 
 		let newAug2 = newYThreshold.current.getAugs();
 
 		chart.current.augment(newAug2);
 
-	}, [yThreshold])
-
-	useEffect(() => {
-
-		if (yStatistic === "min") {
-			setYThreshold(d3.min(coffee, d => d.Flavor));
-		} else if (yStatistic === "mean") {
-			setYThreshold(d3.mean(coffee, d => d.Flavor));
-		} else if (yStatistic === "median") {
-			setYThreshold(d3.median(coffee, d => d.Flavor));
-		} else if (yStatistic === "max") {
-			setYThreshold(d3.max(coffee, d => d.Flavor));
-		}
-
 	}, [yStatistic])
+
+	// useEffect(() => {
+
+	// 	if (yStatistic === "min") {
+	// 		setYThreshold(d3.min(coffee, d => d.Flavor));
+	// 	} else if (yStatistic === "mean") {
+	// 		setYThreshold(d3.mean(coffee, d => d.Flavor));
+	// 	} else if (yStatistic === "median") {
+	// 		setYThreshold(d3.median(coffee, d => d.Flavor));
+	// 	} else if (yStatistic === "max") {
+	// 		setYThreshold(d3.max(coffee, d => d.Flavor));
+	// 	}
+
+	// }, [yStatistic])
 
 	function updateY(e) {
 		setYStatistic(e.target.value);

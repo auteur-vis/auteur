@@ -90,7 +90,7 @@ export const ToStorybook = () => {
 							.attr("r", 3)
 							.attr("fill", "steelblue");
 
-		const yThreshold = new Threshold("Flavor", 7.5, "geq");
+		const yThreshold = new Threshold("Flavor", 7.5, "leq");
 		const augmentations = yThreshold.getAugs();
 
 		const draft = new Draft();

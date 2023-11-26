@@ -1,4 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
+import * as d3 from "d3";
 
 import Aug from "./Aug.js";
 
@@ -115,6 +116,24 @@ export default class DataFact {
 
 	}
 
+	_parseVal(variable, val, xVar, yVar, stats) {
+
+		let values = stats[variable];
+
+		// If statistics could not be calculated e.g. for categorical variables
+		if (!values) {
+			return val
+		}
+
+		// If val is a summary statistic e.g. "mean"
+		if (values[val]) {
+			return values[val]
+		} else {
+			return val
+		}
+
+	}
+
 	// Merge augmentations between multiple data facts
 	// Merge by options: intersect, union, difference (in aug1 not in aug2), xor (in aug1 or aug2, not both)
 	_mergeAugs(augs1, augs2, intersect_id, merge_by="intersect") {
@@ -148,16 +167,23 @@ export default class DataFact {
 					split_id[0] = intersect_id;
 					let new_id = split_id.join('_');
 
-					// combine generators
-					function generator(datum, xVar, yVar, xScale, yScale) {
+					// new name is combination of aug names
+					let split_name = last.name.split('_');
+					split_name[0] = "merged";
+					let new_name = split_name.join('_');
 
-						if (merge_by === "intersect" && (last.generator(datum, xVar, yVar, xScale, yScale) && matched_aug.generator(datum, xVar, yVar, xScale, yScale))) {
+					// combine generators
+					function generator(datum, xVar, yVar, xScale, yScale, stats) {
+
+						if (merge_by === "intersect" && (last.generator(datum, xVar, yVar, xScale, yScale, stats) && matched_aug.generator(datum, xVar, yVar, xScale, yScale, stats))) {
 							return true;
-						} else if (merge_by === "union" && (last.generator(datum, xVar, yVar, xScale, yScale) || matched_aug.generator(datum, xVar, yVar, xScale, yScale))) {
+						} else if (merge_by === "union" && (last.generator(datum, xVar, yVar, xScale, yScale, stats) || matched_aug.generator(datum, xVar, yVar, xScale, yScale, stats))) {
 							return true;
-						} else if (merge_by === "difference" && (last.generator(datum, xVar, yVar, xScale, yScale) && !matched_aug.generator(datum, xVar, yVar, xScale, yScale))) {
+						} else if (merge_by === "difference" && (last.generator(datum, xVar, yVar, xScale, yScale, stats) && !matched_aug.generator(datum, xVar, yVar, xScale, yScale, stats))) {
 							return true;
-						} else if (merge_by === "xor" && ((last.generator(datum, xVar, yVar, xScale, yScale) || matched_aug.generator(datum, xVar, yVar, xScale, yScale)) && !(last.generator(datum, xVar, yVar, xScale, yScale) && matched_aug.generator(datum, xVar, yVar, xScale, yScale)))) {
+						} else if (merge_by === "xor"
+									&& ((last.generator(datum, xVar, yVar, xScale, yScale, stats) || matched_aug.generator(datum, xVar, yVar, xScale, yScale, stats))
+									&& !(last.generator(datum, xVar, yVar, xScale, yScale, stats) && matched_aug.generator(datum, xVar, yVar, xScale, yScale, stats)))) {
 							return true;
 						}
 
@@ -165,7 +191,7 @@ export default class DataFact {
 
 					}
 
-					let new_aug = new Aug(new_id, last.name, last.type, last.encoding, generator, last.styles, last.selection, last.rank);
+					let new_aug = new Aug(new_id, new_name, last.type, last.encoding, generator, last.styles, last.selection, last.rank);
 					merged.push(new_aug.getSpec());
 
 				}
@@ -176,6 +202,58 @@ export default class DataFact {
 
 		return merged.concat(augs2).sort(this._sort)
 
+	}
+
+	// Following function from https://dracoblue.net/dev/linear-least-squares-in-javascript/
+	_findLineByLeastSquares(values_x, values_y) {
+	    var sum_x = 0;
+	    var sum_y = 0;
+	    var sum_xy = 0;
+	    var sum_xx = 0;
+	    var count = 0;
+
+	    /*
+	     * We'll use those variables for faster read/write access.
+	     */
+	    var x = 0;
+	    var y = 0;
+	    var values_length = values_x.length;
+
+	    if (values_length != values_y.length) {
+	        throw new Error('The parameters values_x and values_y need to have same size!');
+	    }
+
+	    /*
+	     * Nothing to do.
+	     */
+	    if (values_length === 0) {
+	        return [ [], [] ];
+	    }
+
+	    /*
+	     * Calculate the sum for each of the parts necessary.
+	     */
+	    for (var v = 0; v < values_length; v++) {
+	        x = values_x[v];
+	        y = values_y[v];
+	        sum_x += x;
+	        sum_y += y;
+	        sum_xx += x*x;
+	        sum_xy += x*y;
+	        count++;
+	    }
+
+	    /*
+	     * Calculate m and b for the formula:
+	     * y = x * m + b
+	     */
+	    var m = (count*sum_xy - sum_x*sum_y) / (count*sum_xx - sum_x*sum_x);
+	    var b = (sum_y/count) - (m*sum_x)/count;
+    
+	    let [x1, x2] = d3.extent(values_x);
+	    let [y1, y2] = [x1 * m + b, x2 * m + b];
+
+	    return [[x1, y1], [x2, y2]];
 	}
 
 }

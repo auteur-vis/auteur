@@ -29,28 +29,33 @@ export default class Range extends DataFact {
 	// generator for encoding type augmentations
 	generateEncoding(variable, min, max, type) {
 
-		return function(datum, xVar, yVar, xScale, yScale) {
+		let parseVal = this._parseVal;
+
+		return function(datum, xVar, yVar, xScale, yScale, stats) {
 			// If variable not mapped to x or y position, do nothing
 			if (xVar != variable && yVar != variable) {
 				return false;
 			}
 
-			if (min > max) {
+			let parsedMin = parseVal(variable, min, xVar, yVar, stats);
+			let parsedMax = parseVal(variable, max, xVar, yVar, stats);
+
+			if (parsedMin > parsedMax) {
 				return false;
 			}
 
 			if (Array.isArray(datum)) {
 				if (type === "closed") {
-					return datum.reduce((acc, current) => acc && current[variable] >= min && current[variable] <= max, true);
+					return datum.reduce((acc, current) => acc && current[variable] >= parsedMin && current[variable] <= parsedMax, true);
 				} else if (type === "open") {
-					return datum.reduce((acc, current) => acc && current[variable] > min && current[variable] < max, true);
+					return datum.reduce((acc, current) => acc && current[variable] > parsedMin && current[variable] < parsedMax, true);
 				}
 
 			} else {
 
-				if (type === "closed" && datum[variable] >= min && datum[variable] <= max) {
+				if (type === "closed" && datum[variable] >= parsedMin && datum[variable] <= parsedMax) {
 					return true;
-				} else if (type === "open" && datum[variable] > min && datum[variable] < max) {
+				} else if (type === "open" && datum[variable] > parsedMin && datum[variable] < parsedMax) {
 					return true;
 				}
 
@@ -64,19 +69,24 @@ export default class Range extends DataFact {
 	// generator for rect/shading augmentation
 	generateRect(variable, min, max, type) {
 
-		return function(data, xVar, yVar, xScale, yScale) {
+		let parseVal = this._parseVal;
+
+		return function(data, xVar, yVar, xScale, yScale, stats) {
 			// If variable not mapped to x or y position, do not render range rect
 			if (xVar != variable && yVar != variable) {
 				return [];
 			}
 
-			if (min > max) {
-				return [];
+			let parsedMin = parseVal(variable, min, xVar, yVar, stats);
+			let parsedMax = parseVal(variable, max, xVar, yVar, stats);
+
+			if (parsedMin > parsedMax) {
+				return false;
 			}
 
 			if (xVar == variable) {
-				let xMin = d3.min([xScale(min), xScale(max)]);
-				let width = Math.abs(xScale(max) - xScale(min));
+				let xMin = d3.min([xScale(parsedMin), xScale(parsedMax)]);
+				let width = Math.abs(xScale(parsedMax) - xScale(parsedMin));
 				let yMin = d3.min([yScale.range()[1], yScale.range()[0]]);
 				let height = Math.abs(yScale.range()[1] - yScale.range()[0]);
 
@@ -84,8 +94,8 @@ export default class Range extends DataFact {
 			} else if (yVar == variable) {
 				let xMin = d3.min([xScale.range()[0], xScale.range()[1]]);
 				let width = Math.abs(xScale.range()[1] - xScale.range()[0]);
-				let yMin = d3.min([yScale(min), yScale(max)]);
-				let height = Math.abs(yScale(max) - yScale(min));
+				let yMin = d3.min([yScale(parsedMin), yScale(parsedMax)]);
+				let height = Math.abs(yScale(parsedMax) - yScale(parsedMin));
 
 				return [{"x": xMin, "width": width, "y": yMin, "height": height}];
 			}
@@ -97,38 +107,47 @@ export default class Range extends DataFact {
 	}
 
 	// generator for text augmentation
-	generateText(variable, val, type) {
+	// generateText(variable, val, type) {
 
-		return function(data, xVar, yVar, xScale, yScale) {
-			// If variable not mapped to x or y position, do not render line
-			if (xVar != variable && yVar != variable) {
-				return false;
-			}
+	// 	let parseVal = this._parseVal;
 
-			if (type === "le" || type === "leq") {
-				if (xVar == variable) {
-					return [{"x": xScale(val) + 10, "y": yScale.range()[1], "text": `${variable} ${"le" == type ? "less than" : "less than or equal to"} ${val}`}];
-				} else if (yVar == variable) {
-					return [{"x": xScale.range()[0], "y": yScale(val) + 10, "text": `${variable} ${"le" == type ? "less than" : "less than or equal to"} ${val}`}];
-				}
-			} else if (type === "ge" || type === "geq") {
-				if (xVar == variable) {
-					return [{"x": xScale(val) + 10, "y": yScale.range()[1], "text": `${variable} ${"ge" == type ? "greater than" : "greater than or equal to"} ${val}`}];
-				} else if (yVar == variable) {
-					return [{"x": xScale.range()[0], "y": yScale(val) + 10, "text": `${variable} ${"ge" == type ? "greater than" : "greater than or equal to"} ${val}`}];
-				}
-			} else {
-				if (xVar == variable) {
-					return [{"x": xScale(val) + 10, "y": yScale.range()[1], "text": `${variable} ${"equal to"} ${val}`}];
-				} else if (yVar == variable) {
-					return [{"x": xScale.range()[0], "y": yScale(val) - 10, "text": `${variable} ${"equal to"} ${val}`}];
-				}
-			}
+	// 	return function(data, xVar, yVar, xScale, yScale, stats) {
+	// 		// If variable not mapped to x or y position, do not render line
+	// 		if (xVar != variable && yVar != variable) {
+	// 			return false;
+	// 		}
+
+	// 		let parsedMin = parseVal(variable, min, xVar, yVar, stats);
+	// 		let parsedMax = parseVal(variable, max, xVar, yVar, stats);
+
+	// 		if (parsedMin > parsedMax) {
+	// 			return false;
+	// 		}
+
+	// 		if (type === "le" || type === "leq") {
+	// 			if (xVar == variable) {
+	// 				return [{"x": xScale(val) + 10, "y": yScale.range()[1], "text": `${variable} ${"le" == type ? "less than" : "less than or equal to"} ${val}`}];
+	// 			} else if (yVar == variable) {
+	// 				return [{"x": xScale.range()[0], "y": yScale(val) + 10, "text": `${variable} ${"le" == type ? "less than" : "less than or equal to"} ${val}`}];
+	// 			}
+	// 		} else if (type === "ge" || type === "geq") {
+	// 			if (xVar == variable) {
+	// 				return [{"x": xScale(val) + 10, "y": yScale.range()[1], "text": `${variable} ${"ge" == type ? "greater than" : "greater than or equal to"} ${val}`}];
+	// 			} else if (yVar == variable) {
+	// 				return [{"x": xScale.range()[0], "y": yScale(val) + 10, "text": `${variable} ${"ge" == type ? "greater than" : "greater than or equal to"} ${val}`}];
+	// 			}
+	// 		} else {
+	// 			if (xVar == variable) {
+	// 				return [{"x": xScale(val) + 10, "y": yScale.range()[1], "text": `${variable} ${"equal to"} ${val}`}];
+	// 			} else if (yVar == variable) {
+	// 				return [{"x": xScale.range()[0], "y": yScale(val) - 10, "text": `${variable} ${"equal to"} ${val}`}];
+	// 			}
+	// 		}
 
 			
-		}
+	// 	}
  
-	}
+	// }
 
 	// returns a list of [Aug Class]
 	getAugs() {

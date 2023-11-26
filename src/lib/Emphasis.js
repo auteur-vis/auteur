@@ -24,25 +24,38 @@ export default class Emphasis extends DataFact {
 	}
 
 	// generator for encoding type augmentations
+	// val can either be a single value or list of values
 	generateEncoding(variable, val, type) {
 
-		return function(datum, xVar, yVar, xScale, yScale) {
+		let parseVal = this._parseVal;
+
+		return function(datum, xVar, yVar, xScale, yScale, stats) {
 
 			// If no variable or value defined, emphasize entire selection
 			if (!variable || !val) {
 				return true;
 			}
 
+			let parsed;
+			// If val is array of values
+			if (Array.isArray(val)) {
+				parsed = val.map(v => parseVal(variable, v, xVar, yVar, stats));
+			} else {
+				parsed = parseVal(variable, val, xVar, yVar, stats);
+			}
+
+			// For line marks
 			function isValid(singleVal) {
 				
-				if (Array.isArray(val)) {
-					if (val.indexOf(singleVal) >= 0) {
+				// If multiple values to emphasize
+				if (Array.isArray(parsed)) {
+					if (parsed.indexOf(singleVal) >= 0) {
 						return true;
 					} else {
 						return false;
 					}
 				} else {
-					if (singleVal == val) {
+					if (singleVal == parsed) {
 						return true;
 					}
 				}
@@ -66,7 +79,7 @@ export default class Emphasis extends DataFact {
 	}
 
 	// generator for text augmentation
-	generateText(variable, val, type) {
+	generateText(variable, val, type, stats) {
 
 		return function(data, xVar, yVar, xScale, yScale) {
 
