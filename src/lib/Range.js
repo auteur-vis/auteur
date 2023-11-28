@@ -27,7 +27,7 @@ export default class Range extends DataFact {
 	}
 
 	// generator for encoding type augmentations
-	generateEncoding(variable, min, max, type) {
+	_generator(variable, min, max, type) {
 
 		let parseVal = this._parseVal;
 
@@ -106,48 +106,79 @@ export default class Range extends DataFact {
 
 	}
 
-	// generator for text augmentation
-	// generateText(variable, val, type) {
+	// generator for linear regression augmentation
+	generateLinearRegression(variable, min, max, type) {
 
-	// 	let parseVal = this._parseVal;
+		let regression = this._findLineByLeastSquares;
+		let regressionFilter = this._generator(variable, min, max, type);
 
-	// 	return function(data, xVar, yVar, xScale, yScale, stats) {
-	// 		// If variable not mapped to x or y position, do not render line
-	// 		if (xVar != variable && yVar != variable) {
-	// 			return false;
-	// 		}
-
-	// 		let parsedMin = parseVal(variable, min, xVar, yVar, stats);
-	// 		let parsedMax = parseVal(variable, max, xVar, yVar, stats);
-
-	// 		if (parsedMin > parsedMax) {
-	// 			return false;
-	// 		}
-
-	// 		if (type === "le" || type === "leq") {
-	// 			if (xVar == variable) {
-	// 				return [{"x": xScale(val) + 10, "y": yScale.range()[1], "text": `${variable} ${"le" == type ? "less than" : "less than or equal to"} ${val}`}];
-	// 			} else if (yVar == variable) {
-	// 				return [{"x": xScale.range()[0], "y": yScale(val) + 10, "text": `${variable} ${"le" == type ? "less than" : "less than or equal to"} ${val}`}];
-	// 			}
-	// 		} else if (type === "ge" || type === "geq") {
-	// 			if (xVar == variable) {
-	// 				return [{"x": xScale(val) + 10, "y": yScale.range()[1], "text": `${variable} ${"ge" == type ? "greater than" : "greater than or equal to"} ${val}`}];
-	// 			} else if (yVar == variable) {
-	// 				return [{"x": xScale.range()[0], "y": yScale(val) + 10, "text": `${variable} ${"ge" == type ? "greater than" : "greater than or equal to"} ${val}`}];
-	// 			}
-	// 		} else {
-	// 			if (xVar == variable) {
-	// 				return [{"x": xScale(val) + 10, "y": yScale.range()[1], "text": `${variable} ${"equal to"} ${val}`}];
-	// 			} else if (yVar == variable) {
-	// 				return [{"x": xScale.range()[0], "y": yScale(val) - 10, "text": `${variable} ${"equal to"} ${val}`}];
-	// 			}
-	// 		}
-
+		return function(data, xVar, yVar, xScale, yScale, stats) {
 			
-	// 	}
+			let filtered = data.filter(d => regressionFilter(d, xVar, yVar, xScale, yScale, stats));
+
+			let xValues = filtered.map(d => xScale(d[xVar]));
+			let yValues = filtered.map(d => yScale(d[yVar]));
+
+			let coords = regression(xValues, yValues);
+
+			return coords;
+		}
+
+	}
+
+	// generator for text augmentation
+	generateText(variable, min, max, type) {
+
+		let parseVal = this._parseVal;
+
+		return function(data, xVar, yVar, xScale, yScale, stats) {
+			// If variable not mapped to x or y position, do not render line
+			if (xVar != variable && yVar != variable) {
+				return false;
+			}
+
+			let parsedMin = parseVal(variable, min, xVar, yVar, stats);
+			let parsedMax = parseVal(variable, max, xVar, yVar, stats);
+
+			if (parsedMin > parsedMax) {
+				return false;
+			}
+
+			if (xVar == variable) {
+				return [{"x": xScale(parsedMin) + 5, "y": yScale.range()[1], "text": `  ${parsedMin} ${min != parsedMin ? "("+min+")" : ""}`},
+						{"x": xScale(parsedMax) + 5, "y": yScale.range()[1], "text": `  ${parsedMax} ${max != parsedMax ? "("+max+")" : ""}`}];
+			} else if (yVar == variable) {
+				return [{"x": xScale.range()[0], "y": yScale(parsedMin) - 5, "text": `  ${parsedMin} ${min != parsedMin ? "("+min+")" : ""}`},
+						{"x": xScale.range()[0], "y": yScale(parsedMax) + 5, "text": `  ${parsedMax} ${max != parsedMax ? "("+max+")" : ""}`}];
+			}
+			
+		}
  
-	// }
+	}
+
+	// generator for label augmentation
+	generateLabel(variable, min, max, type, stats) {
+
+		let labelFilter = this._generator(variable, min, max, type);
+
+		return function(data, xVar, yVar, xScale, yScale, stats) {
+
+			let result;
+
+			result = data.filter(d => labelFilter(d, xVar, yVar, xScale, yScale, stats)).map(d => {
+				d.x = xScale(d[xVar]);
+				d.y = yScale(d[yVar]) - 15;
+				// d.text = `${variable} = ${d[variable]}`;
+				d.text = `${d[variable]}`;
+
+				return d
+			});
+
+			return result;
+			
+		}
+ 
+	}
 
 	// returns a list of [Aug Class]
 	getAugs() {
@@ -157,22 +188,33 @@ export default class Range extends DataFact {
 								 this.mergeStyles(this._customStyles.rect, markStyles.rect), this._selection, 1);
 
 		let opacityAug = new Aug(`${this._id}_opacity`, "range_opacity", "encoding", undefined,
-									this.generateEncoding(this._variable, this._min, this._max, this._type), 
+									this._generator(this._variable, this._min, this._max, this._type), 
 									this.mergeStyles(this._customStyles.opacity, encodingStyles.opacity), this._selection, 2);
 
 		let strokeAug = new Aug(`${this._id}_stroke`, "range_stroke", "encoding", undefined,
-								   this.generateEncoding(this._variable, this._min, this._max, this._type),
+								   this._generator(this._variable, this._min, this._max, this._type),
 								   this.mergeStyles(this._customStyles.stroke, encodingStyles.stroke), this._selection, 3);
 
 		let fillAug = new Aug(`${this._id}_fill`, "range_fill", "encoding", undefined,
-								  this.generateEncoding(this._variable, this._min, this._max, this._type),
+								  this._generator(this._variable, this._min, this._max, this._type),
 								  this.mergeStyles(this._customStyles.fill, encodingStyles.fill), this._selection, 4);
 
-		// let textAug = new Aug(`${this._id}_text`, "threshold_text", "mark", {"mark":"text"},
-		// 						 this.generateText(this._variable, this._val, this._type),
-		// 						 this.mergeStyles(this._customStyles.text, markStyles.text), 5);
+		let textAug = new Aug(`${this._id}_text`, "range_text", "mark", {"mark":"text"},
+								 this.generateText(this._variable, this._min, this._max, this._type),
+								 this.mergeStyles(this._customStyles.text, markStyles.text), this._selection, 1);
 
-		return this._filter([rectAug.getSpec(), opacityAug.getSpec(), strokeAug.getSpec(), fillAug.getSpec()]).sort(this._sort)
+		let labelAug = new Aug(`${this._id}_label`, "range_label", "mark", {"mark":"text"},
+								 this.generateLabel(this._variable, this._min, this._max, this._type),
+								 this.mergeStyles(this._customStyles.label, markStyles.label), this._selection, 5);
+
+		let regressionAug = new Aug(`${this._id}_regression`, "range_regression", "mark", {"mark":"line"},
+								 this.generateLinearRegression(this._variable, this._min, this._max, this._type),
+								 this.mergeStyles(this._customStyles.regression, markStyles.line), this._selection, 6);
+
+		let regressionAugs = regressionAug.getSpec();
+		regressionAugs._filter = this._generator(this._variable, this._val, this._type);
+
+		return this._filter([rectAug.getSpec(), opacityAug.getSpec(), strokeAug.getSpec(), fillAug.getSpec(), textAug.getSpec(), labelAug.getSpec(), regressionAugs]).sort(this._sort)
 	}
 
 	updateVariable(variable) {
@@ -214,7 +256,7 @@ export default class Range extends DataFact {
 		let all_merged = this.getAugs();
 
 		for (let d of augs) {
-			if (d._name.startsWith("Range")) {
+			if (d._name.startsWith("Threshold") || d._name.startsWith("Emphasis") || d._name.startsWith("Range")) {
 
 				merged_id = `${merged_id}-${d._id}`;
 
@@ -239,7 +281,7 @@ export default class Range extends DataFact {
 		let all_merged = this.getAugs();
 
 		for (let d of augs) {
-			if (d._name.startsWith("Range")) {
+			if (d._name.startsWith("Threshold") || d._name.startsWith("Emphasis") || d._name.startsWith("Range")) {
 
 				merged_id = `${merged_id}-${d._id}`;
 
@@ -264,7 +306,7 @@ export default class Range extends DataFact {
 		let all_merged = this.getAugs();
 
 		for (let d of augs) {
-			if (d._name.startsWith("Range")) {
+			if (d._name.startsWith("Threshold") || d._name.startsWith("Emphasis") || d._name.startsWith("Range")) {
 
 				merged_id = `${merged_id}-${d._id}`;
 

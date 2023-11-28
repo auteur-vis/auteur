@@ -14,13 +14,11 @@ export default {
 
 export const ToStorybook = () => {
 
-	const [yThreshold, setYThreshold] = React.useState(8);
-
 	const ref = useRef("less");
 
 	// ... some code omitted ...
 
-	const [data, setData] = React.useState(coffee);
+	const [data, setData] = React.useState(coffee.slice(0, 20));
 
 	let layout={"width":500,
 	   		   "height":500,
@@ -90,7 +88,7 @@ export const ToStorybook = () => {
 							.attr("r", 3)
 							.attr("fill", "steelblue");
 
-		const yThreshold = new Threshold("Flavor", 7.5, "leq");
+		const yThreshold = new Threshold("Flavor", "median", "geq");
 		const augmentations = yThreshold.getAugs();
 
 		const draft = new Draft();

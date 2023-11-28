@@ -145,7 +145,7 @@ export const ToStorybook = () => {
 
 		chart.current.chart(ref.current)
 					.selection(bars)
-					.x("country", xScale)
+					.x("Country", xScale)
 					.y("count", yScale)
 					.include({"name":["stroke"]})
 					.augment(newMaxThreshold.current.intersect(newMinThreshold.current));

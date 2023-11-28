@@ -25,7 +25,7 @@ export default class Emphasis extends DataFact {
 
 	// generator for encoding type augmentations
 	// val can either be a single value or list of values
-	generateEncoding(variable, val, type) {
+	_generator(variable, val, type) {
 
 		let parseVal = this._parseVal;
 
@@ -78,31 +78,43 @@ export default class Emphasis extends DataFact {
 
 	}
 
-	// generator for text augmentation
-	generateText(variable, val, type, stats) {
+	// generator for linear regression augmentation
+	generateLinearRegression(variable, val, type) {
 
-		return function(data, xVar, yVar, xScale, yScale) {
+		let regression = this._findLineByLeastSquares;
+		let regressionFilter = this._generator(variable, val, type);
+
+		return function(data, xVar, yVar, xScale, yScale, stats) {
+			
+			let filtered = data.filter(d => regressionFilter(d, xVar, yVar, xScale, yScale, stats));
+
+			let xValues = filtered.map(d => xScale(d[xVar]));
+			let yValues = filtered.map(d => yScale(d[yVar]));
+
+			let coords = regression(xValues, yValues);
+
+			return coords;
+		}
+
+	}
+
+	// generator for label augmentation
+	generateLabel(variable, val, type, stats) {
+
+		let labelFilter = this._generator(variable, val, type);
+
+		return function(data, xVar, yVar, xScale, yScale, stats) {
 
 			let result;
 
-			if (Array.isArray(val)) {
+			result = data.filter(d => labelFilter(d, xVar, yVar, xScale, yScale, stats)).map(d => {
+				d.x = xScale(d[xVar]);
+				d.y = yScale(d[yVar]) - 15;
+				// d.text = `${variable} = ${d[variable]}`;
+				d.text = `${d[variable]}`;
 
-				result = data.filter(d => val.indexOf(d[variable]) >= 0).map(d => {
-					d.x = xScale(d[xVar]);
-					d.y = yScale(d[yVar]) - 10;
-					d.text = `${variable} = ${d[variable]}`;
-					return d
-				});
-
-			} else {
-
-				result = data.filter(d => val == d[variable]).map(d => {
-					d.x = xScale(d[xVar]);
-					d.y = yScale(d[yVar]) - 10;
-					d.text = `${variable} = ${d[variable]}`;
-					return d				
-				});
-			}
+				return d
+			});
 
 			return result;
 			
@@ -114,22 +126,29 @@ export default class Emphasis extends DataFact {
 	getAugs() {
 
 		let strokeAug = new Aug(`${this._id}_stroke`, "emphasis_stroke", "encoding", undefined,
-								   this.generateEncoding(this._variable, this._val, this._type),
+								   this._generator(this._variable, this._val, this._type),
 								   this.mergeStyles(this._customStyles.stroke, encodingStyles.stroke), this._selection, 1);
 
-		let textAug = new Aug(`${this._id}_text`, "emphasis_text", "mark", {"mark":"text"},
-								 this.generateText(this._variable, this._val, this._type),
-								 this.mergeStyles(this._customStyles.text, markStyles.text), this._selection, 2);
+		let labelAug = new Aug(`${this._id}_text`, "emphasis_label", "mark", {"mark":"text"},
+								 this.generateLabel(this._variable, this._val, this._type),
+								 this.mergeStyles(this._customStyles.label, markStyles.label), this._selection, 3);
 
 		let fillAug = new Aug(`${this._id}_fill`, "emphasis_fill", "encoding", undefined,
-								  this.generateEncoding(this._variable, this._val, this._type),
-								  this.mergeStyles(this._customStyles.fill, encodingStyles.fill), this._selection, 3);
+								  this._generator(this._variable, this._val, this._type),
+								  this.mergeStyles(this._customStyles.fill, encodingStyles.fill), this._selection, 4);
 
 		let opacityAug = new Aug(`${this._id}_opacity`, "emphasis_opacity", "encoding", undefined,
-									this.generateEncoding(this._variable, this._val, this._type), 
-									this.mergeStyles(this._customStyles.opacity, encodingStyles.opacity), this._selection, 4);
+									this._generator(this._variable, this._val, this._type), 
+									this.mergeStyles(this._customStyles.opacity, encodingStyles.opacity), this._selection, 2);
 
-		return this._filter([strokeAug.getSpec(), textAug.getSpec(), fillAug.getSpec(), opacityAug.getSpec()]).sort(this._sort)
+		let regressionAug = new Aug(`${this._id}_regression`, "emphasis_regression", "mark", {"mark":"line"},
+								 this.generateLinearRegression(this._variable, this._val, this._type),
+								 this.mergeStyles(this._customStyles.regression, markStyles.line), this._selection, 5);
+
+		let regressionAugs = regressionAug.getSpec();
+		regressionAugs._filter = this._generator(this._variable, this._val, this._type);
+
+		return this._filter([strokeAug.getSpec(), labelAug.getSpec(), fillAug.getSpec(), opacityAug.getSpec(), regressionAugs]).sort(this._sort)
 	}
 
 	updateVariable(variable) {
@@ -162,7 +181,7 @@ export default class Emphasis extends DataFact {
 		let all_merged = this.getAugs();
 
 		for (let d of augs) {
-			if (d._name.startsWith("Emphasis")) {
+			if (d._name.startsWith("Threshold") || d._name.startsWith("Emphasis") || d._name.startsWith("Range")) {
 
 				merged_id = `${merged_id}-${d._id}`;
 
@@ -187,7 +206,7 @@ export default class Emphasis extends DataFact {
 		let all_merged = this.getAugs();
 
 		for (let d of augs) {
-			if (d._name.startsWith("Emphasis")) {
+			if (d._name.startsWith("Threshold") || d._name.startsWith("Emphasis") || d._name.startsWith("Range")) {
 
 				merged_id = `${merged_id}-${d._id}`;
 
@@ -212,7 +231,7 @@ export default class Emphasis extends DataFact {
 		let all_merged = this.getAugs();
 
 		for (let d of augs) {
-			if (d._name.startsWith("Emphasis")) {
+			if (d._name.startsWith("Threshold") || d._name.startsWith("Emphasis") || d._name.startsWith("Range")) {
 
 				merged_id = `${merged_id}-${d._id}`;
 

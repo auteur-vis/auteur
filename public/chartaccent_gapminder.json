@@ -1,0 +1,1339 @@
+[
+  {
+    "Country": "Afghanistan",
+    "LifeExpectancy": 51,
+    "FertilityRate": 7.81,
+    "Population": 19701940,
+    "Region": "South Asia"
+  },
+  {
+    "Country": "Albania",
+    "LifeExpectancy": 74.2,
+    "FertilityRate": 2.47,
+    "Population": 3121965,
+    "Region": "Europe & Central Asia"
+  },
+  {
+    "Country": "Algeria",
+    "LifeExpectancy": 73.2,
+    "FertilityRate": 2.63,
+    "Population": 31183658,
+    "Region": "Middle East & North Africa"
+  },
+  {
+    "Country": "Angola",
+    "LifeExpectancy": 52.6,
+    "FertilityRate": 6.88,
+    "Population": 15058638,
+    "Region": "Sub-Saharan Africa"
+  },
+  {
+    "Country": "Antigua and Barbuda",
+    "LifeExpectancy": 73.9,
+    "FertilityRate": 2.32,
+    "Population": 77648,
+    "Region": "America"
+  },
+  {
+    "Country": "Argentina",
+    "LifeExpectancy": 74.3,
+    "FertilityRate": 2.54,
+    "Population": 37057453,
+    "Region": "America"
+  },
+  {
+    "Country": "Armenia",
+    "LifeExpectancy": 71.4,
+    "FertilityRate": 1.4,
+    "Population": 3076098,
+    "Region": "Europe & Central Asia"
+  },
+  {
+    "Country": "Aruba",
+    "LifeExpectancy": 74.919,
+    "FertilityRate": 1.91,
+    "Population": 90858,
+    "Region": "America"
+  },
+  {
+    "Country": "Australia",
+    "LifeExpectancy": 79.7,
+    "FertilityRate": 1.76,
+    "Population": 19107251,
+    "Region": "East Asia & Pacific"
+  },
+  {
+    "Country": "Austria",
+    "LifeExpectancy": 78.2,
+    "FertilityRate": 1.34,
+    "Population": 8050884,
+    "Region": "Europe & Central Asia"
+  },
+  {
+    "Country": "Azerbaijan",
+    "LifeExpectancy": 68,
+    "FertilityRate": 2.11,
+    "Population": 8117742,
+    "Region": "Europe & Central Asia"
+  },
+  {
+    "Country": "Bahamas",
+    "LifeExpectancy": 70.3,
+    "FertilityRate": 2.17,
+    "Population": 297891,
+    "Region": "America"
+  },
+  {
+    "Country": "Bahrain",
+    "LifeExpectancy": 73.6,
+    "FertilityRate": 2.81,
+    "Population": 666855,
+    "Region": "Middle East & North Africa"
+  },
+  {
+    "Country": "Bangladesh",
+    "LifeExpectancy": 65.8,
+    "FertilityRate": 3.23,
+    "Population": 131280739,
+    "Region": "South Asia"
+  },
+  {
+    "Country": "Barbados",
+    "LifeExpectancy": 74.3,
+    "FertilityRate": 1.76,
+    "Population": 269838,
+    "Region": "America"
+  },
+  {
+    "Country": "Belarus",
+    "LifeExpectancy": 68.2,
+    "FertilityRate": 1.25,
+    "Population": 9952055,
+    "Region": "Europe & Central Asia"
+  },
+  {
+    "Country": "Belgium",
+    "LifeExpectancy": 77.8,
+    "FertilityRate": 1.62,
+    "Population": 10268380,
+    "Region": "Europe & Central Asia"
+  },
+  {
+    "Country": "Belize",
+    "LifeExpectancy": 69,
+    "FertilityRate": 3.7,
+    "Population": 247312,
+    "Region": "America"
+  },
+  {
+    "Country": "Benin",
+    "LifeExpectancy": 59.2,
+    "FertilityRate": 6.05,
+    "Population": 6949366,
+    "Region": "Sub-Saharan Africa"
+  },
+  {
+    "Country": "Bhutan",
+    "LifeExpectancy": 63.9,
+    "FertilityRate": 3.81,
+    "Population": 564187,
+    "Region": "South Asia"
+  },
+  {
+    "Country": "Bolivia",
+    "LifeExpectancy": 67.6,
+    "FertilityRate": 4.22,
+    "Population": 8339512,
+    "Region": "America"
+  },
+  {
+    "Country": "Bosnia and Herzegovina",
+    "LifeExpectancy": 75.2,
+    "FertilityRate": 1.43,
+    "Population": 3792878,
+    "Region": "Europe & Central Asia"
+  },
+  {
+    "Country": "Botswana",
+    "LifeExpectancy": 51.6,
+    "FertilityRate": 3.52,
+    "Population": 1736579,
+    "Region": "Sub-Saharan Africa"
+  },
+  {
+    "Country": "Brazil",
+    "LifeExpectancy": 71.9,
+    "FertilityRate": 2.4,
+    "Population": 175786441,
+    "Region": "America"
+  },
+  {
+    "Country": "Brunei",
+    "LifeExpectancy": 75.5,
+    "FertilityRate": 2.48,
+    "Population": 330554,
+    "Region": "East Asia & Pacific"
+  },
+  {
+    "Country": "Bulgaria",
+    "LifeExpectancy": 71.7,
+    "FertilityRate": 1.18,
+    "Population": 8000510,
+    "Region": "Europe & Central Asia"
+  },
+  {
+    "Country": "Burkina Faso",
+    "LifeExpectancy": 53.3,
+    "FertilityRate": 6.65,
+    "Population": 11607944,
+    "Region": "Sub-Saharan Africa"
+  },
+  {
+    "Country": "Burundi",
+    "LifeExpectancy": 47.5,
+    "FertilityRate": 7.11,
+    "Population": 6767073,
+    "Region": "Sub-Saharan Africa"
+  },
+  {
+    "Country": "Cambodia",
+    "LifeExpectancy": 60.9,
+    "FertilityRate": 3.9,
+    "Population": 12197905,
+    "Region": "East Asia & Pacific"
+  },
+  {
+    "Country": "Cameroon",
+    "LifeExpectancy": 55,
+    "FertilityRate": 5.68,
+    "Population": 15927713,
+    "Region": "Sub-Saharan Africa"
+  },
+  {
+    "Country": "Canada",
+    "LifeExpectancy": 79.3,
+    "FertilityRate": 1.54,
+    "Population": 30701903,
+    "Region": "America"
+  },
+  {
+    "Country": "Cape Verde",
+    "LifeExpectancy": 70.1,
+    "FertilityRate": 3.88,
+    "Population": 438737,
+    "Region": "Sub-Saharan Africa"
+  },
+  {
+    "Country": "Chad",
+    "LifeExpectancy": 52.4,
+    "FertilityRate": 7.38,
+    "Population": 8343321,
+    "Region": "Sub-Saharan Africa"
+  },
+  {
+    "Country": "Channel Islands",
+    "LifeExpectancy": 79.745,
+    "FertilityRate": 1.4,
+    "Population": 148725,
+    "Region": "Europe & Central Asia"
+  },
+  {
+    "Country": "Chile",
+    "LifeExpectancy": 77.2,
+    "FertilityRate": 2.14,
+    "Population": 15170387,
+    "Region": "America"
+  },
+  {
+    "Country": "China",
+    "LifeExpectancy": 71.5,
+    "FertilityRate": 1.45,
+    "Population": 1269974572,
+    "Region": "East Asia & Pacific"
+  },
+  {
+    "Country": "Colombia",
+    "LifeExpectancy": 72.5,
+    "FertilityRate": 2.68,
+    "Population": 40403959,
+    "Region": "America"
+  },
+  {
+    "Country": "Comoros",
+    "LifeExpectancy": 60.2,
+    "FertilityRate": 5.31,
+    "Population": 547696,
+    "Region": "Sub-Saharan Africa"
+  },
+  {
+    "Country": "Congo, Dem. Rep.",
+    "LifeExpectancy": 52.5,
+    "FertilityRate": 7.14,
+    "Population": 48048664,
+    "Region": "Sub-Saharan Africa"
+  },
+  {
+    "Country": "Congo, Rep.",
+    "LifeExpectancy": 52.6,
+    "FertilityRate": 5.14,
+    "Population": 3109269,
+    "Region": "Sub-Saharan Africa"
+  },
+  {
+    "Country": "Costa Rica",
+    "LifeExpectancy": 77.7,
+    "FertilityRate": 2.48,
+    "Population": 3925450,
+    "Region": "America"
+  },
+  {
+    "Country": "Cote d'Ivoire",
+    "LifeExpectancy": 52.8,
+    "FertilityRate": 5.46,
+    "Population": 16517948,
+    "Region": "Sub-Saharan Africa"
+  },
+  {
+    "Country": "Croatia",
+    "LifeExpectancy": 74.7,
+    "FertilityRate": 1.47,
+    "Population": 4428069,
+    "Region": "Europe & Central Asia"
+  },
+  {
+    "Country": "Cuba",
+    "LifeExpectancy": 75.9,
+    "FertilityRate": 1.62,
+    "Population": 11116787,
+    "Region": "America"
+  },
+  {
+    "Country": "Cyprus",
+    "LifeExpectancy": 79.1,
+    "FertilityRate": 1.78,
+    "Population": 943287,
+    "Region": "Europe & Central Asia"
+  },
+  {
+    "Country": "Denmark",
+    "LifeExpectancy": 76.9,
+    "FertilityRate": 1.74,
+    "Population": 5338283,
+    "Region": "Europe & Central Asia"
+  },
+  {
+    "Country": "Djibouti",
+    "LifeExpectancy": 59.6,
+    "FertilityRate": 4.61,
+    "Population": 722562,
+    "Region": "Middle East & North Africa"
+  },
+  {
+    "Country": "Ecuador",
+    "LifeExpectancy": 73.2,
+    "FertilityRate": 3.11,
+    "Population": 12628596,
+    "Region": "America"
+  },
+  {
+    "Country": "Egypt",
+    "LifeExpectancy": 68.9,
+    "FertilityRate": 3.37,
+    "Population": 68334905,
+    "Region": "Middle East & North Africa"
+  },
+  {
+    "Country": "El Salvador",
+    "LifeExpectancy": 72.9,
+    "FertilityRate": 3.07,
+    "Population": 5811836,
+    "Region": "America"
+  },
+  {
+    "Country": "Equatorial Guinea",
+    "LifeExpectancy": 52.4,
+    "FertilityRate": 5.81,
+    "Population": 530896,
+    "Region": "Sub-Saharan Africa"
+  },
+  {
+    "Country": "Eritrea",
+    "LifeExpectancy": 49.3,
+    "FertilityRate": 6.02,
+    "Population": 3535156,
+    "Region": "Sub-Saharan Africa"
+  },
+  {
+    "Country": "Estonia",
+    "LifeExpectancy": 70.1,
+    "FertilityRate": 1.31,
+    "Population": 1399145,
+    "Region": "Europe & Central Asia"
+  },
+  {
+    "Country": "Ethiopia",
+    "LifeExpectancy": 52.5,
+    "FertilityRate": 6.66,
+    "Population": 66443603,
+    "Region": "Sub-Saharan Africa"
+  },
+  {
+    "Country": "Fiji",
+    "LifeExpectancy": 64.2,
+    "FertilityRate": 3.13,
+    "Population": 811223,
+    "Region": "East Asia & Pacific"
+  },
+  {
+    "Country": "Finland",
+    "LifeExpectancy": 77.8,
+    "FertilityRate": 1.73,
+    "Population": 5176482,
+    "Region": "Europe & Central Asia"
+  },
+  {
+    "Country": "France",
+    "LifeExpectancy": 79.1,
+    "FertilityRate": 1.8,
+    "Population": 59387183,
+    "Region": "Europe & Central Asia"
+  },
+  {
+    "Country": "French Guiana",
+    "LifeExpectancy": 76.21,
+    "FertilityRate": 3.88,
+    "Population": 163162,
+    "Region": "America"
+  },
+  {
+    "Country": "French Polynesia",
+    "LifeExpectancy": 75.377,
+    "FertilityRate": 2.52,
+    "Population": 237267,
+    "Region": "East Asia & Pacific"
+  },
+  {
+    "Country": "Gabon",
+    "LifeExpectancy": 58,
+    "FertilityRate": 4.66,
+    "Population": 1231548,
+    "Region": "Sub-Saharan Africa"
+  },
+  {
+    "Country": "Gambia",
+    "LifeExpectancy": 60,
+    "FertilityRate": 5.94,
+    "Population": 1228863,
+    "Region": "Sub-Saharan Africa"
+  },
+  {
+    "Country": "Georgia",
+    "LifeExpectancy": 72.3,
+    "FertilityRate": 1.64,
+    "Population": 4743591,
+    "Region": "Europe & Central Asia"
+  },
+  {
+    "Country": "Germany",
+    "LifeExpectancy": 78.1,
+    "FertilityRate": 1.35,
+    "Population": 81895925,
+    "Region": "Europe & Central Asia"
+  },
+  {
+    "Country": "Ghana",
+    "LifeExpectancy": 60.2,
+    "FertilityRate": 4.73,
+    "Population": 18824994,
+    "Region": "Sub-Saharan Africa"
+  },
+  {
+    "Country": "Greece",
+    "LifeExpectancy": 78,
+    "FertilityRate": 1.27,
+    "Population": 10954032,
+    "Region": "Europe & Central Asia"
+  },
+  {
+    "Country": "Greenland",
+    "LifeExpectancy": 70.525,
+    "FertilityRate": 2.42,
+    "Population": 56174,
+    "Region": "Europe & Central Asia"
+  },
+  {
+    "Country": "Grenada",
+    "LifeExpectancy": 70.5,
+    "FertilityRate": 2.67,
+    "Population": 101620,
+    "Region": "America"
+  },
+  {
+    "Country": "Guadeloupe",
+    "LifeExpectancy": 79.848,
+    "FertilityRate": 2.08,
+    "Population": 431157,
+    "Region": "America"
+  },
+  {
+    "Country": "Guam",
+    "LifeExpectancy": 77.776,
+    "FertilityRate": 2.85,
+    "Population": 155328,
+    "Region": "East Asia & Pacific"
+  },
+  {
+    "Country": "Guatemala",
+    "LifeExpectancy": 68.5,
+    "FertilityRate": 4.88,
+    "Population": 11688660,
+    "Region": "America"
+  },
+  {
+    "Country": "Guinea",
+    "LifeExpectancy": 55.6,
+    "FertilityRate": 6.01,
+    "Population": 8799165,
+    "Region": "Sub-Saharan Africa"
+  },
+  {
+    "Country": "Guinea-Bissau",
+    "LifeExpectancy": 51.7,
+    "FertilityRate": 5.93,
+    "Population": 1315455,
+    "Region": "Sub-Saharan Africa"
+  },
+  {
+    "Country": "Guyana",
+    "LifeExpectancy": 64.4,
+    "FertilityRate": 2.56,
+    "Population": 742218,
+    "Region": "America"
+  },
+  {
+    "Country": "Haiti",
+    "LifeExpectancy": 58.6,
+    "FertilityRate": 4.43,
+    "Population": 8549202,
+    "Region": "America"
+  },
+  {
+    "Country": "Honduras",
+    "LifeExpectancy": 68.8,
+    "FertilityRate": 4.12,
+    "Population": 6243080,
+    "Region": "America"
+  },
+  {
+    "Country": "Hong Kong, China",
+    "LifeExpectancy": 82.663,
+    "FertilityRate": 0.88,
+    "Population": 6783502,
+    "Region": "East Asia & Pacific"
+  },
+  {
+    "Country": "Hungary",
+    "LifeExpectancy": 71.8,
+    "FertilityRate": 1.33,
+    "Population": 10224113,
+    "Region": "Europe & Central Asia"
+  },
+  {
+    "Country": "Iceland",
+    "LifeExpectancy": 79.9,
+    "FertilityRate": 2.02,
+    "Population": 281214,
+    "Region": "Europe & Central Asia"
+  },
+  {
+    "Country": "India",
+    "LifeExpectancy": 61.1,
+    "FertilityRate": 3.21,
+    "Population": 1053481072,
+    "Region": "South Asia"
+  },
+  {
+    "Country": "Indonesia",
+    "LifeExpectancy": 68.3,
+    "FertilityRate": 2.5,
+    "Population": 211540428,
+    "Region": "East Asia & Pacific"
+  },
+  {
+    "Country": "Iran",
+    "LifeExpectancy": 71.2,
+    "FertilityRate": 2.34,
+    "Population": 65850062,
+    "Region": "Middle East & North Africa"
+  },
+  {
+    "Country": "Iraq",
+    "LifeExpectancy": 69.1,
+    "FertilityRate": 5.05,
+    "Population": 23574751,
+    "Region": "Middle East & North Africa"
+  },
+  {
+    "Country": "Ireland",
+    "LifeExpectancy": 76.7,
+    "FertilityRate": 1.94,
+    "Population": 3841574,
+    "Region": "Europe & Central Asia"
+  },
+  {
+    "Country": "Israel",
+    "LifeExpectancy": 78.8,
+    "FertilityRate": 2.92,
+    "Population": 6013711,
+    "Region": "Middle East & North Africa"
+  },
+  {
+    "Country": "Italy",
+    "LifeExpectancy": 79.6,
+    "FertilityRate": 1.21,
+    "Population": 57147081,
+    "Region": "Europe & Central Asia"
+  },
+  {
+    "Country": "Jamaica",
+    "LifeExpectancy": 72.7,
+    "FertilityRate": 2.63,
+    "Population": 2600095,
+    "Region": "America"
+  },
+  {
+    "Country": "Japan",
+    "LifeExpectancy": 81.1,
+    "FertilityRate": 1.34,
+    "Population": 125714674,
+    "Region": "East Asia & Pacific"
+  },
+  {
+    "Country": "Jordan",
+    "LifeExpectancy": 73.1,
+    "FertilityRate": 4.16,
+    "Population": 4767476,
+    "Region": "Middle East & North Africa"
+  },
+  {
+    "Country": "Kazakhstan",
+    "LifeExpectancy": 63.6,
+    "FertilityRate": 1.94,
+    "Population": 14956769,
+    "Region": "Europe & Central Asia"
+  },
+  {
+    "Country": "Kenya",
+    "LifeExpectancy": 57.4,
+    "FertilityRate": 5.03,
+    "Population": 31065820,
+    "Region": "Sub-Saharan Africa"
+  },
+  {
+    "Country": "Kiribati",
+    "LifeExpectancy": 59.5,
+    "FertilityRate": 4.01,
+    "Population": 84406,
+    "Region": "East Asia & Pacific"
+  },
+  {
+    "Country": "Kuwait",
+    "LifeExpectancy": 77.5,
+    "FertilityRate": 2.9,
+    "Population": 1929470,
+    "Region": "Middle East & North Africa"
+  },
+  {
+    "Country": "Latvia",
+    "LifeExpectancy": 70.1,
+    "FertilityRate": 1.17,
+    "Population": 2371481,
+    "Region": "Europe & Central Asia"
+  },
+  {
+    "Country": "Lebanon",
+    "LifeExpectancy": 76.2,
+    "FertilityRate": 2.31,
+    "Population": 3235380,
+    "Region": "Middle East & North Africa"
+  },
+  {
+    "Country": "Lesotho",
+    "LifeExpectancy": 49.8,
+    "FertilityRate": 4.2,
+    "Population": 1856225,
+    "Region": "Sub-Saharan Africa"
+  },
+  {
+    "Country": "Liberia",
+    "LifeExpectancy": 55.9,
+    "FertilityRate": 5.95,
+    "Population": 2891968,
+    "Region": "Sub-Saharan Africa"
+  },
+  {
+    "Country": "Libya",
+    "LifeExpectancy": 74.6,
+    "FertilityRate": 3.14,
+    "Population": 5337264,
+    "Region": "Middle East & North Africa"
+  },
+  {
+    "Country": "Lithuania",
+    "LifeExpectancy": 72,
+    "FertilityRate": 1.38,
+    "Population": 3486373,
+    "Region": "Europe & Central Asia"
+  },
+  {
+    "Country": "Luxembourg",
+    "LifeExpectancy": 78.2,
+    "FertilityRate": 1.71,
+    "Population": 436107,
+    "Region": "Europe & Central Asia"
+  },
+  {
+    "Country": "Macao, China",
+    "LifeExpectancy": 79.538,
+    "FertilityRate": 1,
+    "Population": 431907,
+    "Region": "East Asia & Pacific"
+  },
+  {
+    "Country": "Macedonia, FYR",
+    "LifeExpectancy": 73.9,
+    "FertilityRate": 1.73,
+    "Population": 2012051,
+    "Region": "Europe & Central Asia"
+  },
+  {
+    "Country": "Madagascar",
+    "LifeExpectancy": 60.5,
+    "FertilityRate": 5.65,
+    "Population": 15744811,
+    "Region": "Sub-Saharan Africa"
+  },
+  {
+    "Country": "Malawi",
+    "LifeExpectancy": 46.3,
+    "FertilityRate": 6.32,
+    "Population": 11193230,
+    "Region": "Sub-Saharan Africa"
+  },
+  {
+    "Country": "Malaysia",
+    "LifeExpectancy": 73.8,
+    "FertilityRate": 2.96,
+    "Population": 23420751,
+    "Region": "East Asia & Pacific"
+  },
+  {
+    "Country": "Maldives",
+    "LifeExpectancy": 72.6,
+    "FertilityRate": 3.51,
+    "Population": 280384,
+    "Region": "South Asia"
+  },
+  {
+    "Country": "Mali",
+    "LifeExpectancy": 51.1,
+    "FertilityRate": 6.85,
+    "Population": 11046926,
+    "Region": "Sub-Saharan Africa"
+  },
+  {
+    "Country": "Malta",
+    "LifeExpectancy": 79.7,
+    "FertilityRate": 1.67,
+    "Population": 387180,
+    "Region": "Europe & Central Asia"
+  },
+  {
+    "Country": "Martinique",
+    "LifeExpectancy": 80.475,
+    "FertilityRate": 1.92,
+    "Population": 387018,
+    "Region": "America"
+  },
+  {
+    "Country": "Mauritania",
+    "LifeExpectancy": 61.8,
+    "FertilityRate": 5.44,
+    "Population": 2711421,
+    "Region": "Sub-Saharan Africa"
+  },
+  {
+    "Country": "Mauritius",
+    "LifeExpectancy": 71,
+    "FertilityRate": 2.02,
+    "Population": 1185143,
+    "Region": "Sub-Saharan Africa"
+  },
+  {
+    "Country": "Mayotte",
+    "LifeExpectancy": 78.291,
+    "FertilityRate": 4.64,
+    "Population": 150329,
+    "Region": "Sub-Saharan Africa"
+  },
+  {
+    "Country": "Mexico",
+    "LifeExpectancy": 75.1,
+    "FertilityRate": 2.71,
+    "Population": 102808590,
+    "Region": "America"
+  },
+  {
+    "Country": "Micronesia, Fed. Sts.",
+    "LifeExpectancy": 64.5,
+    "FertilityRate": 4.39,
+    "Population": 107430,
+    "Region": "East Asia & Pacific"
+  },
+  {
+    "Country": "Moldova",
+    "LifeExpectancy": 69.3,
+    "FertilityRate": 1.61,
+    "Population": 4201088,
+    "Region": "Europe & Central Asia"
+  },
+  {
+    "Country": "Mongolia",
+    "LifeExpectancy": 61.4,
+    "FertilityRate": 2.22,
+    "Population": 2397438,
+    "Region": "East Asia & Pacific"
+  },
+  {
+    "Country": "Montenegro",
+    "LifeExpectancy": 72,
+    "FertilityRate": 1.82,
+    "Population": 613557,
+    "Region": "Europe & Central Asia"
+  },
+  {
+    "Country": "Morocco",
+    "LifeExpectancy": 71.3,
+    "FertilityRate": 2.8,
+    "Population": 28950553,
+    "Region": "Middle East & North Africa"
+  },
+  {
+    "Country": "Mozambique",
+    "LifeExpectancy": 53.6,
+    "FertilityRate": 5.81,
+    "Population": 18264536,
+    "Region": "Sub-Saharan Africa"
+  },
+  {
+    "Country": "Myanmar",
+    "LifeExpectancy": 61.4,
+    "FertilityRate": 2.51,
+    "Population": 47669791,
+    "Region": "East Asia & Pacific"
+  },
+  {
+    "Country": "Namibia",
+    "LifeExpectancy": 55,
+    "FertilityRate": 4.13,
+    "Population": 1897953,
+    "Region": "Sub-Saharan Africa"
+  },
+  {
+    "Country": "Nepal",
+    "LifeExpectancy": 64.9,
+    "FertilityRate": 4.21,
+    "Population": 23740145,
+    "Region": "South Asia"
+  },
+  {
+    "Country": "Netherlands",
+    "LifeExpectancy": 78.1,
+    "FertilityRate": 1.65,
+    "Population": 15894016,
+    "Region": "Europe & Central Asia"
+  },
+  {
+    "Country": "Netherlands Antilles",
+    "LifeExpectancy": 76.363,
+    "FertilityRate": 2.11,
+    "Population": 180106,
+    "Region": "America"
+  },
+  {
+    "Country": "New Caledonia",
+    "LifeExpectancy": 75.466,
+    "FertilityRate": 2.46,
+    "Population": 209997,
+    "Region": "East Asia & Pacific"
+  },
+  {
+    "Country": "New Zealand",
+    "LifeExpectancy": 78.5,
+    "FertilityRate": 2,
+    "Population": 3858234,
+    "Region": "East Asia & Pacific"
+  },
+  {
+    "Country": "Nicaragua",
+    "LifeExpectancy": 73.9,
+    "FertilityRate": 3.38,
+    "Population": 5026792,
+    "Region": "America"
+  },
+  {
+    "Country": "Niger",
+    "LifeExpectancy": 53,
+    "FertilityRate": 7.74,
+    "Population": 11224523,
+    "Region": "Sub-Saharan Africa"
+  },
+  {
+    "Country": "Nigeria",
+    "LifeExpectancy": 55.8,
+    "FertilityRate": 6.13,
+    "Population": 122876723,
+    "Region": "Sub-Saharan Africa"
+  },
+  {
+    "Country": "Norway",
+    "LifeExpectancy": 78.7,
+    "FertilityRate": 1.85,
+    "Population": 4491572,
+    "Region": "Europe & Central Asia"
+  },
+  {
+    "Country": "Oman",
+    "LifeExpectancy": 73.7,
+    "FertilityRate": 3.99,
+    "Population": 2239403,
+    "Region": "Middle East & North Africa"
+  },
+  {
+    "Country": "Pakistan",
+    "LifeExpectancy": 62.6,
+    "FertilityRate": 4.67,
+    "Population": 138250487,
+    "Region": "South Asia"
+  },
+  {
+    "Country": "Panama",
+    "LifeExpectancy": 76.9,
+    "FertilityRate": 2.84,
+    "Population": 3028751,
+    "Region": "America"
+  },
+  {
+    "Country": "Papua New Guinea",
+    "LifeExpectancy": 56.9,
+    "FertilityRate": 4.56,
+    "Population": 5374051,
+    "Region": "East Asia & Pacific"
+  },
+  {
+    "Country": "Paraguay",
+    "LifeExpectancy": 74.1,
+    "FertilityRate": 3.76,
+    "Population": 5302703,
+    "Region": "America"
+  },
+  {
+    "Country": "Peru",
+    "LifeExpectancy": 74.3,
+    "FertilityRate": 2.99,
+    "Population": 25914875,
+    "Region": "America"
+  },
+  {
+    "Country": "Philippines",
+    "LifeExpectancy": 69,
+    "FertilityRate": 3.85,
+    "Population": 77932247,
+    "Region": "East Asia & Pacific"
+  },
+  {
+    "Country": "Poland",
+    "LifeExpectancy": 73.8,
+    "FertilityRate": 1.39,
+    "Population": 38486305,
+    "Region": "Europe & Central Asia"
+  },
+  {
+    "Country": "Portugal",
+    "LifeExpectancy": 76.7,
+    "FertilityRate": 1.47,
+    "Population": 10278542,
+    "Region": "Europe & Central Asia"
+  },
+  {
+    "Country": "Puerto Rico",
+    "LifeExpectancy": 78.148,
+    "FertilityRate": 1.93,
+    "Population": 3796981,
+    "Region": "America"
+  },
+  {
+    "Country": "Qatar",
+    "LifeExpectancy": 77.2,
+    "FertilityRate": 3.33,
+    "Population": 593453,
+    "Region": "Middle East & North Africa"
+  },
+  {
+    "Country": "Reunion",
+    "LifeExpectancy": 78.615,
+    "FertilityRate": 2.36,
+    "Population": 736711,
+    "Region": "Sub-Saharan Africa"
+  },
+  {
+    "Country": "Romania",
+    "LifeExpectancy": 70.8,
+    "FertilityRate": 1.28,
+    "Population": 22128139,
+    "Region": "Europe & Central Asia"
+  },
+  {
+    "Country": "Russia",
+    "LifeExpectancy": 65.4,
+    "FertilityRate": 1.16,
+    "Population": 146400951,
+    "Region": "Europe & Central Asia"
+  },
+  {
+    "Country": "Rwanda",
+    "LifeExpectancy": 50,
+    "FertilityRate": 6,
+    "Population": 8021875,
+    "Region": "Sub-Saharan Africa"
+  },
+  {
+    "Country": "Samoa",
+    "LifeExpectancy": 69.9,
+    "FertilityRate": 4.54,
+    "Population": 174614,
+    "Region": "East Asia & Pacific"
+  },
+  {
+    "Country": "Sao Tome and Principe",
+    "LifeExpectancy": 65.3,
+    "FertilityRate": 4.73,
+    "Population": 137164,
+    "Region": "Sub-Saharan Africa"
+  },
+  {
+    "Country": "Saudi Arabia",
+    "LifeExpectancy": 76.1,
+    "FertilityRate": 4.19,
+    "Population": 21392273,
+    "Region": "Middle East & North Africa"
+  },
+  {
+    "Country": "Senegal",
+    "LifeExpectancy": 60,
+    "FertilityRate": 5.65,
+    "Population": 9860578,
+    "Region": "Sub-Saharan Africa"
+  },
+  {
+    "Country": "Serbia",
+    "LifeExpectancy": 74.7,
+    "FertilityRate": 1.68,
+    "Population": 9463306,
+    "Region": "Europe & Central Asia"
+  },
+  {
+    "Country": "Seychelles",
+    "LifeExpectancy": 70.9,
+    "FertilityRate": 2.16,
+    "Population": 81154,
+    "Region": "Sub-Saharan Africa"
+  },
+  {
+    "Country": "Sierra Leone",
+    "LifeExpectancy": 52.2,
+    "FertilityRate": 5.99,
+    "Population": 4060709,
+    "Region": "Sub-Saharan Africa"
+  },
+  {
+    "Country": "Singapore",
+    "LifeExpectancy": 78.6,
+    "FertilityRate": 1.47,
+    "Population": 3918183,
+    "Region": "East Asia & Pacific"
+  },
+  {
+    "Country": "Slovak Republic",
+    "LifeExpectancy": 73.3,
+    "FertilityRate": 1.32,
+    "Population": 5386065,
+    "Region": "Europe & Central Asia"
+  },
+  {
+    "Country": "Slovenia",
+    "LifeExpectancy": 75.8,
+    "FertilityRate": 1.22,
+    "Population": 1988652,
+    "Region": "Europe & Central Asia"
+  },
+  {
+    "Country": "Solomon Islands",
+    "LifeExpectancy": 61.7,
+    "FertilityRate": 4.79,
+    "Population": 412336,
+    "Region": "East Asia & Pacific"
+  },
+  {
+    "Country": "Somalia",
+    "LifeExpectancy": 54.3,
+    "FertilityRate": 7.65,
+    "Population": 7385416,
+    "Region": "Sub-Saharan Africa"
+  },
+  {
+    "Country": "South Africa",
+    "LifeExpectancy": 57.1,
+    "FertilityRate": 2.9,
+    "Population": 44896856,
+    "Region": "Sub-Saharan Africa"
+  },
+  {
+    "Country": "Spain",
+    "LifeExpectancy": 79.3,
+    "FertilityRate": 1.21,
+    "Population": 40749800,
+    "Region": "Europe & Central Asia"
+  },
+  {
+    "Country": "Sri Lanka",
+    "LifeExpectancy": 72.4,
+    "FertilityRate": 2.24,
+    "Population": 18783745,
+    "Region": "South Asia"
+  },
+  {
+    "Country": "Sudan",
+    "LifeExpectancy": 64.4,
+    "FertilityRate": 5.52,
+    "Population": 28079664,
+    "Region": "Sub-Saharan Africa"
+  },
+  {
+    "Country": "Suriname",
+    "LifeExpectancy": 68.8,
+    "FertilityRate": 2.76,
+    "Population": 480751,
+    "Region": "America"
+  },
+  {
+    "Country": "Swaziland",
+    "LifeExpectancy": 48.7,
+    "FertilityRate": 4.31,
+    "Population": 1063715,
+    "Region": "Sub-Saharan Africa"
+  },
+  {
+    "Country": "Sweden",
+    "LifeExpectancy": 79.7,
+    "FertilityRate": 1.51,
+    "Population": 8872284,
+    "Region": "Europe & Central Asia"
+  },
+  {
+    "Country": "Switzerland",
+    "LifeExpectancy": 80,
+    "FertilityRate": 1.45,
+    "Population": 7165581,
+    "Region": "Europe & Central Asia"
+  },
+  {
+    "Country": "Syria",
+    "LifeExpectancy": 73.8,
+    "FertilityRate": 4.07,
+    "Population": 16354050,
+    "Region": "Middle East & North Africa"
+  },
+  {
+    "Country": "Taiwan",
+    "LifeExpectancy": 76,
+    "FertilityRate": 1.56,
+    "Population": 22175667,
+    "Region": "East Asia & Pacific"
+  },
+  {
+    "Country": "Tajikistan",
+    "LifeExpectancy": 66.3,
+    "FertilityRate": 4.08,
+    "Population": 6186152,
+    "Region": "Europe & Central Asia"
+  },
+  {
+    "Country": "Tanzania",
+    "LifeExpectancy": 54.8,
+    "FertilityRate": 5.71,
+    "Population": 33991590,
+    "Region": "Sub-Saharan Africa"
+  },
+  {
+    "Country": "Thailand",
+    "LifeExpectancy": 71.3,
+    "FertilityRate": 1.71,
+    "Population": 62693322,
+    "Region": "East Asia & Pacific"
+  },
+  {
+    "Country": "Timor-Leste",
+    "LifeExpectancy": 63.6,
+    "FertilityRate": 7.08,
+    "Population": 847185,
+    "Region": "East Asia & Pacific"
+  },
+  {
+    "Country": "Togo",
+    "LifeExpectancy": 59,
+    "FertilityRate": 5.36,
+    "Population": 4874735,
+    "Region": "Sub-Saharan Africa"
+  },
+  {
+    "Country": "Tonga",
+    "LifeExpectancy": 69.1,
+    "FertilityRate": 4.27,
+    "Population": 97898,
+    "Region": "East Asia & Pacific"
+  },
+  {
+    "Country": "Trinidad and Tobago",
+    "LifeExpectancy": 69.4,
+    "FertilityRate": 1.77,
+    "Population": 1267980,
+    "Region": "America"
+  },
+  {
+    "Country": "Tunisia",
+    "LifeExpectancy": 75,
+    "FertilityRate": 2.18,
+    "Population": 9699192,
+    "Region": "Middle East & North Africa"
+  },
+  {
+    "Country": "Turkey",
+    "LifeExpectancy": 71.5,
+    "FertilityRate": 2.51,
+    "Population": 63240157,
+    "Region": "Europe & Central Asia"
+  },
+  {
+    "Country": "Turkmenistan",
+    "LifeExpectancy": 63.1,
+    "FertilityRate": 2.91,
+    "Population": 4501419,
+    "Region": "Europe & Central Asia"
+  },
+  {
+    "Country": "Uganda",
+    "LifeExpectancy": 50,
+    "FertilityRate": 6.9,
+    "Population": 23757636,
+    "Region": "Sub-Saharan Africa"
+  },
+  {
+    "Country": "Ukraine",
+    "LifeExpectancy": 67.5,
+    "FertilityRate": 1.16,
+    "Population": 48746269,
+    "Region": "Europe & Central Asia"
+  },
+  {
+    "Country": "United Arab Emirates",
+    "LifeExpectancy": 73.8,
+    "FertilityRate": 2.77,
+    "Population": 3050128,
+    "Region": "Middle East & North Africa"
+  },
+  {
+    "Country": "United Kingdom",
+    "LifeExpectancy": 77.8,
+    "FertilityRate": 1.69,
+    "Population": 58867004,
+    "Region": "Europe & Central Asia"
+  },
+  {
+    "Country": "United States",
+    "LifeExpectancy": 77.1,
+    "FertilityRate": 2.01,
+    "Population": 282895741,
+    "Region": "America"
+  },
+  {
+    "Country": "Uruguay",
+    "LifeExpectancy": 74.6,
+    "FertilityRate": 2.27,
+    "Population": 3321242,
+    "Region": "America"
+  },
+  {
+    "Country": "Uzbekistan",
+    "LifeExpectancy": 67.4,
+    "FertilityRate": 2.86,
+    "Population": 24518222,
+    "Region": "Europe & Central Asia"
+  },
+  {
+    "Country": "Vanuatu",
+    "LifeExpectancy": 63,
+    "FertilityRate": 4.46,
+    "Population": 185058,
+    "Region": "East Asia & Pacific"
+  },
+  {
+    "Country": "Venezuela",
+    "LifeExpectancy": 74.3,
+    "FertilityRate": 2.87,
+    "Population": 24481477,
+    "Region": "America"
+  },
+  {
+    "Country": "Vietnam",
+    "LifeExpectancy": 72.6,
+    "FertilityRate": 2.06,
+    "Population": 80285563,
+    "Region": "East Asia & Pacific"
+  },
+  {
+    "Country": "Virgin Islands (U.S.)",
+    "LifeExpectancy": 79.247,
+    "FertilityRate": 2.13,
+    "Population": 108511,
+    "Region": "America"
+  },
+  {
+    "Country": "West Bank and Gaza",
+    "LifeExpectancy": 73.5,
+    "FertilityRate": 5.57,
+    "Population": 3223781,
+    "Region": "Middle East & North Africa"
+  },
+  {
+    "Country": "Western Sahara",
+    "LifeExpectancy": 66.507,
+    "FertilityRate": 3.04,
+    "Population": 305615,
+    "Region": "Middle East & North Africa"
+  },
+  {
+    "Country": "Zambia",
+    "LifeExpectancy": 45.7,
+    "FertilityRate": 6.1,
+    "Population": 10585220,
+    "Region": "Sub-Saharan Africa"
+  },
+  {
+    "Country": "Zimbabwe",
+    "LifeExpectancy": 50.8,
+    "FertilityRate": 4.11,
+    "Population": 12499981,
+    "Region": "Sub-Saharan Africa"
+  }
+]

@@ -16,6 +16,11 @@ export default class DataFact {
 		return this
 	}
 
+	select(selector) {
+		this._selection = d3.selectAll(selector);
+		return this
+	}
+
 	// {"type": ["encoding", "mark", ...], "rank": 1, 2, 3..., "name": ["line", "color", "opacity", ...]}
 	include(inclusions) {
 
@@ -101,12 +106,12 @@ export default class DataFact {
 				filteredAugs = filteredAugs.filter(d => d.rank <= this._include["rank"]);
 			}
 
-			if (this._exclude["type"]) {
-				filteredAugs = filteredAugs.filter(d => this._exclude["type"].indexOf(d.type) >= 0);
+			if (this._include["type"]) {
+				filteredAugs = filteredAugs.filter(d => this._include["type"].indexOf(d.type) >= 0);
 			}
 
-			if (this._exclude["name"]) {
-				filteredAugs = filteredAugs.filter(d => this._exclude["name"].indexOf(d.name.split("_")[1]) >= 0);
+			if (this._include["name"]) {
+				filteredAugs = filteredAugs.filter(d => this._include["name"].indexOf(d.name.split("_")[1]) >= 0);
 			}
 		}
 
@@ -134,7 +139,6 @@ export default class DataFact {
 
 	}
 
-	// Merge augmentations between multiple data facts
 	// Merge by options: intersect, union, difference (in aug1 not in aug2), xor (in aug1 or aug2, not both)
 	_mergeAugs(augs1, augs2, intersect_id, merge_by="intersect") {
 
@@ -147,7 +151,77 @@ export default class DataFact {
 			// mark type augmentations are not merged
 			if (last.type === "mark") {
 
-				merged.push(last);
+				if (last.name.endsWith("regression")) {
+
+					let foundIndex = augs2.findIndex(ag => {
+						let split_name = last.name.split('_');
+						let split_ag = ag.name.split('_');
+
+						return split_name[1] === split_ag[1] && ag.type === "mark"
+					});
+
+					// if no augmentation of the same name is found, add to list without merging
+					if (foundIndex < 0) {
+
+						merged.push(last);
+
+					}
+
+					let matched_aug = augs2.splice(foundIndex, 1)[0];
+
+					// new id is combination of aug ids
+					let split_id = last.id.split('_');
+					split_id[0] = intersect_id;
+					let new_id = split_id.join('_');
+
+					// new name is combination of aug names
+					let split_name = last.name.split('_');
+					split_name[0] = "merged";
+					let new_name = split_name.join('_');
+
+					let regression = this._findLineByLeastSquares;
+
+					// combine filter
+					function combinedFilter(datum, xVar, yVar, xScale, yScale, stats) {
+
+						if (merge_by === "intersect" && (last._filter(datum, xVar, yVar, xScale, yScale, stats) && matched_aug._filter(datum, xVar, yVar, xScale, yScale, stats))) {
+							return true;
+						} else if (merge_by === "union" && (last._filter(datum, xVar, yVar, xScale, yScale, stats) || matched_aug._filter(datum, xVar, yVar, xScale, yScale, stats))) {
+							return true;
+						} else if (merge_by === "difference" && (last._filter(datum, xVar, yVar, xScale, yScale, stats) && !matched_aug._filter(datum, xVar, yVar, xScale, yScale, stats))) {
+							return true;
+						} else if (merge_by === "xor"
+									&& ((last._filter(datum, xVar, yVar, xScale, yScale, stats) || matched_aug._filter(datum, xVar, yVar, xScale, yScale, stats))
+									&& !(last._filter(datum, xVar, yVar, xScale, yScale, stats) && matched_aug._filter(datum, xVar, yVar, xScale, yScale, stats)))) {
+							return true;
+						}
+
+						return false;
+
+					}
+
+					// combine regression generators
+					function regressionGenerator(data, xVar, yVar, xScale, yScale, stats) {
+
+						let filtered =  data.filter(d => combinedFilter(d, xVar, yVar, xScale, yScale, stats));
+
+						let xValues = filtered.map(d => xScale(d[xVar]));
+						let yValues = filtered.map(d => yScale(d[yVar]));
+
+						let coords = regression(xValues, yValues);
+
+						return coords
+
+					}
+
+					let new_aug = new Aug(new_id, new_name, last.type, last.encoding, regressionGenerator, last.styles, last.selection, last.rank);
+					let new_augs = new_aug.getSpec();
+					new_augs._filter = combinedFilter;
+					merged.push(new_augs);
+
+				} else {
+					merged.push(last);
+				}
 
 			} else {
 

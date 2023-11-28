@@ -179,35 +179,18 @@ export default class Draft {
 		let newText;
 
 		if (data.length > 0) {
-			let orient = data[0]["x"] ? "x" : "y";
 
-			if (orient === "x") {
-
-				newText = draughtLayer.selectAll(`#${aug.id}`)
-							.data(data)
-							.join("text")
-							.attr("id", aug.id)
-							.attr("x", d => d.x)
-							.attr("y", d => d.y)
-							.attr("font-family", "sans-serif")
-							.attr("font-size", 11)
-							.attr("alignment-baseline", "hanging")
-							.text(d => d["text"]);
-
-			} else if (orient === "y") {
-
-				newText = draughtLayer.selectAll(`#${aug.id}`)
-							.data(data)
-							.join("text")
-							.attr("id", aug.id)
-							.attr("x", d => d.x)
-							.attr("y", d => d.y)
-							.attr("font-family", "sans-serif")
-							.attr("font-size", 11)
-							.attr("alignment-baseline", "middle")
-							.text(d => d["text"]);
-
-			}
+			newText = draughtLayer.selectAll(`#${aug.id}`)
+						.data(data)
+						.join("text")
+						.attr("id", aug.id)
+						.attr("x", d => d.x)
+						.attr("y", d => d.y)
+						.attr("font-family", "sans-serif")
+						.attr("font-size", 11)
+						.attr("alignment-baseline", "middle")
+						.attr("xml:space", "preserve")
+						.text(d => d["text"]);
 
 			for (let s of Object.keys(aug.styles)) {
 				// Text customization is handled differently due to innerHTML
@@ -484,7 +467,7 @@ export default class Draft {
 				continue
 			} else {
 				
-				let sorted = data.map(d => d.v).sort(d3.ascending);
+				let sorted = data.map(d => d[v]).sort(d3.ascending);
 
 				let median = d3.quantileSorted(sorted, 0.5);
 
@@ -492,7 +475,7 @@ export default class Draft {
 				let Q1 = d3.quantileSorted(sorted, 0.25);
 
 				let min = sorted[0];
-				let max = sorted[-1];
+				let max = sorted[sorted.length - 1];
 
 				// Outlier lower and upper bounds
 				let lowerBound = Q1 - 1.5 * (Q3 - Q1);
@@ -515,7 +498,6 @@ export default class Draft {
 	}
 
 	augment(augmentations) {
-
 		let filteredAugs = augmentations;
 		let draughtLayer = this._chart.select(this._layer ? this._layer : "#draughty");
 

@@ -95,7 +95,7 @@ export const ToStorybook = () => {
 
 		chart.current.chart(ref.current)
 					.selection(bars)
-					.x("country", xScale)
+					.x("Country", xScale)
 					.y("count", yScale)
 					.exclude({"name":["stroke", "text"]})
 					.augment(newEmphasis.current.getAugs());

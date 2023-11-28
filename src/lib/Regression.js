@@ -93,7 +93,7 @@ export default class Regression extends DataFact {
 
 		let lineAug = new Aug(`${this._id}_line`, "threshold_line", "mark", {"mark":"line"},
 								 this.generateLine(),
-								 this.mergeStyles(this._customStyles.line, markStyles.line), this._selection, 1);
+								 this.mergeStyles(this._customStyles.regression, markStyles.regression), this._selection, 1);
 
 		return this._filter([lineAug.getSpec()]).sort(this._sort)
 	}

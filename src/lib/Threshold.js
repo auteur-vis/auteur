@@ -122,24 +122,48 @@ export default class Threshold extends DataFact {
 
 			if (type === "le" || type === "leq") {
 				if (xVar == variable) {
-					return [{"x": xScale(parsed) + 10, "y": yScale.range()[1], "text": `${variable} ${"le" == type ? "less than" : "less than or equal to"} ${parsed}`}];
+					return [{"x": xScale(parsed) - 10, "y": yScale.range()[1], "text": `  ${"le" == type ? "<" : "<="} ${parsed} ${val != parsed ? "("+val+")" : ""}`}];
 				} else if (yVar == variable) {
-					return [{"x": xScale.range()[0], "y": yScale(parsed) + 10, "text": `${variable} ${"le" == type ? "less than" : "less than or equal to"} ${parsed}`}];
+					return [{"x": xScale.range()[0], "y": yScale(parsed) + 10, "text": `  ${"le" == type ? "<" : "<="} ${parsed} ${val != parsed ? "("+val+")" : ""}`}];
 				}
 			} else if (type === "ge" || type === "geq") {
 				if (xVar == variable) {
-					return [{"x": xScale(parsed) + 10, "y": yScale.range()[1], "text": `${variable} ${"ge" == type ? "greater than" : "greater than or equal to"} ${parsed}`}];
+					return [{"x": xScale(parsed) + 10, "y": yScale.range()[1], "text": `  ${"ge" == type ? ">" : ">="} ${parsed} ${val != parsed ? "("+val+")" : ""}`}];
 				} else if (yVar == variable) {
-					return [{"x": xScale.range()[0], "y": yScale(parsed) + 10, "text": `${variable} ${"ge" == type ? "greater than" : "greater than or equal to"} ${parsed}`}];
+					return [{"x": xScale.range()[0], "y": yScale(parsed) - 10, "text": `  ${"ge" == type ? ">" : ">="} ${parsed} ${val != parsed ? "("+val+")" : ""}`}];
 				}
 			} else {
 				if (xVar == variable) {
-					return [{"x": xScale(parsed) + 10, "y": yScale.range()[1], "text": `${variable} ${"equal to"} ${parsed}`}];
+					return [{"x": xScale(parsed) + 10, "y": yScale.range()[1], "text": `  ${parsed} ${val != parsed ? "("+val+")" : ""}`}];
 				} else if (yVar == variable) {
-					return [{"x": xScale.range()[0], "y": yScale(parsed) - 10, "text": `${variable} ${"equal to"} ${parsed}`}];
+					return [{"x": xScale.range()[0], "y": yScale(parsed) - 10, "text": `  ${parsed} ${val != parsed ? "("+val+")" : ""}`}];
 				}
 			}
 
+			
+		}
+ 
+	}
+
+	// generator for label augmentation
+	generateLabel(variable, val, type, stats) {
+
+		let labelFilter = this._generator(variable, val, type);
+
+		return function(data, xVar, yVar, xScale, yScale, stats) {
+
+			let result;
+
+			result = data.filter(d => labelFilter(d, xVar, yVar, xScale, yScale, stats)).map(d => {
+				d.x = xScale(d[xVar]);
+				d.y = yScale(d[yVar]) - 15;
+				// d.text = `${variable} = ${d[variable]}`;
+				d.text = `${d[variable]}`;
+
+				return d
+			});
+
+			return result;
 			
 		}
  
@@ -164,9 +188,13 @@ export default class Threshold extends DataFact {
 								  this._generator(this._variable, this._val, this._type),
 								  this.mergeStyles(this._customStyles.fill, encodingStyles.fill), this._selection, 4);
 
+		let labelAug = new Aug(`${this._id}_label`, "threshold_label", "mark", {"mark":"text"},
+								 this.generateLabel(this._variable, this._val, this._type),
+								 this.mergeStyles(this._customStyles.label, markStyles.label), this._selection, 5);
+
 		let textAug = new Aug(`${this._id}_text`, "threshold_text", "mark", {"mark":"text"},
 								 this.generateText(this._variable, this._val, this._type),
-								 this.mergeStyles(this._customStyles.text, markStyles.text), this._selection, 5);
+								 this.mergeStyles(this._customStyles.text, markStyles.text), this._selection, 1);
 
 		let regressionAug = new Aug(`${this._id}_regression`, "threshold_regression", "mark", {"mark":"line"},
 								 this.generateLinearRegression(this._variable, this._val, this._type),
@@ -175,7 +203,7 @@ export default class Threshold extends DataFact {
 		let regressionAugs = regressionAug.getSpec();
 		regressionAugs._filter = this._generator(this._variable, this._val, this._type);
 
-		return this._filter([lineAug.getSpec(), opacityAug.getSpec(), strokeAug.getSpec(), fillAug.getSpec(), textAug.getSpec(), regressionAugs]).sort(this._sort)
+		return this._filter([lineAug.getSpec(), opacityAug.getSpec(), strokeAug.getSpec(), fillAug.getSpec(), textAug.getSpec(), labelAug.getSpec(), regressionAugs]).sort(this._sort)
 	}
 
 	updateVariable(variable) {
@@ -202,147 +230,6 @@ export default class Threshold extends DataFact {
 		return this;
 	}
 
-	// If merging mutliple thresholds, use custom merge function
-	// Creates only a single regression line
-	// Merge by options: intersect, union, difference (in aug1 not in aug2), xor (in aug1 or aug2, not both)
-	_mergeThresholds(augs1, augs2, intersect_id, merge_by="intersect") {
-
-		let merged = [];
-
-		while (augs1.length > 0) {
-
-			let last = augs1.pop();
-
-			// mark type augmentations are not merged
-			if (last.type === "mark") {
-
-				if (last.name.endsWith("regression")) {
-
-					let foundIndex = augs2.findIndex(ag => {
-						let split_name = last.name.split('_');
-						let split_ag = ag.name.split('_');
-
-						return split_name[1] === split_ag[1] && ag.type === "mark"
-					});
-
-					// if no augmentation of the same name is found, add to list without merging
-					if (foundIndex < 0) {
-
-						merged.push(last);
-
-					}
-
-					let matched_aug = augs2.splice(foundIndex, 1)[0];
-
-					// new id is combination of aug ids
-					let split_id = last.id.split('_');
-					split_id[0] = intersect_id;
-					let new_id = split_id.join('_');
-
-					// new name is combination of aug names
-					let split_name = last.name.split('_');
-					split_name[0] = "merged";
-					let new_name = split_name.join('_');
-
-					let regression = this._findLineByLeastSquares;
-
-					// combine filter
-					function combinedFilter(datum, xVar, yVar, xScale, yScale, stats) {
-
-						if (merge_by === "intersect" && (last._filter(datum, xVar, yVar, xScale, yScale, stats) && matched_aug._filter(datum, xVar, yVar, xScale, yScale, stats))) {
-							return true;
-						} else if (merge_by === "union" && (last._filter(datum, xVar, yVar, xScale, yScale, stats) || matched_aug._filter(datum, xVar, yVar, xScale, yScale, stats))) {
-							return true;
-						} else if (merge_by === "difference" && (last._filter(datum, xVar, yVar, xScale, yScale, stats) && !matched_aug._filter(datum, xVar, yVar, xScale, yScale, stats))) {
-							return true;
-						} else if (merge_by === "xor"
-									&& ((last._filter(datum, xVar, yVar, xScale, yScale, stats) || matched_aug._filter(datum, xVar, yVar, xScale, yScale, stats))
-									&& !(last._filter(datum, xVar, yVar, xScale, yScale, stats) && matched_aug._filter(datum, xVar, yVar, xScale, yScale, stats)))) {
-							return true;
-						}
-
-						return false;
-
-					}
-
-					// combine regression generators
-					function regressionGenerator(data, xVar, yVar, xScale, yScale, stats) {
-
-						let filtered =  data.filter(d => combinedFilter(d, xVar, yVar, xScale, yScale, stats));
-
-						let xValues = filtered.map(d => xScale(d[xVar]));
-						let yValues = filtered.map(d => yScale(d[yVar]));
-
-						let coords = regression(xValues, yValues);
-
-						return coords
-
-					}
-
-					let new_aug = new Aug(new_id, new_name, last.type, last.encoding, regressionGenerator, last.styles, last.selection, last.rank);
-					let new_augs = new_aug.getSpec();
-					new_augs._filter = combinedFilter;
-					merged.push(new_augs);
-
-				} else {
-					merged.push(last);
-				}
-
-			} else {
-
-				let foundIndex = augs2.findIndex(ag => ag.name === last.name && ag.type === "encoding");
-
-				// if no augmentation of the same name is found, add to list without merging
-				if (foundIndex < 0) {
-
-					merged.push(last);
-
-				} else {
-
-					let matched_aug = augs2.splice(foundIndex, 1)[0];
-
-					// new id is combination of aug ids
-					let split_id = last.id.split('_');
-					split_id[0] = intersect_id;
-					let new_id = split_id.join('_');
-
-					// new name is combination of aug names
-					let split_name = last.name.split('_');
-					split_name[0] = "merged";
-					let new_name = split_name.join('_');
-
-					// combine generators
-					function generator(datum, xVar, yVar, xScale, yScale, stats) {
-
-						if (merge_by === "intersect" && (last.generator(datum, xVar, yVar, xScale, yScale, stats) && matched_aug.generator(datum, xVar, yVar, xScale, yScale, stats))) {
-							return true;
-						} else if (merge_by === "union" && (last.generator(datum, xVar, yVar, xScale, yScale, stats) || matched_aug.generator(datum, xVar, yVar, xScale, yScale, stats))) {
-							return true;
-						} else if (merge_by === "difference" && (last.generator(datum, xVar, yVar, xScale, yScale, stats) && !matched_aug.generator(datum, xVar, yVar, xScale, yScale, stats))) {
-							return true;
-						} else if (merge_by === "xor"
-									&& ((last.generator(datum, xVar, yVar, xScale, yScale, stats) || matched_aug.generator(datum, xVar, yVar, xScale, yScale, stats))
-									&& !(last.generator(datum, xVar, yVar, xScale, yScale, stats) && matched_aug.generator(datum, xVar, yVar, xScale, yScale, stats)))) {
-							return true;
-						}
-
-						return false;
-
-					}
-
-					let new_aug = new Aug(new_id, new_name, last.type, last.encoding, generator, last.styles, last.selection, last.rank);
-					merged.push(new_aug.getSpec());
-
-				}
-
-			}
-
-		}
-
-		return merged.concat(augs2).sort(this._sort)
-
-	}
-
 	// returns a list of [Aug Class]
 	// criteria can be a single augmentation or a list of augmentations [aug, aug, ...]
 	intersect(criteria) {
@@ -357,13 +244,7 @@ export default class Threshold extends DataFact {
 		let all_merged = this.getAugs();
 
 		for (let d of allCriteria) {
-			if (d._name.startsWith("Threshold")) {
-
-				merged_id = `${merged_id}-${d._id}`;
-
-				let new_augs = d.getAugs();
-				all_merged = this._mergeThresholds(all_merged, new_augs, merged_id);
-			} else if (d._name.startsWith("Emphasis") || d._name.startsWith("Range")) {
+			if (d._name.startsWith("Threshold") || d._name.startsWith("Emphasis") || d._name.startsWith("Range")) {
 
 				merged_id = `${merged_id}-${d._id}`;
 
@@ -388,13 +269,7 @@ export default class Threshold extends DataFact {
 		let all_merged = this.getAugs();
 
 		for (let d of allCriteria) {
-			if (d._name.startsWith("Threshold")) {
-
-				merged_id = `${merged_id}-${d._id}`;
-
-				let new_augs = d.getAugs();
-				all_merged = this._mergeThresholds(all_merged, new_augs, merged_id, "union");
-			} else if (d._name.startsWith("Emphasis") || d._name.startsWith("Range")) {
+			if (d._name.startsWith("Threshold") || d._name.startsWith("Emphasis") || d._name.startsWith("Range")) {
 
 				merged_id = `${merged_id}-${d._id}`;
 
@@ -444,13 +319,7 @@ export default class Threshold extends DataFact {
 		let all_merged = this.getAugs();
 
 		for (let d of allCriteria) {
-			if (d._name.startsWith("Threshold")) {
-
-				merged_id = `${merged_id}-${d._id}`;
-
-				let new_augs = d.getAugs();
-				all_merged = this._mergeThresholds(all_merged, new_augs, merged_id, "xor");
-			} else if (d._name.startsWith("Emphasis") || d._name.startsWith("Range")) {
+			if (d._name.startsWith("Threshold") || d._name.startsWith("Emphasis") || d._name.startsWith("Range")) {
 
 				merged_id = `${merged_id}-${d._id}`;
 
