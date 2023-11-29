@@ -91,7 +91,7 @@ export default class Regression extends DataFact {
 	// returns a list of [Aug Class]
 	getAugs() {
 
-		let lineAug = new Aug(`${this._id}_line`, "threshold_line", "mark", {"mark":"line"},
+		let lineAug = new Aug(`${this._id}_line`, "regression_line", "mark", {"mark":"line"},
 								 this.generateLine(),
 								 this.mergeStyles(this._customStyles.regression, markStyles.regression), this._selection, 1);
 

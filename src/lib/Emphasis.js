@@ -44,7 +44,6 @@ export default class Emphasis extends DataFact {
 				parsed = parseVal(variable, val, xVar, yVar, stats);
 			}
 
-			// For line marks
 			function isValid(singleVal) {
 				
 				// If multiple values to emphasize
@@ -70,6 +69,7 @@ export default class Emphasis extends DataFact {
 					return datum.reduce((acc, current) => acc && isValid(current[variable]), true);
 				}
 			} else {
+				console.log(datum[variable], isValid(datum[variable]))
 				return isValid(datum[variable])
 			}
 

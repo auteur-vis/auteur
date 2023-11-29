@@ -454,9 +454,13 @@ export default class Draft {
 
 	_getStats(data) {
 
+		if (data.length === 0) {
+			return {};
+		}
+
 		let variables = Object.keys(data[0]);
 
-		let variableStats = {}
+		let variableStats = {};
 
 		for (let v of variables) {
 
@@ -498,8 +502,17 @@ export default class Draft {
 	}
 
 	augment(augmentations) {
+
+		console.log(augmentations, this._xVar, this._yVar)
+
 		let filteredAugs = augmentations;
 		let draughtLayer = this._chart.select(this._layer ? this._layer : "#draughty");
+
+		if (augmentations.length === 0) {
+
+			d3.selectAll(`${this._layer ? this._layer : "#draughty"} > *`).remove();
+
+		}
 
 		// first filter by rank
 		// rank filtering is exactly the same for both include and exclude
