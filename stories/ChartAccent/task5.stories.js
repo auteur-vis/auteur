@@ -118,7 +118,8 @@ export const ToStorybook = () => {
 							.attr('fill', d => colorScale(d.Region));
 
 		const emph1 = new Emphasis("Region", "Sub-Saharan Africa");
-		const emph2 = new Emphasis("Country", ["Hong Kong, China", "Afghanistan", "Sweden", "Greece"]);
+		const emph2 = new Emphasis("Country",
+			["Hong Kong, China", "Afghanistan", "Sweden", "Greece"]);
 
 		emph1.include({"name":["stroke", "opacity"]});
 		emph2.include({"name":["stroke", "opacity", "label"]});

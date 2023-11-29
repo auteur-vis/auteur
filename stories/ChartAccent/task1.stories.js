@@ -179,6 +179,7 @@ export const ToStorybook = () => {
 
 	return (
 		<div>
+			<p style={{"font-family":"sans-serif"}}>Click to select points to emphasize:</p>
 			<svg id="svg" ref={ref}>
 				<g id="mark" />
 				<g id="xAxis" />

@@ -88,7 +88,7 @@ export const ToStorybook = () => {
 							.attr("cx", d => xScale(d.parents))
 							.attr("cy", d => yScale(d.Math))
 							.attr("r", d => sizeScale(d.students))
-							.attr("fill-opacity", 0.15)
+							.attr("fill-opacity", 0.1)
 							.attr('fill', "#012a70");
 
 		let ela = svgElement.select("#mark")
@@ -99,7 +99,7 @@ export const ToStorybook = () => {
 							.attr("cx", d => xScale(d.parents))
 							.attr("cy", d => yScale(d.ELA))
 							.attr("r", d => sizeScale(d.students))
-							.attr("fill-opacity", 0.15)
+							.attr("fill-opacity", 0.1)
 							.attr('fill', "orange");
 
 		let midPoint = new Threshold("math", 0, "leq", {"text":{"text":"↓ Boys test better"}});

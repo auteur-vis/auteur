@@ -19,7 +19,7 @@ export const ToStorybook = () => {
 	const ref = useRef("less");
 
 	const chart = useRef(new Draft());
-	const newYThreshold = useRef(new Threshold("Flavor", yThreshold, "geq"));
+	const newYThreshold = useRef(new Threshold("Flavor", yThreshold, "leq"));
 
 	// ... some code omitted ...
 
@@ -108,6 +108,7 @@ export const ToStorybook = () => {
 					.selection(scatterpoints)
 					.x("Aroma", xScale)
 					.y("Flavor", yScale)
+					.include({"name":["line", "fill", "stroke", "opacity", "text"]})
 					.augment(newYThreshold.current.getAugs());
 
 	}, [data])

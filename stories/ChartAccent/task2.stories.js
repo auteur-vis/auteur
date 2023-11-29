@@ -16,10 +16,6 @@ export const ToStorybook = () => {
 
 	const ref = useRef("task2");
 
-	const draft = useRef(new Draft());
-	const emph1 = useRef(new Emphasis("Philadelphia"));
-	const emph2 = useRef(new Emphasis("Philadelphia"));
-
 	const cities = ["Philadelphia"];
 	const [data, setData] = React.useState(temperature);
 
@@ -122,17 +118,26 @@ export const ToStorybook = () => {
 		svgElement.select("#augs")
 			.attr("transform", `translate(${xScale.bandwidth() / 2}, 0)`);
 
-		emph1.current.select(".first");
-		emph2.current.select(".second");
+		const emph1 = new Emphasis("Month",
+			["Jan", "Feb", "Mar", "Apr", "May", "Jun"]);
+		const emph2 = new Emphasis("Month",
+			["Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]);
 
-		draft.current.chart("#svg")
+		let style1 = {"regression":{"stroke":"red"}, "label":{"text":(d) => d.Philadelphia}};
+		let style2 = {"regression":{"stroke":"green"}, "label":{"text":(d) => d.Philadelphia}};
+
+		emph1.updateStyles(style1);
+		emph2.updateStyles(style2);
+
+		const draft = new Draft();
+		draft.chart("#svg")
 			.layer("#augs")
 			.selection(bars)
 			.x("Month", xScale)
 			.y("Philadelphia", yScale)
 			.include({"name":["regression", "label"]})
-			.augment(emph1.current.getAugs())
-			.augment(emph2.current.getAugs());
+			.augment(emph1.getAugs())
+			.augment(emph2.getAugs());
 
 	}, [data])
 

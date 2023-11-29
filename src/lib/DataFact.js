@@ -115,8 +115,6 @@ export default class DataFact {
 			}
 		}
 
-		// console.log(filteredAugs)
-
 		return filteredAugs;
 
 	}
@@ -219,13 +217,91 @@ export default class DataFact {
 					new_augs._filter = combinedFilter;
 					merged.push(new_augs);
 
+				} else if (last.name.endsWith("label")) {
+
+					let foundIndex = augs2.findIndex(ag => {
+						let split_name = last.name.split('_');
+						let split_ag = ag.name.split('_');
+
+						return split_name[1] === split_ag[1] && ag.type === "mark"
+					});
+
+					// if no augmentation of the same name is found, add to list without merging
+					if (foundIndex < 0) {
+
+						merged.push(last);
+
+					}
+
+					let matched_aug = augs2.splice(foundIndex, 1)[0];
+
+					// new id is combination of aug ids
+					let split_id = last.id.split('_');
+					split_id[0] = intersect_id;
+					let new_id = split_id.join('_');
+
+					// new name is combination of aug names
+					let split_name = last.name.split('_');
+					split_name[0] = "merged";
+					let new_name = split_name.join('_');
+
+					let regression = this._findLineByLeastSquares;
+
+					// combine filter
+					function combinedFilter(datum, xVar, yVar, xScale, yScale, stats) {
+
+						if (merge_by === "intersect" && (last._filter(datum, xVar, yVar, xScale, yScale, stats) && matched_aug._filter(datum, xVar, yVar, xScale, yScale, stats))) {
+							return true;
+						} else if (merge_by === "union" && (last._filter(datum, xVar, yVar, xScale, yScale, stats) || matched_aug._filter(datum, xVar, yVar, xScale, yScale, stats))) {
+							return true;
+						} else if (merge_by === "difference" && (last._filter(datum, xVar, yVar, xScale, yScale, stats) && !matched_aug._filter(datum, xVar, yVar, xScale, yScale, stats))) {
+							return true;
+						} else if (merge_by === "xor"
+									&& ((last._filter(datum, xVar, yVar, xScale, yScale, stats) || matched_aug._filter(datum, xVar, yVar, xScale, yScale, stats))
+									&& !(last._filter(datum, xVar, yVar, xScale, yScale, stats) && matched_aug._filter(datum, xVar, yVar, xScale, yScale, stats)))) {
+							return true;
+						}
+
+						return false;
+
+					}
+
+					let variable = this._variable;
+
+					function labelGenerator(data, xVar, yVar, xScale, yScale, stats) {
+
+						let result;
+
+						result = data.filter(d => combinedFilter(d, xVar, yVar, xScale, yScale, stats)).map(d => {
+							d.x = xScale(d[xVar]);
+							d.y = yScale(d[yVar]) - 15;
+							// d.text = `${variable} = ${d[variable]}`;
+							d.text = `${variable ? d[variable] : ""}`;
+
+							return d
+						});
+
+						return result;
+
+					}
+
+					let new_aug = new Aug(new_id, new_name, last.type, last.encoding, labelGenerator, last.styles, last.selection, last.rank);
+					let new_augs = new_aug.getSpec();
+					new_augs._filter = combinedFilter;
+					merged.push(new_augs);
+
 				} else {
 					merged.push(last);
 				}
 
 			} else {
 
-				let foundIndex = augs2.findIndex(ag => ag.name === last.name && ag.type === "encoding");
+				let foundIndex = augs2.findIndex(ag => {
+					let split_name = last.name.split('_');
+					let split_ag = ag.name.split('_');
+
+					return split_name[1] === split_ag[1] && ag.type === "encoding"
+				});
 
 				// if no augmentation of the same name is found, add to list without merging
 				if (foundIndex < 0) {

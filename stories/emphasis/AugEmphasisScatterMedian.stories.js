@@ -2,28 +2,26 @@ import React, {useRef, useState, useEffect} from "react";
 import * as d3 from "d3";
 
 import Draft from "../../src/lib/Draft.js";
-import Threshold from "../../src/lib/Threshold.js";
+import Emphasis from "../../src/lib/Emphasis.js";
 
 // data from https://rkabacoff.github.io/qacData/reference/coffee.html
 import coffee from "../../public/arabica_data_cleaned_top15.json";
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
-  title: 'Aug/Threshold/Scatter/Quadrant',
+  title: 'Aug/Emphasis/Scatter/Median',
 };
 
 export const ToStorybook = () => {
 
-	const [xThreshold, setXThreshold] = React.useState(8.3);
-	const [yThreshold, setYThreshold] = React.useState(8.55);
-	const [mergeBy, setMergeBy] = useState("xor");
+	const [emphVal, setEmphVal] = React.useState("median");
+	const [emphVar, setEmphVar] = React.useState("Aroma");
 
-	const ref = useRef("quadrant");
+	const ref = useRef("emphVal");
 	const chart = useRef(new Draft());
-	const newXThreshold = useRef(new Threshold("Aroma", xThreshold, "leq"));
-	const newYThreshold = useRef(new Threshold("Flavor", yThreshold, "leq"));
+	const newEmphasis = useRef(new Emphasis(emphVar, emphVal));
 
-	const [data, setData] = React.useState(coffee.slice(0, 20));
+	const [data, setData] = React.useState(coffee);
 
 	let layout={"width":500,
 	   		   "height":500,
@@ -31,22 +29,6 @@ export const ToStorybook = () => {
 	   		   "marginRight":50,
 	   		   "marginBottom":50,
 	   		   "marginLeft":50};
-
-	function merge(threshold1, threshold2, mergeValue) {
-
-		if (mergeValue === "union") {
-			return threshold1.union(threshold2)
-		} else if (mergeValue === "intersect") {
-			return threshold1.intersect(threshold2)
-		} else if (mergeValue === "difference") {
-			return threshold1.difference(threshold2)
-		} else if (mergeValue === "xor") {
-			return threshold1.xor(threshold2)
-		}
-
-		return threshold1.getAugs().concat(threshold2.getAugs())
-
-	}
 
 	useEffect(() => {
 
@@ -79,24 +61,10 @@ export const ToStorybook = () => {
 									.data(data)
 									.join("circle")
 									.attr("class", "scatterpoint")
-									.attr("cx", d => xScale(d["Aroma"]) + Math.random() * 8 - 4)
-									.attr("cy", d => yScale(d["Flavor"]) + Math.random() * 8 - 4)
+									.attr("cx", d => xScale(d["Aroma"]))
+									.attr("cy", d => yScale(d["Flavor"]))
 									.attr("r", d => 3)
-									.on("mouseover", (event, d) => {
-
-										let xPos = xScale(d["Aroma"]);
-										let yPos = yScale(d["Flavor"]) - 8;
-
-										tooltip.attr("transform", `translate(${xPos}, ${yPos})`)
-												.attr("opacity", 1)
-												.text(d.name);
-
-									})
-									.on("mouseout", (event, d) => {
-
-										tooltip.attr("opacity", 0);
-
-									});
+									.attr("fill", "steelblue");
 
 		svgElement.select("#xAxis")
 				  .call(d3.axisBottom(xScale))
@@ -122,82 +90,60 @@ export const ToStorybook = () => {
 				  .attr("text-anchor", "middle")
 				  .attr("transform", `translate(0, 40)`)
 				  .attr("fill", "black")
-				  .text(d => d)
+				  .text(d => d);
+
+		function alignY(d, i) {
+			return yScale(d["Flavor"])
+		}
+
+		function getText(d, i) {
+			return `produced in ${d.Country}`
+		}
+
+		const styles = {"text": {"text-anchor":"end", "x": 490, "y":alignY, "text": getText}};
+
+		newEmphasis.current.updateStyles(styles);
 
 		chart.current.chart(ref.current)
 					.selection(scatterpoints)
 					.x("Aroma", xScale)
 					.y("Flavor", yScale)
-					.augment(merge(newXThreshold.current, newYThreshold.current, mergeBy));
+					.exclude({"name":["label"]})
+					.augment(newEmphasis.current.getAugs());
 
 	}, [data])
 
 	useEffect(() => {
 
-		newYThreshold.current.updateVal(yThreshold);
-		let newAugs = merge(newXThreshold.current, newYThreshold.current, mergeBy);
+		newEmphasis.current.updateVariable(emphVar);
+		let newAugs = newEmphasis.current.getAugs();
 
 		chart.current.augment(newAugs);
 
-	}, [yThreshold])
+	}, [emphVar])
 
 	useEffect(() => {
 
-		newXThreshold.current.updateVal(xThreshold);
-		let newAugs = merge(newXThreshold.current, newYThreshold.current, mergeBy);
+		newEmphasis.current.updateVal(emphVal);
+		let newAugs = newEmphasis.current.getAugs();
 
 		chart.current.augment(newAugs);
 
-	}, [xThreshold])
+	}, [emphVal])
 
-	useEffect(() => {
-
-		let newAugs = merge(newXThreshold.current, newYThreshold.current, mergeBy);
-
-		chart.current.augment(newAugs);
-
-	}, [mergeBy])
-
-	function updateY(e) {
-		setYThreshold(e.target.value);
+	function updateEmphVar(e) {
+		setEmphVar(e.target.value);
 	}
 
-	function updateX(e) {
-		setXThreshold(e.target.value);
+	function updateEmphVal(e) {
+		setEmphVal(e.target.value);
 	}
+
+	let controlStyle = {"display":"flex"};
+	let paragraphStyle = {"margin":"3px"};
 
 	return (
 		<div>
-			<div>
-				<p>x-axis threshold: </p>
-				<input
-					type="range"
-					id="quantity"
-					name="quantity"
-					min="7.9" max="8.7"
-					step="0.01"
-					value={xThreshold}
-					onChange={(e) => updateX(e)} />
-			</div>
-			<div>
-				<p>y-axis threshold: </p>
-				<input
-					type="range"
-					id="quantity"
-					name="quantity"
-					min="8.2" max="8.9"
-					step="0.01"
-					value={yThreshold}
-					onChange={(e) => updateY(e)} />
-			</div>
-			<div>
-				<p>merge by: </p>
-				<select value={mergeBy} onChange={(e) => setMergeBy(e.target.value)}>
-					<option value="union">Union</option>
-					<option value="intersect">Intersect</option>
-					<option value="xor">xor</option>
-				</select>
-			</div>
 			<svg id="less" ref={ref}>
 				<g id="mark" />
 				<g id="xAxis" />
@@ -209,5 +155,5 @@ export const ToStorybook = () => {
 }
 
 ToStorybook.story = {
-  name: 'Quadrant',
+  name: 'Median',
 };

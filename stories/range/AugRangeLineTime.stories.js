@@ -14,8 +14,8 @@ export default {
 
 export const ToStorybook = () => {
 
-	const [maxThreshold, setMaxThreshold] = React.useState(new Date(2010, 12, 10));
-	const [minThreshold, setMinThreshold] = React.useState(new Date(2006, 3, 10));
+	const [maxThreshold, setMaxThreshold] = React.useState(new Date(2011, 12, 31));
+	const [minThreshold, setMinThreshold] = React.useState(new Date(2006, 1, 1));
 
 	const ref = useRef("linerange");
 
@@ -129,7 +129,7 @@ export const ToStorybook = () => {
 					.layer("#augmentations")
 					.x("date", xScale)
 					.y("AverageTemperature", yScale)
-					.exclude({"rank": 1})
+					.exclude({"name": ["text", "opacity"]})
 					.augment(newRange.current.getAugs());
 
 	}, [data])

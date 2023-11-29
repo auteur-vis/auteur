@@ -2,30 +2,33 @@ import React, {useRef, useState, useEffect} from "react";
 import * as d3 from "d3";
 
 import Draft from "../../src/lib/Draft.js";
-import Threshold from "../../src/lib/Threshold.js";
+import Range from "../../src/lib/Range.js";
 
-// data from https://www.kaggle.com/datasets/berkeleyearth/climate-change-earth-surface-temperature-data
-import cars from "../../public/chartaccent_mpg.json";
+// data from https://rkabacoff.github.io/qacData/reference/coffee.html
+import coffee from "../../public/arabica_data_cleaned_top15.json";
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
-  title: 'Aug/ChartAccent/Task6',
+  title: 'Aug/Range/Scatter/IQR',
 };
 
 export const ToStorybook = () => {
 
-	const ref = useRef("task6");
+	const style = {"fill":{"fill":"steelblue"},
+				   "line":{"stroke-dasharray":"2px 5px 5px 5px"}};
 
-	const [data, setData] = React.useState(cars);
+	const ref = useRef("IQR");
+	const chart = useRef(new Draft());
+	const newRange = useRef(new Range("Flavor", ["Q1", "Q3"], "closed", style));
 
-	let layout={"width":600,
-	   		   "height":350,
+	const [data, setData] = React.useState(coffee);
+
+	let layout={"width":500,
+	   		   "height":500,
 	   		   "marginTop":50,
 	   		   "marginRight":50,
 	   		   "marginBottom":50,
 	   		   "marginLeft":50};
-
-	const draft = useRef(new Draft());
 
 	useEffect(() => {
 
@@ -42,22 +45,33 @@ export const ToStorybook = () => {
 				.attr("height", layout.height);
 
 		let xScale = d3.scaleLinear()
-					.domain(d3.extent(data, d => d["MPG"]))
-					.range([layout.marginLeft, layout.width - layout.marginRight]);
+							.domain(d3.extent(data, d => d["Aroma"]))
+							.range([layout.marginLeft, layout.width - layout.marginRight]);
 
 		let yScale = d3.scaleLinear()
-					.domain(d3.extent(data, d => d["Displacement"]))
-					.range([layout.height - layout.marginBottom, layout.marginTop]);
+							.domain(d3.extent(data, d => d["Flavor"]))
+							.range([layout.height - layout.marginBottom, layout.marginTop]);
 
-		let colorScale = d3.scaleOrdinal(d3.schemeSet2)
-							.domain(Array.from(new Set(data.map(d => d.CylindersGroup))));
+		let sizeScale = d3.scaleLinear()
+							.domain(d3.extent(data, d => d["Flavor"]))
+							.range([3, 6]);
+
+		let scatterpoints = svgElement.select("#mark")
+									.selectAll(".scatterpoint")
+									.data(data)
+									.join("circle")
+									.attr("class", "scatterpoint")
+									.attr("cx", d => xScale(d["Aroma"]))
+									.attr("cy", d => yScale(d["Flavor"]))
+									.attr("r", d => 3)
+									.attr("opacity", 0.25);
 
 		svgElement.select("#xAxis")
 				  .call(d3.axisBottom(xScale))
 				  .attr("transform", `translate(0, ${layout.height - layout.marginBottom})`);
 
 		svgElement.select("#xAxis").selectAll("#xTitle")
-				  .data(["MPG"])
+				  .data(["Aroma"])
 				  .join("text")
 				  .attr("id", "xTitle")
 				  .attr("text-anchor", "middle")
@@ -70,7 +84,7 @@ export const ToStorybook = () => {
 				  .attr("transform", `translate(${layout.marginLeft}, 0)`);
 
 		svgElement.select("#yAxis").selectAll("#yTitle")
-				  .data(["Displacement"])
+				  .data(["Flavor"])
 				  .join("text")
 				  .attr("id", "yTitle")
 				  .attr("text-anchor", "middle")
@@ -78,39 +92,29 @@ export const ToStorybook = () => {
 				  .attr("fill", "black")
 				  .text(d => d)
 
-		let scatterpoints = svgElement.select("#mark")
-							.selectAll(".carPoints")
-							.data(data)
-							.join("circle")
-							.attr("class", d => `carPoints ${d.CylindersGroup}`)
-							.attr("cx", d => xScale(d.MPG))
-							.attr("cy", d => yScale(d.Displacement))
-							.attr("r", 3)
-							.attr('fill', "steelblue");
-
-		const threshold = new Threshold("MPG", "mean", "geq");
-
-		draft.current.chart("#svg")
-			.selection(scatterpoints)
-			.x("MPG", xScale)
-			.y("Displacement", yScale)
-			.include({"name":["fill", "stroke", "line", "text"]})
-			.augment(threshold.getAugs());
+		chart.current.chart(ref.current)
+					.layer("#augmentations")
+					.selection(scatterpoints)
+					.x("Aroma", xScale)
+					.y("Flavor", yScale)
+					.exclude({"name":["opacity", "regression", "label"]})
+					.augment(newRange.current.getAugs());
 
 	}, [data])
 
 	return (
 		<div>
-			<svg id="svg" ref={ref}>
+			<svg id="less" ref={ref}>
 				<g id="mark" />
 				<g id="xAxis" />
 				<g id="yAxis" />
 				<text id="tooltip" />
+				<g id="augmentations" />
 			</svg>
 		</div>
 	)
 }
 
 ToStorybook.story = {
-  name: 'Task6',
+  name: 'IQR',
 };

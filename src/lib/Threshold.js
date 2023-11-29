@@ -122,19 +122,19 @@ export default class Threshold extends DataFact {
 
 			if (type === "le" || type === "leq") {
 				if (xVar == variable) {
-					return [{"x": xScale(parsed) - 10, "y": yScale.range()[1], "text": `  ${"le" == type ? "<" : "<="} ${parsed} ${val != parsed ? "("+val+")" : ""}`}];
+					return [{"anchor": "middle", "x": xScale(parsed), "y": yScale.range()[1] - 10, "text": `  ${"le" == type ? "<" : "<="} ${parsed} ${val != parsed ? "("+val+")" : ""}`}];
 				} else if (yVar == variable) {
 					return [{"x": xScale.range()[0], "y": yScale(parsed) + 10, "text": `  ${"le" == type ? "<" : "<="} ${parsed} ${val != parsed ? "("+val+")" : ""}`}];
 				}
 			} else if (type === "ge" || type === "geq") {
 				if (xVar == variable) {
-					return [{"x": xScale(parsed) + 10, "y": yScale.range()[1], "text": `  ${"ge" == type ? ">" : ">="} ${parsed} ${val != parsed ? "("+val+")" : ""}`}];
+					return [{"anchor": "middle", "x": xScale(parsed), "y": yScale.range()[1] - 10, "text": `  ${"ge" == type ? ">" : ">="} ${parsed} ${val != parsed ? "("+val+")" : ""}`}];
 				} else if (yVar == variable) {
 					return [{"x": xScale.range()[0], "y": yScale(parsed) - 10, "text": `  ${"ge" == type ? ">" : ">="} ${parsed} ${val != parsed ? "("+val+")" : ""}`}];
 				}
 			} else {
 				if (xVar == variable) {
-					return [{"x": xScale(parsed) + 10, "y": yScale.range()[1], "text": `  ${parsed} ${val != parsed ? "("+val+")" : ""}`}];
+					return [{"anchor": "middle", "x": xScale(parsed), "y": yScale.range()[1] - 10, "text": `  ${parsed} ${val != parsed ? "("+val+")" : ""}`}];
 				} else if (yVar == variable) {
 					return [{"x": xScale.range()[0], "y": yScale(parsed) - 10, "text": `  ${parsed} ${val != parsed ? "("+val+")" : ""}`}];
 				}
@@ -200,10 +200,13 @@ export default class Threshold extends DataFact {
 								 this.generateLinearRegression(this._variable, this._val, this._type),
 								 this.mergeStyles(this._customStyles.regression, markStyles.line), this._selection, 6);
 
+		let labelAugs = labelAug.getSpec();
+		labelAugs._filter = this._generator(this._variable, this._val, this._type);
+
 		let regressionAugs = regressionAug.getSpec();
 		regressionAugs._filter = this._generator(this._variable, this._val, this._type);
 
-		return this._filter([lineAug.getSpec(), opacityAug.getSpec(), strokeAug.getSpec(), fillAug.getSpec(), textAug.getSpec(), labelAug.getSpec(), regressionAugs]).sort(this._sort)
+		return this._filter([lineAug.getSpec(), opacityAug.getSpec(), strokeAug.getSpec(), fillAug.getSpec(), textAug.getSpec(), labelAugs, regressionAugs]).sort(this._sort)
 	}
 
 	updateVariable(variable) {

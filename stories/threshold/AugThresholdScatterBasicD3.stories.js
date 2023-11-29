@@ -11,13 +11,11 @@ export default {
 
 export const ToStorybook = () => {
 
-	const [yThreshold, setYThreshold] = React.useState(8);
-
 	const ref = useRef("less");
 
 	// ... some code omitted ...
 
-	const [data, setData] = React.useState(coffee);
+	const [data, setData] = React.useState(coffee.slice(0, 20));
 
 	let layout={"width":500,
 	   		   "height":500,
@@ -25,6 +23,58 @@ export const ToStorybook = () => {
 	   		   "marginRight":50,
 	   		   "marginBottom":50,
 	   		   "marginLeft":50};
+
+	// Following function from https://dracoblue.net/dev/linear-least-squares-in-javascript/
+	function findLineByLeastSquares(values_x, values_y) {
+	    var sum_x = 0;
+	    var sum_y = 0;
+	    var sum_xy = 0;
+	    var sum_xx = 0;
+	    var count = 0;
+
+	    /*
+	     * We'll use those variables for faster read/write access.
+	     */
+	    var x = 0;
+	    var y = 0;
+	    var values_length = values_x.length;
+
+	    if (values_length != values_y.length) {
+	        throw new Error('The parameters values_x and values_y need to have same size!');
+	    }
+
+	    /*
+	     * Nothing to do.
+	     */
+	    if (values_length === 0) {
+	        return [ [], [] ];
+	    }
+
+	    /*
+	     * Calculate the sum for each of the parts necessary.
+	     */
+	    for (var v = 0; v < values_length; v++) {
+	        x = values_x[v];
+	        y = values_y[v];
+	        sum_x += x;
+	        sum_y += y;
+	        sum_xx += x*x;
+	        sum_xy += x*y;
+	        count++;
+	    }
+
+	    /*
+	     * Calculate m and b for the formula:
+	     * y = x * m + b
+	     */
+	    var m = (count*sum_xy - sum_x*sum_y) / (count*sum_xx - sum_x*sum_x);
+	    var b = (sum_y/count) - (m*sum_x)/count;
+    
+	    let [x1, x2] = d3.extent(values_x);
+	    let [y1, y2] = [x1 * m + b, x2 * m + b];
+
+	    return [{"x1":x1, "y1":y1, "x2":x2, "y2":y2}]
+	}
 
 	useEffect(() => {
 
@@ -52,7 +102,7 @@ export const ToStorybook = () => {
 							.domain(d3.extent(data, d => d["Flavor"]))
 							.range([3, 6]);
 
-		let thresholdValue = 7.5;
+		let thresholdValue = d3.median(data, d => d.Flavor);
 
 		let scatterpoints = svg.select("#mark")
 								.selectAll("circle")
@@ -79,12 +129,43 @@ export const ToStorybook = () => {
 								.selectAll("text")
 								.data([thresholdValue])
 								.join("text")
-								.attr("x", xScale.range()[0])
-								.attr("y", yScale(thresholdValue) + 10)
-								.attr("alignment-baseline", "hanging")
+								.attr("x", xScale.range()[0] + 5)
+								.attr("y", yScale(thresholdValue) - 10)
+								.attr("alignment-baseline", "middle")
+								.attr("text-anchor", "start")
 								.attr("font-family", "sans-serif")
 								.attr("font-size", 11)
-								.text(d => `Flavor greater than or equal to ${d}`);
+								.text(d => `>= ${d} (median)`);
+
+		let filteredData = data.filter(d => d.Flavor >= thresholdValue);
+
+		let regressionCoords = findLineByLeastSquares(
+			filteredData.map(d => d.Aroma),
+			filteredData.map(d => d.Flavor));
+
+		let regressionLine = svg.select("#mark")
+								.selectAll("#regression")
+								.data(regressionCoords)
+								.join("line")
+								.attr("id", "regression")
+								.attr("x1", d => xScale(d.x1))
+								.attr("y1", d => yScale(d.y1))
+								.attr("x2", d => xScale(d.x2))
+								.attr("y2", d => yScale(d.y2))
+								.attr("stroke", "black");
+
+		let thresholdLabels = svg.select("#mark")
+								.selectAll(".labels")
+								.data(filteredData)
+								.join("text")
+								.attr("id", "labels")
+								.attr("x", d => xScale(d.Aroma))
+								.attr("y", d => yScale(d.Flavor) - 15)
+								.attr("alignment-baseline", "middle")
+								.attr("text-anchor", "middle")
+								.attr("font-family", "sans-serif")
+								.attr("font-size", 11)
+								.text(d => `${d.Flavor}`);
 
 		svg.select("#xAxis")
 				  .call(d3.axisBottom(xScale))

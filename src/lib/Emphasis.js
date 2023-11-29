@@ -69,7 +69,6 @@ export default class Emphasis extends DataFact {
 					return datum.reduce((acc, current) => acc && isValid(current[variable]), true);
 				}
 			} else {
-				console.log(datum[variable], isValid(datum[variable]))
 				return isValid(datum[variable])
 			}
 
@@ -145,10 +144,13 @@ export default class Emphasis extends DataFact {
 								 this.generateLinearRegression(this._variable, this._val, this._type),
 								 this.mergeStyles(this._customStyles.regression, markStyles.line), this._selection, 5);
 
+		let labelAugs = labelAug.getSpec();
+		labelAugs._filter = this._generator(this._variable, this._val, this._type);
+
 		let regressionAugs = regressionAug.getSpec();
 		regressionAugs._filter = this._generator(this._variable, this._val, this._type);
 
-		return this._filter([strokeAug.getSpec(), labelAug.getSpec(), fillAug.getSpec(), opacityAug.getSpec(), regressionAugs]).sort(this._sort)
+		return this._filter([strokeAug.getSpec(), labelAugs, fillAug.getSpec(), opacityAug.getSpec(), regressionAugs]).sort(this._sort)
 	}
 
 	updateVariable(variable) {

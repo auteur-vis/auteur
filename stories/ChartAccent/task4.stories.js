@@ -28,10 +28,6 @@ export const ToStorybook = () => {
 		return d
 	}));
 
-	const regression1 = useRef(new Regression());
-	const regression2 = useRef(new Regression());
-	const regression3 = useRef(new Regression());
-
 	let layout={"width":600,
 	   		   "height":350,
 	   		   "marginTop":50,
@@ -128,17 +124,25 @@ export const ToStorybook = () => {
 							.attr("opacity", 0.25)
 							.attr('fill', d => colorScale(d.Cylinders));
 
-		regression1.current.select(".High").updateStyles({"regression":{"stroke":colorScale("7-8 Cyl.")}});
-		regression2.current.select(".Mid").updateStyles({"regression":{"stroke":colorScale("5-6 Cyl.")}});
-		regression3.current.select(".Low").updateStyles({"regression":{"stroke":colorScale("3-4 Cyl.")}});
+		const regression1 = new Regression();
+		const regression2 = new Regression();
+		const regression3 = new Regression();
+
+		regression1.select(".High");
+		regression2.select(".Mid");
+		regression3.select(".Low");
+
+		regression1.updateStyles({"regression":{"stroke":colorScale("7-8 Cyl.")}});
+		regression2.updateStyles({"regression":{"stroke":colorScale("5-6 Cyl.")}});
+		regression3.updateStyles({"regression":{"stroke":colorScale("3-4 Cyl.")}});
 
 		draft.current.chart("#svg")
 			.selection(scatterpoints)
 			.x("MPG", xScale)
 			.y("Displacement", yScale)
-			.augment(regression1.current.getAugs())
-			.augment(regression2.current.getAugs())
-			.augment(regression3.current.getAugs());
+			.augment(regression1.getAugs())
+			.augment(regression2.getAugs())
+			.augment(regression3.getAugs());
 
 	}, [data])
 

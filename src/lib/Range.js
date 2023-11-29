@@ -211,10 +211,13 @@ export default class Range extends DataFact {
 								 this.generateLinearRegression(this._variable, this._min, this._max, this._type),
 								 this.mergeStyles(this._customStyles.regression, markStyles.line), this._selection, 6);
 
-		let regressionAugs = regressionAug.getSpec();
-		regressionAugs._filter = this._generator(this._variable, this._val, this._type);
+		let labelAugs = labelAug.getSpec();
+		labelAugs._filter = this._generator(this._variable, this._min, this._max, this._type);
 
-		return this._filter([rectAug.getSpec(), opacityAug.getSpec(), strokeAug.getSpec(), fillAug.getSpec(), textAug.getSpec(), labelAug.getSpec(), regressionAugs]).sort(this._sort)
+		let regressionAugs = regressionAug.getSpec();
+		regressionAugs._filter = this._generator(this._variable, this._min, this._max, this._type);
+
+		return this._filter([rectAug.getSpec(), opacityAug.getSpec(), strokeAug.getSpec(), fillAug.getSpec(), textAug.getSpec(), labelAugs, regressionAugs]).sort(this._sort)
 	}
 
 	updateVariable(variable) {

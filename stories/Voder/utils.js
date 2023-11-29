@@ -35,8 +35,8 @@ function pairWiseCompare(data, ordinal, quant) {
 			if (difference >= 1.5 && difference > maxDifference) {
 				let newPair = {"text": `${ordinal} ${i[ordinal]} has average ${quant} ${Math.round(difference * 100) / 100} times ${ordinal} ${j[ordinal]}.`,
 							   "generationCriteria":"emphasis",
-							   "variable":ordinal,
-							   "value":[i[ordinal], j[ordinal]]};
+							   "variable":"avg",
+							   "value":["max", "min"]};
 
 				maxPair = [newPair];
 				maxDifference = difference;
@@ -70,7 +70,7 @@ export function getDataFacts(data, x, y, mark, dataTypes) {
 							   "variable":"avg",
 							   "value":"min",
 							   "id":`${uuidv4()}`};
-			let maxDataFact = {"text": `${x} ${sortData[sortData.length - 1][x]} has the lowest average ${y}.`,
+			let maxDataFact = {"text": `${x} ${sortData[sortData.length - 1][x]} has the highest average ${y}.`,
 							   "generationCriteria":"emphasis",
 							   "variable":"avg",
 							   "value":"max",

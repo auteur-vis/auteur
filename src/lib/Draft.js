@@ -188,7 +188,8 @@ export default class Draft {
 						.attr("y", d => d.y)
 						.attr("font-family", "sans-serif")
 						.attr("font-size", 11)
-						.attr("alignment-baseline", "middle")
+						.attr("alignment-baseline", d => d.baseline ? d.baseline : "middle")
+						.attr("text-anchor", d => d.anchor ? d.anchor : "start")
 						.attr("xml:space", "preserve")
 						.text(d => d["text"]);
 
@@ -452,6 +453,10 @@ export default class Draft {
 	// EXCLUDED FOR NOW
 	// EXCLUDED FOR NOW
 
+	_round(val) {
+		return Math.round(val * 100) / 100;
+	}
+
 	_getStats(data) {
 
 		if (data.length === 0) {
@@ -464,7 +469,7 @@ export default class Draft {
 
 		for (let v of variables) {
 
-			let mean = d3.mean(data, d => d[v]);
+			let mean = this._round(d3.mean(data, d => d[v]));
 
 			// If median cannot be calculated, assume categorical variable
 			if (!mean) {
@@ -473,17 +478,17 @@ export default class Draft {
 				
 				let sorted = data.map(d => d[v]).sort(d3.ascending);
 
-				let median = d3.quantileSorted(sorted, 0.5);
+				let median = this._round(d3.quantileSorted(sorted, 0.5));
 
-				let Q3 = d3.quantileSorted(sorted, 0.75);
-				let Q1 = d3.quantileSorted(sorted, 0.25);
+				let Q3 = this._round(d3.quantileSorted(sorted, 0.75));
+				let Q1 = this._round(d3.quantileSorted(sorted, 0.25));
 
 				let min = sorted[0];
 				let max = sorted[sorted.length - 1];
 
 				// Outlier lower and upper bounds
-				let lowerBound = Q1 - 1.5 * (Q3 - Q1);
-				let upperBound = Q3 + 1.5 * (Q3 - Q1);
+				let lowerBound = this._round(Q1 - 1.5 * (Q3 - Q1));
+				let upperBound = this._round(Q3 + 1.5 * (Q3 - Q1));
 
 				variableStats[v] = {"min": min,
 									"Q1": Q1,
@@ -503,8 +508,6 @@ export default class Draft {
 
 	augment(augmentations) {
 
-		console.log(augmentations, this._xVar, this._yVar)
-
 		let filteredAugs = augmentations;
 		let draughtLayer = this._chart.select(this._layer ? this._layer : "#draughty");
 
@@ -521,8 +524,6 @@ export default class Draft {
 		} else if (this._include && this._include["rank"]) {
 			filteredAugs = filteredAugs.filter(d => d.rank <= this._include["rank"]);
 		}
-
-		// let newAxisExtents = {"x": [], "y": []};
 
 		for (let a of filteredAugs) {
 

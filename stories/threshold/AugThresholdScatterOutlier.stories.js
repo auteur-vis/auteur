@@ -2,23 +2,30 @@ import React, {useRef, useState, useEffect} from "react";
 import * as d3 from "d3";
 
 import Draft from "../../src/lib/Draft.js";
-import Range from "../../src/lib/Range.js";
+import Threshold from "../../src/lib/Threshold.js";
 
 // data from https://rkabacoff.github.io/qacData/reference/coffee.html
 import coffee from "../../public/arabica_data_cleaned_top15.json";
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
-  title: 'Aug/Range/Scatter/Basic',
+  title: 'Aug/Threshold/Scatter/Outlier',
 };
 
 export const ToStorybook = () => {
 
-	const ref = useRef("range");
+	const ref = useRef("outlier");
+
+	const chart = useRef(new Draft());
+	const newYMin = useRef(new Threshold("Flavor", "lowerBound", "leq"));
+	const newYMax = useRef(new Threshold("Flavor", "upperBound", "geq"));
+
+	// ... some code omitted ...
+
 	const [data, setData] = React.useState(coffee);
 
 	let layout={"width":500,
-	   		   "height":400,
+	   		   "height":500,
 	   		   "marginTop":50,
 	   		   "marginRight":50,
 	   		   "marginBottom":50,
@@ -53,13 +60,13 @@ export const ToStorybook = () => {
 		let scatterpoints = svgElement.select("#mark")
 									.selectAll(".scatterpoint")
 									.data(data)
-									.join("circle")
+									.join("rect")
 									.attr("class", "scatterpoint")
-									.attr("cx", d => xScale(d["Aroma"]))
-									.attr("cy", d => yScale(d["Flavor"]))
-									.attr("r", d => 3)
-									.attr("opacity", 0.25)
-									.attr("fill", "steelblue");
+									.attr("x", d => xScale(d["Aroma"]) - 3)
+									.attr("y", d => yScale(d["Flavor"]) - 3)
+									.attr("width", 6)
+									.attr("height", 6)
+									.attr("opacity", 0.3)
 
 		svgElement.select("#xAxis")
 				  .call(d3.axisBottom(xScale))
@@ -87,39 +94,36 @@ export const ToStorybook = () => {
 				  .attr("fill", "black")
 				  .text(d => d)
 
-		const range = new Range("Flavor", [6.5, 7.5]);
+		// ... some code omitted ...
 
-		let colorScale = d3.scaleSequential(d3.interpolateTurbo)
-			.domain(d3.extent(data, d => d["Aroma"]));
+		let colorScale = d3.scaleSequential(d3.interpolateViridis)
+							.domain(d3.extent(data, d => d["Aroma"]));
 
-		const styles = {"fill": {
-			"fill": d => colorScale(d.Aroma) }};
+		const styles = {"fill": {"fill": (d, i) => colorScale(d.Aroma)}};
 
-		range.updateStyles(styles);
+		newYMin.current.updateStyles(styles);
 
-		const draft = new Draft();
-		draft.chart("#svg")
-			.selection(scatterpoints)
-			.x("Aroma", xScale)
-			.y("Flavor", yScale)
-			.include({"name":["rect", "fill", "stroke"]})
-			.augment(range.getAugs());
+		chart.current.chart(ref.current)
+					.selection(scatterpoints)
+					.x("Aroma", xScale)
+					.y("Flavor", yScale)
+					.include({"name":["line", "fill", "stroke", "opacity", "text"]})
+					.augment(newYMin.current.union(newYMax.current));
 
 	}, [data])
 
 	return (
 		<div>
-			<svg id="svg" ref={ref}>
+			<svg id="less" ref={ref}>
 				<g id="mark" />
 				<g id="xAxis" />
 				<g id="yAxis" />
 				<text id="tooltip" />
-				<g id="augmentations" />
 			</svg>
 		</div>
 	)
 }
 
 ToStorybook.story = {
-  name: 'Basic',
+  name: 'Outlier',
 };

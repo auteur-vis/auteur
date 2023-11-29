@@ -104,7 +104,8 @@ export const ToStorybook = () => {
 									.attr("cx", d => xScale(d["sepalLength"]))
 									.attr("cy", d => yScale(d["petalLength"]))
 									.attr("r", d => 3)
-									.attr("fill", d => colorScale(d["species"]))
+									.attr("fill", "none")
+									.attr("stroke", d => colorScale(d["species"]))
 									.attr("cursor", "pointer")
 									.on("mouseover", (event, d) => {
 
