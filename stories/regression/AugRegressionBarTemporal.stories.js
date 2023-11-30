@@ -59,7 +59,7 @@ export const ToStorybook = () => {
 							.attr("width", xScale.bandwidth() - 2)
 							.attr("height", d => yScale(0) - yScale(d["AverageTemperature"]))
 							.attr("fill", "steelblue")
-							.attr("fill-opacity", 0.5);
+							.attr("fill-opacity", 0.75);
 
 		svgElement.select("#xAxis")
 				  .call(d3.axisBottom(xScale))

@@ -18,10 +18,10 @@ export const ToStorybook = () => {
 
 	// ... some code omitted ...
 
-	const [data, setData] = React.useState(climate.filter(d => d.year >= 2011));
+	const [data, setData] = React.useState(climate.filter(d => d.year >= 2012));
 
-	let layout={"width":700,
-	   		   "height":500,
+	let layout={"width":600,
+	   		   "height":350,
 	   		   "marginTop":50,
 	   		   "marginRight":50,
 	   		   "marginBottom":50,

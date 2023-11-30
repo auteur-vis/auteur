@@ -37,7 +37,7 @@ export const ToStorybook = () => {
 	const regression = useRef(new Regression());
 
 	let layout={"width":800,
-	   		   "height":600,
+	   		   "height":500,
 	   		   "marginTop":0,
 	   		   "marginRight":10,
 	   		   "marginBottom":10,
@@ -64,7 +64,7 @@ export const ToStorybook = () => {
 					.range([layout.marginLeft, layout.width - layout.marginRight]);
 
 		let yScale = d3.scaleLinear()
-					.domain([0.8, -1.5])
+					.domain([0.8, -1.2])
 					.range([layout.height - layout.marginBottom, layout.marginTop]);
 
 		let sizeScale = d3.scaleLog()
