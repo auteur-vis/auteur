@@ -33,12 +33,14 @@ export default class Draft {
 
 	// Select elements by selector (e.g. class)
 	// Use either this or selection()
-	select(selector) {
+	// serialize determines whether the data will be converted to serial regex
+	select(selector, serialize = false) {
 
 		this._selector = selector;
 		this._selection = this._chart.selectAll(selector);
 		this._data = this._selection.data();
 		this._stats = this._getStats(this._data);
+		this._serialize = serialize;
 
 		return this;
 
@@ -46,20 +48,22 @@ export default class Draft {
 
 	// Elements already selected
 	// Use either this or select()
-	selection(selected) {
+	selection(selected, serialize = false) {
 
 		this._selection = selected;
 		this._data = selected.data();
 		this._stats = this._getStats(this._data);
+		this._serialize = serialize;
 
 		return this;
 
 	}
 
 	// Optional, overrides selection data with local data
-	data(data) {
+	data(data, serialize = false) {
 
 		this._data = data;
+		this._serialize = serialize;
 
 		return this;
 
@@ -455,6 +459,57 @@ export default class Draft {
 
 	_round(val) {
 		return Math.round(val * 100) / 100;
+	}
+
+	_getSerialize(data) {
+
+		// hardcoding this may be for the best
+		let alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+
+		if (data.length === 0) {
+			return {};
+		}
+
+		let variables = Object.keys(data[0]);
+		let variableSerialized = {};
+		let variableSerializedKeys = {};
+
+		for (let v of variables) {
+
+			let variableValues = data.map(d => d[v]);
+			let uniqueVariableValues = Array.from(new Set(variableValues));
+
+			let uniqueVariableValuesMap = {};
+
+			let variableType = "number";
+
+			// check if variable is numeric or categorical or other
+			for (let uvi = 0; uvi <= uniqueVariableValues.length; uvi++) {
+
+				let uv = uniqueVariableValues[uvi];
+
+				if (uv === undefined || uv === null) {
+					continue
+				} else if (typeof uv === "string") {
+					continue
+				} else if (typeof uv === "date") {
+					variableType = "date";
+				} else {
+					variableType = "other";
+					uniqueVariableValuesMap[uv] = alphabet[uvi];
+				}
+
+			}
+
+			variableSerializedKeys[v] = uniqueVariableValuesMap;
+			variableSerialized[v] = ".".join(variableValues.map(d => uniqueVariableValuesMap[d]));
+
+		}
+
+		// variableSerialized is each variable converted into a string, with a unique letter for each unique variable value
+		// variableSerializedKeys stores the mapping between letter and value for each variable
+		return [variableSerialized, variableSerializedKeys]
+
 	}
 
 	_getStats(data) {
