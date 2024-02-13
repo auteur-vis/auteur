@@ -1,12 +1,12 @@
-import * as d3 from "d3";
+import { extent as d3extent } from "d3-array";
 
 import Aug from "./Aug.js";
-import DataFact from "./DataFact.js";
+import GenerationCriteriaBase from "./GenerationCriteriaBase.js";
 
 import markStyles from "./styles/markStyles.js";
 import encodingStyles from "./styles/encodingStyles.js";
 
-export default class Regression extends DataFact {
+export default class Regression extends GenerationCriteriaBase {
 
 	// Qn to self: add option of orient? Either variable name provided, or orientation (x/y axis)
 	constructor(styles={}) {
@@ -65,7 +65,7 @@ export default class Regression extends DataFact {
 	    var m = (count*sum_xy - sum_x*sum_y) / (count*sum_xx - sum_x*sum_x);
 	    var b = (sum_y/count) - (m*sum_x)/count;
     
-	    let [x1, x2] = d3.extent(values_x);
+	    let [x1, x2] = d3extent(values_x);
 	    let [y1, y2] = [x1 * m + b, x2 * m + b];
 
 	    return [[x1, y1], [x2, y2]];
@@ -98,11 +98,4 @@ export default class Regression extends DataFact {
 		return this._filter([lineAug.getSpec()]).sort(this._sort)
 	}
 
-	updateStyles(styles, override = false) {
-		if (override) {
-			this._customStyles = styles;
-		} else {
-			this._customStyles = this._updateStyles(this._customStyles, styles);
-		}
-	}
 }

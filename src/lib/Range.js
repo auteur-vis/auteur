@@ -1,12 +1,12 @@
-import * as d3 from "d3";
+import { min as d3min } from "d3-array";
 
 import Aug from "./Aug.js";
-import DataFact from "./DataFact.js";
+import GenerationCriteriaBase from "./GenerationCriteriaBase.js";
 
 import markStyles from "./styles/markStyles.js";
 import encodingStyles from "./styles/encodingStyles.js";
 
-export default class Range extends DataFact {
+export default class Range extends GenerationCriteriaBase {
 
 	// Assume val is [min, max]
 	constructor(variable, val, type="closed", styles={}) {
@@ -85,16 +85,16 @@ export default class Range extends DataFact {
 			}
 
 			if (xVar == variable) {
-				let xMin = d3.min([xScale(parsedMin), xScale(parsedMax)]);
+				let xMin = d3min([xScale(parsedMin), xScale(parsedMax)]);
 				let width = Math.abs(xScale(parsedMax) - xScale(parsedMin));
-				let yMin = d3.min([yScale.range()[1], yScale.range()[0]]);
+				let yMin = d3min([yScale.range()[1], yScale.range()[0]]);
 				let height = Math.abs(yScale.range()[1] - yScale.range()[0]);
 
 				return [{"x": xMin, "width": width, "y":yMin, "height": height}];
 			} else if (yVar == variable) {
-				let xMin = d3.min([xScale.range()[0], xScale.range()[1]]);
+				let xMin = d3min([xScale.range()[0], xScale.range()[1]]);
 				let width = Math.abs(xScale.range()[1] - xScale.range()[0]);
-				let yMin = d3.min([yScale(parsedMin), yScale(parsedMax)]);
+				let yMin = d3min([yScale(parsedMin), yScale(parsedMax)]);
 				let height = Math.abs(yScale(parsedMax) - yScale(parsedMin));
 
 				return [{"x": xMin, "width": width, "y": yMin, "height": height}];
@@ -236,15 +236,6 @@ export default class Range extends DataFact {
 		return this;
 	}
 
-	updateStyles(styles, override = false) {
-		if (override) {
-			this._customStyles = styles;
-		} else {
-			this._customStyles = this._updateStyles(this._customStyles, styles);
-		}
-		return this;
-	}
-
 	// returns a list of [Aug Class]
 	// drft can be a single augmentation or a list of augmentations [aug, aug, ...]
 	intersect(drft) {
@@ -297,7 +288,7 @@ export default class Range extends DataFact {
 	}
 
 	// returns a list of [Aug Class]
-	xor(drft) {
+	symmdiff(drft) {
 
 		let augs = drft;
 
@@ -314,7 +305,7 @@ export default class Range extends DataFact {
 				merged_id = `${merged_id}-${d._id}`;
 
 				let new_augs = d.getAugs();
-				all_merged = this._mergeAugs(all_merged, new_augs, merged_id, "xor");
+				all_merged = this._mergeAugs(all_merged, new_augs, merged_id, "symmdiff");
 			}
 		}
 

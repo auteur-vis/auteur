@@ -1,12 +1,10 @@
-import * as d3 from "d3";
-
 import Aug from "./Aug.js";
-import DataFact from "./DataFact.js";
+import GenerationCriteriaBase from "./GenerationCriteriaBase.js";
 
 import markStyles from "./styles/markStyles.js";
 import encodingStyles from "./styles/encodingStyles.js";
 
-export default class Threshold extends DataFact {
+export default class Threshold extends GenerationCriteriaBase {
 
 	// Qn to self: add option of orient? Either variable name provided, or orientation (x/y axis)
 	constructor(variable, val, type="eq", styles={}) {
@@ -224,15 +222,6 @@ export default class Threshold extends DataFact {
 		return this;
 	}
 
-	updateStyles(styles, override = false) {
-		if (override) {
-			this._customStyles = styles;
-		} else {
-			this._customStyles = this._updateStyles(this._customStyles, styles);
-		}
-		return this;
-	}
-
 	// returns a list of [Aug Class]
 	// criteria can be a single augmentation or a list of augmentations [aug, aug, ...]
 	intersect(criteria) {
@@ -284,33 +273,8 @@ export default class Threshold extends DataFact {
 		return all_merged
 	}
 
-	// EXCLUDED FOR NOW
-	// EXCLUDED FOR NOW
-	// EXCLUDED FOR NOW
-	// EXCLUDED FOR NOW
-
 	// returns a list of [Aug Class]
-	// difference(criteria) {
-
-	// 	if (criteria._name.startsWith("Threshold")) {
-
-	// 		let intersect_id = `${this._id}-${criteria._id}`;
-
-	// 		let my_augs = this.getAugs();
-	// 		let criteria_augs = criteria.getAugs();
-	// 		let merged_augs = this._mergeAugs(my_augs, criteria_augs, intersect_id, "difference");
-
-	// 		return merged_augs
-	// 	}
-	// }
-
-	// EXCLUDED FOR NOW
-	// EXCLUDED FOR NOW
-	// EXCLUDED FOR NOW
-	// EXCLUDED FOR NOW
-
-	// returns a list of [Aug Class]
-	xor(criteria) {
+	symmdiff(criteria) {
 
 		let allCriteria = criteria;
 
@@ -327,7 +291,7 @@ export default class Threshold extends DataFact {
 				merged_id = `${merged_id}-${d._id}`;
 
 				let new_augs = d.getAugs();
-				all_merged = this._mergeAugs(all_merged, new_augs, merged_id, "xor");
+				all_merged = this._mergeAugs(all_merged, new_augs, merged_id, "symmdiff");
 			}
 		}
 
