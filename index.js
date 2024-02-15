@@ -7,7 +7,7 @@ import Range from "./src/lib/Range";
 import Regression from "./src/lib/Regression";
 import Threshold from "./src/lib/Threshold";
 
-export default {
+export {
 	Draft,
 	DerivedValues,
 	Emphasis,
