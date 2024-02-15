@@ -17,4 +17,4 @@ Yarn
 yarn install auteur
 ```
 
-For detailed usage examples and demo gallery, you can refer to [our documention](https://auteur-vis.github.io/auteur-doc/).
+For detailed usage examples and demo gallery, you can refer to [our documention](https://auteur-vis.github.io/auteur-doc/gettingstarted).
