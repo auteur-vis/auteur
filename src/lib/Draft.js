@@ -1,5 +1,9 @@
 // import React, {useRef, useState, useEffect} from "react";
-import * as d3 from "d3";
+// import * as d3 from "d3";
+
+import { min as d3min, mean as d3mean, quantileSorted as d3quantileSorted, ascending as d3ascending} from "d3-array";
+import { select as d3select, selectAll as d3selectAll } from "d3-selection";
+import { line as d3line } from "d3-shape";
 
 import { v4 as uuidv4 } from 'uuid';
 
@@ -18,7 +22,7 @@ export default class Draft {
 
 	chart(el) {
 
-		this._chart = d3.select(el);
+		this._chart = d3select(el);
 		this._chart.append("g").attr("id", "draughty");
 
 		return this;
@@ -247,7 +251,7 @@ export default class Draft {
 												enter => enter.append((d, i) => clone ? elements[i].cloneNode(true) : elements[0].cloneNode(true)))
 											.attr("class", `${aug.id}_multiple`)
 											.attr("d", (d, i) => {
-												return d3.line()
+												return d3line()
 													.x(d => d.x)
 													.y(d => this._yScale(d[this._yVar]))(d);
 											});
@@ -260,7 +264,7 @@ export default class Draft {
 												enter => enter.append((d, i) => clone ? elements[i].cloneNode(true) : elements[0].cloneNode(true)))
 											.attr("class", `${aug.id}_multiple`)
 											.attr("d", (d, i) => {
-												return d3.line()
+												return d3line()
 													.x(di => this._xScale(di[this._xVar]))
 													.y(di => di.y)(d);
 											});
@@ -272,7 +276,7 @@ export default class Draft {
 											.join(
 												enter => enter.append((d, i) => clone ? elements[i].cloneNode(true) : elements[0].cloneNode(true)))
 											.attr("d", (d, i) => {
-												return d3.line()
+												return d3line()
 													.x(d => d.x)
 													.y(d => d.y);
 											});
@@ -369,94 +373,6 @@ export default class Draft {
 
 	}
 
-	// EXCLUDED FOR NOW
-	// EXCLUDED FOR NOW
-	// EXCLUDED FOR NOW
-	// EXCLUDED FOR NOW
-
-	// _handleAxes(newAxisExtents) {
-	// 	console.log("handling axes...")
-
-	// 	let xScale = this._xScale;
-	// 	let yScale = this._yScale;
-
-	// 	let xScaleApplied = this._xScaleApplied;
-	// 	let yScaleApplied = this._yScaleApplied;
-
-	// 	let xExtents = newAxisExtents.x;
-	// 	let yExtents = newAxisExtents.y;
-
-	// 	if (xExtents.length === 0 && yExtents.length === 0) {return};
-
-	// 	let newXMin = d3.min(xExtents.map(d => d[0]));
-	// 	let newXMax = d3.max(xExtents.map(d => d[1]));
-	// 	let [oldXMin, oldXMax] = xScale.domain();
-
-	// 	let newXExtent = [newXMin < oldXMin ? newXMin : oldXMin, newXMax > oldXMax ? newXMax : oldXMax];
-	// 	let newXScale = xScale.copy().domain(newXExtent);
-
-	// 	let newYMin = d3.min(yExtents.map(d => d[0]));
-	// 	let newYMax = d3.max(yExtents.map(d => d[1]));
-	// 	let [oldYMin, oldYMax] = yScale.domain();
-
-	// 	let newYExtent = [newYMin < oldYMin ? newYMin : oldYMin, newYMax > oldYMax ? newYMax : oldYMax];
-	// 	let newYScale = yScale.copy().domain(newYExtent);
-
-	// 	// Augmented elements
-	// 	let childrenSelection = this._chart.selectAll("#draughty").selectAll("*");
-	// 	let children = childrenSelection.nodes();
-
-	// 	// Selected elements
-	// 	let selected = this._selection;
-	// 	let selectedNodes = selected.nodes();
-
-	// 	// Some scale cannot be inverted, e.g. scaleBand()
-	// 	// Ignore for now
-	// 	if (xScaleApplied.invert) {
-	// 		childrenSelection.attr("cx", (d, i) => children[i].cx ? newXScale(xScaleApplied.invert(children[i].cx.baseVal.value)) : undefined)
-	// 						 .attr("x", (d, i) => children[i].x ? newXScale(xScaleApplied.invert(children[i].x.baseVal.value)) : undefined)
-	// 						 .attr("x1", (d, i) => children[i].x1 ? newXScale(xScaleApplied.invert(children[i].x1.baseVal.value)) : undefined)
-	// 						 .attr("x2", (d, i) => children[i].x2 ? newXScale(xScaleApplied.invert(children[i].x2.baseVal.value)) : undefined)
-	// 						 .attr("width", (d, i) => children[i].width ? newXScale(xScaleApplied.invert(children[i].width.baseVal.value)) : undefined)
-
-	// 		selected.attr("cx", (d, i) => selectedNodes[i].cx ? newXScale(xScaleApplied.invert(selectedNodes[i].cx.baseVal.value)) : undefined)
-	// 				 .attr("x", (d, i) => selectedNodes[i].x ? newXScale(xScaleApplied.invert(selectedNodes[i].x.baseVal.value)) : undefined)
-	// 				 .attr("x1", (d, i) => selectedNodes[i].x1 ? newXScale(xScaleApplied.invert(selectedNodes[i].x1.baseVal.value)) : undefined)
-	// 				 .attr("x2", (d, i) => selectedNodes[i].x2 ? newXScale(xScaleApplied.invert(selectedNodes[i].x2.baseVal.value)) : undefined)
-	// 				 .attr("width", (d, i) => selectedNodes[i].width ? newXScale(xScaleApplied.invert(selectedNodes[i].width.baseVal.value)) : undefined)
-
-	// 		this._xScaleApplied = newXScale;
-	// 	}
-
-	// 	if (yScaleApplied.invert) {
-	// 		console.log(children, children[0], children[0].cy, children[0].cy.baseVal, children[0].cy.baseVal.value);
-
-	// 		childrenSelection.attr("cy", (d, i, n) => { 
-	// 								console.log("n", d3.select(n[i]).attr("cy"));
-	// 								children[i].cy ? console.log("cy", children[i].getAttribute("cy"), yScaleApplied.invert(children[i].cy.baseVal.value)) : undefined;
-	// 								return children[i].cy ? newYScale(yScaleApplied.invert(children[i].cy.baseVal.value)) : undefined
-	// 							})
-	// 						 .attr("y", (d, i) => children[i].y ? newYScale(yScaleApplied.invert(children[i].y.baseVal.value)) : undefined)
-	// 						 .attr("y1", (d, i) => children[i].y1 ? newYScale(yScaleApplied.invert(children[i].y1.baseVal.value)) : undefined)
-	// 						 .attr("y2", (d, i) => children[i].y2 ? newYScale(yScaleApplied.invert(children[i].y2.baseVal.value)) : undefined)
-	// 						 .attr("height", (d, i) => children[i].height ? newYScale(yScaleApplied.invert(children[i].height.baseVal.value)) : undefined)
-
-	// 		selected.attr("cy", (d, i) => selectedNodes[i].cy ? newYScale(yScaleApplied.invert(selectedNodes[i].cy.baseVal.value)) : undefined)
-	// 				 .attr("y", (d, i) => selectedNodes[i].y ? newYScale(yScaleApplied.invert(selectedNodes[i].y.baseVal.value)) : undefined)
-	// 				 .attr("y1", (d, i) => selectedNodes[i].y1 ? newYScale(yScaleApplied.invert(selectedNodes[i].y1.baseVal.value)) : undefined)
-	// 				 .attr("y2", (d, i) => selectedNodes[i].y2 ? newYScale(yScaleApplied.invert(selectedNodes[i].y2.baseVal.value)) : undefined)
-	// 				 .attr("height", (d, i) => selectedNodes[i].height ? newYScale(yScaleApplied.invert(selectedNodes[i].height.baseVal.value)) : undefined)
-
-	// 		this._yScaleApplied = newYScale;
-	// 	}
-
-	// }
-
-	// EXCLUDED FOR NOW
-	// EXCLUDED FOR NOW
-	// EXCLUDED FOR NOW
-	// EXCLUDED FOR NOW
-
 	_round(val) {
 		return Math.round(val * 100) / 100;
 	}
@@ -524,19 +440,19 @@ export default class Draft {
 
 		for (let v of variables) {
 
-			let mean = this._round(d3.mean(data, d => d[v]));
+			let mean = this._round(d3mean(data, d => d[v]));
 
 			// If median cannot be calculated, assume categorical variable
 			if (!mean) {
 				continue
 			} else {
 				
-				let sorted = data.map(d => d[v]).sort(d3.ascending);
+				let sorted = data.map(d => d[v]).sort(d3ascending);
 
-				let median = this._round(d3.quantileSorted(sorted, 0.5));
+				let median = this._round(d3quantileSorted(sorted, 0.5));
 
-				let Q3 = this._round(d3.quantileSorted(sorted, 0.75));
-				let Q1 = this._round(d3.quantileSorted(sorted, 0.25));
+				let Q3 = this._round(d3quantileSorted(sorted, 0.75));
+				let Q1 = this._round(d3quantileSorted(sorted, 0.25));
 
 				let min = sorted[0];
 				let max = sorted[sorted.length - 1];
@@ -568,7 +484,7 @@ export default class Draft {
 
 		if (augmentations.length === 0) {
 
-			d3.selectAll(`${this._layer ? this._layer : "#draughty"} > *`).remove();
+			d3selectAll(`${this._layer ? this._layer : "#draughty"} > *`).remove();
 
 		}
 
@@ -685,21 +601,8 @@ export default class Draft {
 				}
 
 			}
-			// else if (a.type === "axis") {
-
-			// 	let newAxes = a.generator(this._data, this._xVar, this._yVar, this._xScale, this._yScale);
-
-			// 	// Keep track of new extents, but process them all at the end
-			// 	if (newAxes) {
-			// 		newAxisExtents.x.push(newAxes.x);
-			// 		newAxisExtents.y.push(newAxes.y);
-			// 	}
-
-			// }
 
 		}
-
-		// this._handleAxes(newAxisExtents);
 
 		return this;
 

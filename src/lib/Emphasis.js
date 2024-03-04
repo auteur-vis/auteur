@@ -1,12 +1,10 @@
-import * as d3 from "d3";
-
 import Aug from "./Aug.js";
-import DataFact from "./DataFact.js";
+import GenerationCriteriaBase from "./GenerationCriteriaBase.js";
 
 import markStyles from "./styles/markStyles.js";
 import encodingStyles from "./styles/encodingStyles.js";
 
-export default class Emphasis extends DataFact {
+export default class Emphasis extends GenerationCriteriaBase {
 
 	// val can either be a single value or list of values
 	// type can be "any" or "all", for data in array form
@@ -161,14 +159,6 @@ export default class Emphasis extends DataFact {
 		this._val = val;
 	}
 
-	updateStyles(styles, override = false) {
-		if (override) {
-			this._customStyles = styles;
-		} else {
-			this._customStyles = this._updateStyles(this._customStyles, styles);
-		}
-	}
-
 	// returns a list of [Aug Class]
 	// drft can be a single augmentation or a list of augmentations [aug, aug, ...]
 	intersect(drft) {
@@ -221,7 +211,7 @@ export default class Emphasis extends DataFact {
 	}
 
 	// returns a list of [Aug Class]
-	xor(drft) {
+	symmdiff(drft) {
 
 		let augs = drft;
 
@@ -238,7 +228,7 @@ export default class Emphasis extends DataFact {
 				merged_id = `${merged_id}-${d._id}`;
 
 				let new_augs = d.getAugs();
-				all_merged = this._mergeAugs(all_merged, new_augs, merged_id, "xor");
+				all_merged = this._mergeAugs(all_merged, new_augs, merged_id, "symmdiff");
 			}
 		}
 
