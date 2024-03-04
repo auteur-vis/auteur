@@ -76,7 +76,7 @@ export default class GenerationCriteriaBase {
 
 		return resultStyles;
 
-	}
+	}um
 
 	updateStyles(styles, override = false) {
 		if (override) {
