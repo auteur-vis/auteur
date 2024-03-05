@@ -187,9 +187,9 @@ export default class GenerationCriteriaBase {
 					split_name[0] = "merged";
 					let new_name = split_name.join('_');
 
-					function combinedAggregator(data, xVar, yVar, xScale, yScale, stats) {
-						let set1 = last.aggregator(data, xVar, yVar, xScale, yScale, stats);
-						let set2 = matched_aug.aggregator(data, xVar, yVar, xScale, yScale, stats);
+					function combinedAggregator(data, xVar, yVar, xScale, yScale, stats, variableSerialized, variableSerializedKeys) {
+						let set1 = last.aggregator(data, xVar, yVar, xScale, yScale, stats, variableSerialized, variableSerializedKeys);
+						let set2 = matched_aug.aggregator(data, xVar, yVar, xScale, yScale, stats, variableSerialized, variableSerializedKeys);
 
 						if (merge_by === "intersect") {
 							return set1.intersection(set2);
@@ -246,24 +246,16 @@ export default class GenerationCriteriaBase {
 					split_name[0] = "merged";
 					let new_name = split_name.join('_');
 
-					function combinedAggregator(data, xVar, yVar, xScale, yScale, stats) {
-						let set1 = last.aggregator(data, xVar, yVar, xScale, yScale, stats);
-						let set2 = matched_aug.aggregator(data, xVar, yVar, xScale, yScale, stats);
+					function combinedAggregator(data, xVar, yVar, xScale, yScale, stats, variableSerialized, variableSerializedKeys) {
+						let set1 = last.aggregator(data, xVar, yVar, xScale, yScale, stats, variableSerialized, variableSerializedKeys);
+						let set2 = matched_aug.aggregator(data, xVar, yVar, xScale, yScale, stats, variableSerialized, variableSerializedKeys);
 
 						if (merge_by === "intersect") {
 							return set1.intersection(set2);
 						} else if (merge_by === "union") {
 							return set1.union(set2);
 						} else if (merge_by === "symmdiff") {
-							let array1 = Array.from(set1);
-
-							for (let val of array1) {
-								if (set2.has(val)) {
-									set1.delete(val);
-									set2.delete(val);
-								}
-							}
-							return set1.union(set2);
+							return set1.symmetricDifference(set2);
 						}
 
 						return new Set()
@@ -332,6 +324,73 @@ export default class GenerationCriteriaBase {
 	    let [y1, y2] = [x1 * m + b, x2 * m + b];
 
 	    return [{"x1":x1, "y1":y1, "x2":x2, "y2":y2}]
+	}
+
+	// returns a list of [Aug Class]
+	// criteria can be a single augmentation or a list of augmentations [aug, aug, ...]
+	intersect(criteria) {
+
+		let allCriteria = criteria;
+
+		if (!Array.isArray(criteria)) {
+			allCriteria = [criteria];
+		}
+
+		let merged_id = this._id;
+		let all_merged = this.getAugs();
+
+		for (let d of allCriteria) {
+			merged_id = `${merged_id}-${d._id}`;
+
+			let new_augs = d.getAugs();
+			all_merged = this._mergeAugs(all_merged, new_augs, merged_id);
+		}
+
+		return all_merged
+	}
+
+	// returns a list of [Aug Class]
+	union(criteria) {
+
+		let allCriteria = criteria;
+
+		if (!Array.isArray(criteria)) {
+			allCriteria = [criteria];
+		}
+
+		let merged_id = this._id;
+		let all_merged = this.getAugs();
+
+		for (let d of allCriteria) {
+			merged_id = `${merged_id}-${d._id}`;
+
+			let new_augs = d.getAugs();
+			all_merged = this._mergeAugs(all_merged, new_augs, merged_id, "union");
+		}
+
+		return all_merged
+	}
+
+	// returns a list of [Aug Class]
+	symmdiff(criteria) {
+
+		let allCriteria = criteria;
+
+		if (!Array.isArray(criteria)) {
+			allCriteria = [criteria];
+		}
+
+		let merged_id = this._id;
+		let all_merged = this.getAugs();
+
+		for (let d of allCriteria) {
+			merged_id = `${merged_id}-${d._id}`;
+
+			let new_augs = d.getAugs();
+			all_merged = this._mergeAugs(all_merged, new_augs, merged_id, "xor");
+		}
+
+		return all_merged
 	}
 
 }

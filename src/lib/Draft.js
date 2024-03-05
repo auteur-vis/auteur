@@ -538,7 +538,7 @@ export default class Draft {
 				}
 			}
 
-			let filteredIndices = a.aggregator(selectData, this._xVar, this._yVar, this._xScale, this._yScale, stats);
+			let filteredIndices = a.aggregator(selectData, this._xVar, this._yVar, this._xScale, this._yScale, stats, serialize[0], serialize[1]);
 			// Handle augmentations that change encoding(s)
 			if (a.type === "encoding") {
 				
@@ -558,9 +558,7 @@ export default class Draft {
 
 							if (name === "sequence") {
 
-								let aggregate = a.aggregator(selectData, serialize[0], serialize[1]);
-
-								if (a.generator(i, aggregate, this._xVar, this._yVar, this._xScale, this._yScale, stats)) {
+								if (a.generator(i, filteredIndices, this._xVar, this._yVar, this._xScale, this._yScale, stats)) {
 
 									let customStyle = styles[s];
 
@@ -595,9 +593,7 @@ export default class Draft {
 
 							if (name === "sequence") {
 
-								let aggregate = a.aggregator(selectData,serialize[0], serialize[1]);
-
-								if (a.generator(i, aggregate, this._xVar, this._yVar, this._xScale, this._yScale, stats)) {
+								if (a.generator(i, filteredIndices, this._xVar, this._yVar, this._xScale, this._yScale, stats)) {
 									let customStyle = styles[s];
 
 									if (typeof customStyle === "function") {

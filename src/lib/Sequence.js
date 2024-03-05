@@ -24,23 +24,22 @@ export default class Sequence extends GenerationCriteriaBase {
 
 	}
 
-	// first aggregates data to perform some summary
-	// for example for regression
+	// Returns set of indices of selected data that match gen criteria
 	_aggregator(variable, sequence) {
 
-		return function(data, variableSerialized, variableSerializedKeys) {
+		function searchSequence(data, seq, variableSerialized, variableSerializedKeys) {
 
 			if (!variableSerialized[variable]) {
 				console.error(`${variable} could not be serialized.`)
-				return
+				return new Set()
 			}
 
-			let sequenceSerialized = new RegExp(sequence.map(d => variableSerializedKeys[variable][d]).join(""), 'g');
+			let sequenceSerialized = new RegExp(seq.map(d => variableSerializedKeys[variable][d]).join(""), 'g');
 			let dataMatched = [...variableSerialized[variable].matchAll(sequenceSerialized)];
 
 			let allIndices = new Set();
 			for (let match of dataMatched) {
-				for (let i = 0; i < sequence.length; i++) {
+				for (let i = 0; i < seq.length; i++) {
 					allIndices.add(match.index + i);
 				}
 			}
@@ -48,14 +47,30 @@ export default class Sequence extends GenerationCriteriaBase {
 			return allIndices;
 
 		}
+
+		return function(data, xVar, yVar, xScale, yScale, stats, variableSerialized, variableSerializedKeys) {
+			if (Array.isArray(sequence[0])) {
+
+				let result = new Set();
+
+				for (let seq of sequence) {
+					result = result.union(searchSequence(data, seq, variableSerialized, variableSerializedKeys));
+				}
+
+				return result
+
+			} else {
+				return searchSequence(data, sequence, variableSerialized, variableSerializedKeys)
+			}
+		}
 	}
 
 	// general generator, usually for encoding type augmentations
 	_generator(variable, sequence) {
 
-		return function(index, aggregate, xVar, yVar, xScale, yScale, stats) {
+		return function(index, filteredIndices, xVar, yVar, xScale, yScale, stats) {
 
-			return aggregate.has(index);
+			return filteredIndices.has(index);
 		}
 
 	}
@@ -100,81 +115,5 @@ export default class Sequence extends GenerationCriteriaBase {
 			this._customStyles = this._updateStyles(this._customStyles, styles);
 		}
 		return this;
-	}
-
-	// returns a list of [Aug Class]
-	// criteria can be a single augmentation or a list of augmentations [aug, aug, ...]
-	intersect(criteria) {
-
-		let allCriteria = criteria;
-
-		if (!Array.isArray(criteria)) {
-			allCriteria = [criteria];
-		}
-
-		let merged_id = this._id;
-		let all_merged = this.getAugs();
-
-		for (let d of allCriteria) {
-			if (d._name.startsWith("Threshold") || d._name.startsWith("Emphasis") || d._name.startsWith("Range")) {
-
-				merged_id = `${merged_id}-${d._id}`;
-
-				let new_augs = d.getAugs();
-				all_merged = this._mergeAugs(all_merged, new_augs, merged_id);
-			}
-		}
-
-		return all_merged
-	}
-
-	// returns a list of [Aug Class]
-	union(criteria) {
-
-		let allCriteria = criteria;
-
-		if (!Array.isArray(criteria)) {
-			allCriteria = [criteria];
-		}
-
-		let merged_id = this._id;
-		let all_merged = this.getAugs();
-
-		for (let d of allCriteria) {
-			if (d._name.startsWith("Threshold") || d._name.startsWith("Emphasis") || d._name.startsWith("Range")) {
-
-				merged_id = `${merged_id}-${d._id}`;
-
-				let new_augs = d.getAugs();
-				all_merged = this._mergeAugs(all_merged, new_augs, merged_id, "union");
-			}
-		}
-
-		return all_merged
-	}
-
-	// returns a list of [Aug Class]
-	xor(criteria) {
-
-		let allCriteria = criteria;
-
-		if (!Array.isArray(criteria)) {
-			allCriteria = [criteria];
-		}
-
-		let merged_id = this._id;
-		let all_merged = this.getAugs();
-
-		for (let d of allCriteria) {
-			if (d._name.startsWith("Threshold") || d._name.startsWith("Emphasis") || d._name.startsWith("Range")) {
-
-				merged_id = `${merged_id}-${d._id}`;
-
-				let new_augs = d.getAugs();
-				all_merged = this._mergeAugs(all_merged, new_augs, merged_id, "xor");
-			}
-		}
-
-		return all_merged
 	}
 }
