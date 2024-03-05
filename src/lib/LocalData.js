@@ -19,10 +19,20 @@ export default class LocalData extends GenerationCriteriaBase {
 
 	}
 
+	_aggregator() {
+
+		return function() {
+
+			return new Set()
+
+		}
+
+	}
+
 	// generator for mark augmentation
 	generateMark(local=[]) {
 		
-		return function(data, xVar, yVar, xScale, yScale) {
+		return function(data, filteredIndices, xVar, yVar, xScale, yScale) {
 			
 			return(local.map(ld => {
 				ld.x = xScale(ld[xVar]);
@@ -39,7 +49,7 @@ export default class LocalData extends GenerationCriteriaBase {
 
 		let markAug = new Aug(`${this._id}_mark`, "local_mark", "mark", {"mark":undefined},
 										 this.generateMark(this._local), 
-										 this.mergeStyles(this._customStyles.mark, undefined), this._selection, 1);
+										 this.mergeStyles(this._customStyles.mark, undefined), this._selection, 1, this._aggregator());
 
 		return this._filter([markAug.getSpec()]).sort(this._sort)
 	}

@@ -76,7 +76,7 @@ export default class GenerationCriteriaBase {
 
 		return resultStyles;
 
-	}um
+	}
 
 	updateStyles(styles, override = false) {
 		if (override) {
@@ -159,7 +159,7 @@ export default class GenerationCriteriaBase {
 			// mark type augmentations are not merged
 			if (last.type === "mark") {
 
-				if (last.name.endsWith("regression")) {
+				if (last.name.endsWith("regression") || last.name.endsWith("label")) {
 
 					let foundIndex = augs2.findIndex(ag => {
 						let split_name = last.name.split('_');
@@ -187,117 +187,31 @@ export default class GenerationCriteriaBase {
 					split_name[0] = "merged";
 					let new_name = split_name.join('_');
 
-					let regression = this._findLineByLeastSquares;
+					function combinedAggregator(data, xVar, yVar, xScale, yScale, stats) {
+						let set1 = last.aggregator(data, xVar, yVar, xScale, yScale, stats);
+						let set2 = matched_aug.aggregator(data, xVar, yVar, xScale, yScale, stats);
 
-					// combine filter
-					function combinedFilter(datum, xVar, yVar, xScale, yScale, stats) {
+						if (merge_by === "intersect") {
+							return set1.intersection(set2);
+						} else if (merge_by === "union") {
+							return set1.union(set2);
+						} else if (merge_by === "symmdiff") {
+							let array1 = Array.from(set1);
 
-						if (merge_by === "intersect" && (last._filter(datum, xVar, yVar, xScale, yScale, stats) && matched_aug._filter(datum, xVar, yVar, xScale, yScale, stats))) {
-							return true;
-						} else if (merge_by === "union" && (last._filter(datum, xVar, yVar, xScale, yScale, stats) || matched_aug._filter(datum, xVar, yVar, xScale, yScale, stats))) {
-							return true;
-						} else if (merge_by === "difference" && (last._filter(datum, xVar, yVar, xScale, yScale, stats) && !matched_aug._filter(datum, xVar, yVar, xScale, yScale, stats))) {
-							return true;
-						} else if (merge_by === "symmdiff"
-									&& ((last._filter(datum, xVar, yVar, xScale, yScale, stats) || matched_aug._filter(datum, xVar, yVar, xScale, yScale, stats))
-									&& !(last._filter(datum, xVar, yVar, xScale, yScale, stats) && matched_aug._filter(datum, xVar, yVar, xScale, yScale, stats)))) {
-							return true;
+							for (let val of array1) {
+								if (set2.has(val)) {
+									set1.delete(val);
+									set2.delete(val);
+								}
+							}
+							return set1.union(set2);
 						}
 
-						return false;
-
+						return new Set()
 					}
 
-					// combine regression generators
-					function regressionGenerator(data, xVar, yVar, xScale, yScale, stats) {
-
-						let filtered =  data.filter(d => combinedFilter(d, xVar, yVar, xScale, yScale, stats));
-
-						let xValues = filtered.map(d => xScale(d[xVar]));
-						let yValues = filtered.map(d => yScale(d[yVar]));
-
-						let coords = regression(xValues, yValues);
-
-						return coords
-
-					}
-
-					let new_aug = new Aug(new_id, new_name, last.type, last.encoding, regressionGenerator, last.styles, last.selection, last.rank);
+					let new_aug = new Aug(new_id, new_name, last.type, last.encoding, last.generator, last.styles, last.selection, last.rank, combinedAggregator);
 					let new_augs = new_aug.getSpec();
-					new_augs._filter = combinedFilter;
-					merged.push(new_augs);
-
-				} else if (last.name.endsWith("label")) {
-
-					let foundIndex = augs2.findIndex(ag => {
-						let split_name = last.name.split('_');
-						let split_ag = ag.name.split('_');
-
-						return split_name[1] === split_ag[1] && ag.type === "mark"
-					});
-
-					// if no augmentation of the same name is found, add to list without merging
-					if (foundIndex < 0) {
-
-						merged.push(last);
-
-					}
-
-					let matched_aug = augs2.splice(foundIndex, 1)[0];
-
-					// new id is combination of aug ids
-					let split_id = last.id.split('_');
-					split_id[0] = intersect_id;
-					let new_id = split_id.join('_');
-
-					// new name is combination of aug names
-					let split_name = last.name.split('_');
-					split_name[0] = "merged";
-					let new_name = split_name.join('_');
-
-					let regression = this._findLineByLeastSquares;
-
-					// combine filter
-					function combinedFilter(datum, xVar, yVar, xScale, yScale, stats) {
-
-						if (merge_by === "intersect" && (last._filter(datum, xVar, yVar, xScale, yScale, stats) && matched_aug._filter(datum, xVar, yVar, xScale, yScale, stats))) {
-							return true;
-						} else if (merge_by === "union" && (last._filter(datum, xVar, yVar, xScale, yScale, stats) || matched_aug._filter(datum, xVar, yVar, xScale, yScale, stats))) {
-							return true;
-						} else if (merge_by === "difference" && (last._filter(datum, xVar, yVar, xScale, yScale, stats) && !matched_aug._filter(datum, xVar, yVar, xScale, yScale, stats))) {
-							return true;
-						} else if (merge_by === "symmdiff"
-									&& ((last._filter(datum, xVar, yVar, xScale, yScale, stats) || matched_aug._filter(datum, xVar, yVar, xScale, yScale, stats))
-									&& !(last._filter(datum, xVar, yVar, xScale, yScale, stats) && matched_aug._filter(datum, xVar, yVar, xScale, yScale, stats)))) {
-							return true;
-						}
-
-						return false;
-
-					}
-
-					let variable = this._variable;
-
-					function labelGenerator(data, xVar, yVar, xScale, yScale, stats) {
-
-						let result;
-
-						result = data.filter(d => combinedFilter(d, xVar, yVar, xScale, yScale, stats)).map(d => {
-							d.x = xScale(d[xVar]);
-							d.y = yScale(d[yVar]) - 15;
-							// d.text = `${variable} = ${d[variable]}`;
-							d.text = `${variable ? d[variable] : ""}`;
-
-							return d
-						});
-
-						return result;
-
-					}
-
-					let new_aug = new Aug(new_id, new_name, last.type, last.encoding, labelGenerator, last.styles, last.selection, last.rank);
-					let new_augs = new_aug.getSpec();
-					new_augs._filter = combinedFilter;
 					merged.push(new_augs);
 
 				} else {
@@ -332,26 +246,30 @@ export default class GenerationCriteriaBase {
 					split_name[0] = "merged";
 					let new_name = split_name.join('_');
 
-					// combine generators
-					function generator(datum, xVar, yVar, xScale, yScale, stats) {
+					function combinedAggregator(data, xVar, yVar, xScale, yScale, stats) {
+						let set1 = last.aggregator(data, xVar, yVar, xScale, yScale, stats);
+						let set2 = matched_aug.aggregator(data, xVar, yVar, xScale, yScale, stats);
 
-						if (merge_by === "intersect" && (last.generator(datum, xVar, yVar, xScale, yScale, stats) && matched_aug.generator(datum, xVar, yVar, xScale, yScale, stats))) {
-							return true;
-						} else if (merge_by === "union" && (last.generator(datum, xVar, yVar, xScale, yScale, stats) || matched_aug.generator(datum, xVar, yVar, xScale, yScale, stats))) {
-							return true;
-						} else if (merge_by === "difference" && (last.generator(datum, xVar, yVar, xScale, yScale, stats) && !matched_aug.generator(datum, xVar, yVar, xScale, yScale, stats))) {
-							return true;
-						} else if (merge_by === "symmdiff"
-									&& ((last.generator(datum, xVar, yVar, xScale, yScale, stats) || matched_aug.generator(datum, xVar, yVar, xScale, yScale, stats))
-									&& !(last.generator(datum, xVar, yVar, xScale, yScale, stats) && matched_aug.generator(datum, xVar, yVar, xScale, yScale, stats)))) {
-							return true;
+						if (merge_by === "intersect") {
+							return set1.intersection(set2);
+						} else if (merge_by === "union") {
+							return set1.union(set2);
+						} else if (merge_by === "symmdiff") {
+							let array1 = Array.from(set1);
+
+							for (let val of array1) {
+								if (set2.has(val)) {
+									set1.delete(val);
+									set2.delete(val);
+								}
+							}
+							return set1.union(set2);
 						}
 
-						return false;
-
+						return new Set()
 					}
 
-					let new_aug = new Aug(new_id, new_name, last.type, last.encoding, generator, last.styles, last.selection, last.rank);
+					let new_aug = new Aug(new_id, new_name, last.type, last.encoding, last.generator, last.styles, last.selection, last.rank, combinedAggregator);
 					merged.push(new_aug.getSpec());
 
 				}

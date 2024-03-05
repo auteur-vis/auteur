@@ -37,10 +37,20 @@ export default class DerivedValues extends GenerationCriteriaBase {
 
 	}
 
+	_aggregator() {
+
+		return function() {
+
+			return new Set()
+
+		}
+
+	}
+
 	// generator for mark augmentation
 	generateMark(variable, val, type, calc, fn) {
 
-		return function(data, xVar, yVar, xScale, yScale) {
+		return function(data, filteredIndices, xVar, yVar, xScale, yScale) {
 			// If variable not mapped to x or y position, do not render line
 			if (xVar != variable && yVar != variable) {
 				return undefined;
@@ -182,7 +192,7 @@ export default class DerivedValues extends GenerationCriteriaBase {
 	// generator for mark augmentation
 	generateLine(variable, val, type, calc, fn) {
 
-		return function(data, xVar, yVar, xScale, yScale) {
+		return function(data, filteredIndices, xVar, yVar, xScale, yScale) {
 			// If variable not mapped to x or y position, do not render line
 			if (xVar != variable && yVar != variable) {
 				return undefined;
@@ -250,72 +260,15 @@ export default class DerivedValues extends GenerationCriteriaBase {
 
 	}
 
-	generateAxis(variable, val, type, calc, fn) {
-
-		return function(data, xVar, yVar, xScale, yScale) {
-			// If variable not mapped to x or y position, do not render line
-			if (xVar != variable && yVar != variable) {
-				return undefined;
-			}
-	
-			let result;
-
-			if (type === "custom") {
-				result = data.map(datum => fn(datum[variable]));
-			} else if (type === "constant") {
-				if (calc === "add") {
-					result = data.map(datum => datum[variable] + val);
-				} else if (calc === "sub") {
-					result = data.map(datum => datum[variable] - val);
-				} else if (calc === "mult") {
-					result = data.map(datum => datum[variable] * val);
-				} else if (calc === "div") {
-					result = data.map(datum => datum[variable] / val);
-				} else {
-					console.warn(`DerivedValue calc argument ${calc} not recognized.`);
-				}
-			} else {
-				if (calc === "add") {
-					result = data.map(datum => datum[variable] + datum[val]);
-				} else if (calc === "sub") {
-					result = data.map(datum => datum[variable] - datum[val]);
-				} else if (calc === "mult") {
-					result = data.map(datum => datum[variable] * datum[val]);
-				} else if (calc === "div") {
-					result = data.map(datum => datum[variable] / datum[val]);
-				} else {
-					console.warn(`DerivedValue calc argument ${calc} not recognized.`);
-				}
-			}
-
-			if (!result) {
-				return undefined
-			}
-
-			let resultExtent;
-
-			if (xVar === variable) {
-				resultExtent = d3extent(result);
-				return {"x": resultExtent, "y": yScale.domain()};
-			} else if (yVar == variable) {
-				resultExtent = d3extent(result);
-				return {"x": xScale.domain(), "y": resultExtent};
-			}
-
-			return undefined
-		}
-
-	}
-
 	// returns a list of [Aug Class]
 	getAugs() {
 
 		let multipleAug = new Aug(`${this._id}_multiple`, "derived_multiple", "mark", {"mark":undefined},
 										 this.generateMark(this._variable, this._val, this._type, this._calc, this._fn), 
-										 this.mergeStyles(this._customStyles.multiple, markStyles.multiple), this._selection, 1);
+										 this.mergeStyles(this._customStyles.multiple, markStyles.multiple), this._selection, 1, this._aggregator());
 		let lineAug = new Aug(`${this._id}_line`, "derived_line", "mark", {"mark":"line"},
 								 this.generateLine(this._variable, this._val, this._type, this._calc, this._fn),
-								 this.mergeStyles(this._customStyles.line, markStyles.line), this._selection, 2);
+								 this.mergeStyles(this._customStyles.line, markStyles.line), this._selection, 2, this._aggregator());
 
 		return this._filter([multipleAug.getSpec(), lineAug.getSpec()]).sort(this._sort)
 	}

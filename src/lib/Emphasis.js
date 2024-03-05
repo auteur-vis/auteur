@@ -21,14 +21,12 @@ export default class Emphasis extends GenerationCriteriaBase {
 
 	}
 
-	// generator for encoding type augmentations
-	// val can either be a single value or list of values
-	_generator(variable, val, type) {
+	// Returns set of indices of selected data that match gen criteria
+	_aggregator(variable, val, type) {
 
 		let parseVal = this._parseVal;
 
-		return function(datum, xVar, yVar, xScale, yScale, stats) {
-
+		function filterFunction(datum, xVar, yVar, xScale, yScale, stats) {
 			// If no variable or value defined, emphasize entire selection
 			if (!variable || !val) {
 				return true;
@@ -70,7 +68,32 @@ export default class Emphasis extends GenerationCriteriaBase {
 				return isValid(datum[variable])
 			}
 
-			return false;
+			return false
+		}
+
+		return function(data, xVar, yVar, xScale, yScale, stats) {
+
+			let filteredIndices = new Set();
+
+			for (let i=0; i < data.length; i++) {
+				if (filterFunction(data[i], xVar, yVar, xScale, yScale, stats)) {
+					filteredIndices.add(i);
+				}
+			}
+
+			return filteredIndices
+			
+		}
+
+	}
+
+	// generator for encoding type augmentations
+	// val can either be a single value or list of values
+	_generator(variable, val, type) {
+
+		return function(index, filteredIndices) {
+
+			return filteredIndices.has(index);
 		}
 
 	}
@@ -79,11 +102,10 @@ export default class Emphasis extends GenerationCriteriaBase {
 	generateLinearRegression(variable, val, type) {
 
 		let regression = this._findLineByLeastSquares;
-		let regressionFilter = this._generator(variable, val, type);
 
-		return function(data, xVar, yVar, xScale, yScale, stats) {
+		return function(data, filteredIndices, xVar, yVar, xScale, yScale, stats) {
 			
-			let filtered = data.filter(d => regressionFilter(d, xVar, yVar, xScale, yScale, stats));
+			let filtered = data.filter((d, i) => filteredIndices.has(i));
 
 			let xValues = filtered.map(d => xScale(d[xVar]));
 			let yValues = filtered.map(d => yScale(d[yVar]));
@@ -98,16 +120,13 @@ export default class Emphasis extends GenerationCriteriaBase {
 	// generator for label augmentation
 	generateLabel(variable, val, type, stats) {
 
-		let labelFilter = this._generator(variable, val, type);
-
-		return function(data, xVar, yVar, xScale, yScale, stats) {
+		return function(data, filteredIndices, xVar, yVar, xScale, yScale, stats) {
 
 			let result;
 
-			result = data.filter(d => labelFilter(d, xVar, yVar, xScale, yScale, stats)).map(d => {
+			result = data.filter((d, i) => filteredIndices.has(i)).map(d => {
 				d.x = xScale(d[xVar]);
 				d.y = yScale(d[yVar]) - 15;
-				// d.text = `${variable} = ${d[variable]}`;
 				d.text = `${d[variable]}`;
 
 				return d
@@ -124,31 +143,26 @@ export default class Emphasis extends GenerationCriteriaBase {
 
 		let strokeAug = new Aug(`${this._id}_stroke`, "emphasis_stroke", "encoding", undefined,
 								   this._generator(this._variable, this._val, this._type),
-								   this.mergeStyles(this._customStyles.stroke, encodingStyles.stroke), this._selection, 1);
+								   this.mergeStyles(this._customStyles.stroke, encodingStyles.stroke), this._selection, 1, this._aggregator(this._variable, this._val, this._type));
 
 		let labelAug = new Aug(`${this._id}_text`, "emphasis_label", "mark", {"mark":"text"},
 								 this.generateLabel(this._variable, this._val, this._type),
-								 this.mergeStyles(this._customStyles.label, markStyles.label), this._selection, 3);
+								 this.mergeStyles(this._customStyles.label, markStyles.label), this._selection, 3, this._aggregator(this._variable, this._val, this._type));
 
 		let fillAug = new Aug(`${this._id}_fill`, "emphasis_fill", "encoding", undefined,
 								  this._generator(this._variable, this._val, this._type),
-								  this.mergeStyles(this._customStyles.fill, encodingStyles.fill), this._selection, 4);
+								  this.mergeStyles(this._customStyles.fill, encodingStyles.fill), this._selection, 4, this._aggregator(this._variable, this._val, this._type));
 
 		let opacityAug = new Aug(`${this._id}_opacity`, "emphasis_opacity", "encoding", undefined,
 									this._generator(this._variable, this._val, this._type), 
-									this.mergeStyles(this._customStyles.opacity, encodingStyles.opacity), this._selection, 2);
+									this.mergeStyles(this._customStyles.opacity, encodingStyles.opacity), this._selection, 2, this._aggregator(this._variable, this._val, this._type));
 
 		let regressionAug = new Aug(`${this._id}_regression`, "emphasis_regression", "mark", {"mark":"line"},
 								 this.generateLinearRegression(this._variable, this._val, this._type),
-								 this.mergeStyles(this._customStyles.regression, markStyles.line), this._selection, 5);
+								 this.mergeStyles(this._customStyles.regression, markStyles.line), this._selection, 5, this._aggregator(this._variable, this._val, this._type));
 
-		let labelAugs = labelAug.getSpec();
-		labelAugs._filter = this._generator(this._variable, this._val, this._type);
 
-		let regressionAugs = regressionAug.getSpec();
-		regressionAugs._filter = this._generator(this._variable, this._val, this._type);
-
-		return this._filter([strokeAug.getSpec(), labelAugs, fillAug.getSpec(), opacityAug.getSpec(), regressionAugs]).sort(this._sort)
+		return this._filter([strokeAug.getSpec(), labelAug.getSpec(), fillAug.getSpec(), opacityAug.getSpec(), regressionAug.getSpec()]).sort(this._sort)
 	}
 
 	updateVariable(variable) {
