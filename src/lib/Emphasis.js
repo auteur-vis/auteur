@@ -26,7 +26,7 @@ export default class Emphasis extends GenerationCriteriaBase {
 
 		let parseVal = this._parseVal;
 
-		function filterFunction(datum, xVar, yVar, xScale, yScale, stats) {
+		function filterFunction(datum, xScale, yScale, stats) {
 			// If no variable or value defined, emphasize entire selection
 			if (!variable || !val) {
 				return true;
@@ -35,9 +35,9 @@ export default class Emphasis extends GenerationCriteriaBase {
 			let parsed;
 			// If val is array of values
 			if (Array.isArray(val)) {
-				parsed = val.map(v => parseVal(variable, v, xVar, yVar, stats));
+				parsed = val.map(v => parseVal(variable, v, stats));
 			} else {
-				parsed = parseVal(variable, val, xVar, yVar, stats);
+				parsed = parseVal(variable, val, stats);
 			}
 
 			function isValid(singleVal) {
@@ -59,6 +59,7 @@ export default class Emphasis extends GenerationCriteriaBase {
 			}
 
 			if (Array.isArray(datum)) {
+				// for line charts
 				if (type === "any") {
 					return datum.reduce((acc, current) => acc || isValid(current[variable]), false);
 				} else {
@@ -76,7 +77,7 @@ export default class Emphasis extends GenerationCriteriaBase {
 			let filteredIndices = new Set();
 
 			for (let i=0; i < data.length; i++) {
-				if (filterFunction(data[i], xVar, yVar, xScale, yScale, stats)) {
+				if (filterFunction(data[i], xScale, yScale, stats)) {
 					filteredIndices.add(i);
 				}
 			}
@@ -104,6 +105,11 @@ export default class Emphasis extends GenerationCriteriaBase {
 		let regression = this._findLineByLeastSquares;
 
 		return function(data, filteredIndices, xVar, yVar, xScale, yScale, stats) {
+
+			// If no xy-axis specified
+			if (!xVar || !yVar) {
+				return;
+			}
 			
 			let filtered = data.filter((d, i) => filteredIndices.has(i));
 
@@ -121,6 +127,11 @@ export default class Emphasis extends GenerationCriteriaBase {
 	generateLabel(variable, val, type, stats) {
 
 		return function(data, filteredIndices, xVar, yVar, xScale, yScale, stats) {
+
+			// If no xy-axis specified
+			if (!xVar || !yVar) {
+				return;
+			}
 
 			let result;
 

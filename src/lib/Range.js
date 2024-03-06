@@ -31,14 +31,10 @@ export default class Range extends GenerationCriteriaBase {
 
 		let parseVal = this._parseVal;
 
-		function filterFunction(datum, xVar, yVar, xScale, yScale, stats) {
-			// If variable not mapped to x or y position, do nothing
-			if (xVar != variable && yVar != variable) {
-				return false;
-			}
+		function filterFunction(datum, xScale, yScale, stats) {
 
-			let parsedMin = parseVal(variable, min, xVar, yVar, stats);
-			let parsedMax = parseVal(variable, max, xVar, yVar, stats);
+			let parsedMin = parseVal(variable, min, stats);
+			let parsedMax = parseVal(variable, max, stats);
 
 			if (parsedMin > parsedMax) {
 				return false;
@@ -69,7 +65,7 @@ export default class Range extends GenerationCriteriaBase {
 			let filteredIndices = new Set();
 
 			for (let i=0; i < data.length; i++) {
-				if (filterFunction(data[i], xVar, yVar, xScale, yScale, stats)) {
+				if (filterFunction(data[i], xScale, yScale, stats)) {
 					filteredIndices.add(i);
 				}
 			}
@@ -102,8 +98,13 @@ export default class Range extends GenerationCriteriaBase {
 				return [];
 			}
 
-			let parsedMin = parseVal(variable, min, xVar, yVar, stats);
-			let parsedMax = parseVal(variable, max, xVar, yVar, stats);
+			// If no xy-axis specified
+			if (!xVar || !yVar) {
+				return [];
+			}
+
+			let parsedMin = parseVal(variable, min, stats);
+			let parsedMax = parseVal(variable, max, stats);
 
 			if (parsedMin > parsedMax) {
 				return false;
@@ -137,6 +138,11 @@ export default class Range extends GenerationCriteriaBase {
 		let regression = this._findLineByLeastSquares;
 
 		return function(data, filteredIndices, xVar, yVar, xScale, yScale, stats) {
+
+			// If no xy-axis specified
+			if (!xVar || !yVar) {
+				return;
+			}
 			
 			let filtered = data.filter((d, i) => filteredIndices.has(i));
 
@@ -158,14 +164,19 @@ export default class Range extends GenerationCriteriaBase {
 		return function(data, filteredIndices, xVar, yVar, xScale, yScale, stats) {
 			// If variable not mapped to x or y position, do not render line
 			if (xVar != variable && yVar != variable) {
-				return false;
+				return;
 			}
 
-			let parsedMin = parseVal(variable, min, xVar, yVar, stats);
-			let parsedMax = parseVal(variable, max, xVar, yVar, stats);
+			// If no xy-axis specified
+			if (!xVar || !yVar) {
+				return;
+			}
+
+			let parsedMin = parseVal(variable, min, stats);
+			let parsedMax = parseVal(variable, max, stats);
 
 			if (parsedMin > parsedMax) {
-				return false;
+				return;
 			}
 
 			if (xVar == variable) {
@@ -184,6 +195,11 @@ export default class Range extends GenerationCriteriaBase {
 	generateLabel(variable, val, type, stats) {
 
 		return function(data, filteredIndices, xVar, yVar, xScale, yScale, stats) {
+
+			// If no xy-axis specified
+			if (!xVar || !yVar) {
+				return;
+			}
 
 			let result;
 

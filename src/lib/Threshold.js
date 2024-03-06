@@ -27,11 +27,12 @@ export default class Threshold extends GenerationCriteriaBase {
 
 		let parseVal = this._parseVal;
 
-		function filterFunction(datum, xVar, yVar, xScale, yScale, stats) {
+		function filterFunction(datum, xScale, yScale, stats) {
 			
-			let parsed = parseVal(variable, val, xVar, yVar, stats);
+			let parsed = parseVal(variable, val, stats);
 			
 			if (Array.isArray(datum)) {
+				// for line charts
 				if (type === "eq") {
 					return datum.reduce((acc, current) => acc && current[variable] == parsed, true);
 				} else if (type === "le") {
@@ -67,7 +68,7 @@ export default class Threshold extends GenerationCriteriaBase {
 			let filteredIndices = new Set();
 
 			for (let i=0; i < data.length; i++) {
-				if (filterFunction(data[i], xVar, yVar, xScale, yScale, stats)) {
+				if (filterFunction(data[i], xScale, yScale, stats)) {
 					filteredIndices.add(i);
 				}
 			}
@@ -95,12 +96,18 @@ export default class Threshold extends GenerationCriteriaBase {
 		let parseVal = this._parseVal;
 
 		return function(data, filteredIndices, xVar, yVar, xScale, yScale, stats) {
+			
 			// If variable not mapped to x or y position, do not render line
 			if (xVar != variable && yVar != variable) {
-				return false;
+				return;
 			}
 
-			let parsed = parseVal(variable, val, xVar, yVar, stats);
+			// If no xy-axis specified
+			if (!xVar || !yVar) {
+				return;
+			}
+
+			let parsed = parseVal(variable, val, stats);
 
 			if (xVar == variable) {
 				return [{"x1": xScale(parsed), "x2": xScale(parsed), "y1":yScale.range()[0], "y2":yScale.range()[1]}];
@@ -117,6 +124,11 @@ export default class Threshold extends GenerationCriteriaBase {
 		let regression = this._findLineByLeastSquares;
 
 		return function(data, filteredIndices, xVar, yVar, xScale, yScale, stats) {
+
+			// If no xy-axis specified
+			if (!xVar || !yVar) {
+				return;
+			}
 			
 			let filtered = data.filter((d, i) => filteredIndices.has(i));
 
@@ -136,12 +148,18 @@ export default class Threshold extends GenerationCriteriaBase {
 		let parseVal = this._parseVal;
 
 		return function(data, filteredIndices, xVar, yVar, xScale, yScale, stats) {
+
 			// If variable not mapped to x or y position, do not render line
 			if (xVar != variable && yVar != variable) {
-				return false;
+				return;
 			}
 
-			let parsed = parseVal(variable, val, xVar, yVar, stats);
+			// If no xy-axis specified
+			if (!xVar || !yVar) {
+				return;
+			}
+
+			let parsed = parseVal(variable, val, stats);
 
 			if (type === "le" || type === "leq") {
 				if (xVar == variable) {
@@ -172,6 +190,11 @@ export default class Threshold extends GenerationCriteriaBase {
 	generateLabel(variable, val, type, stats) {
 
 		return function(data, filteredIndices, xVar, yVar, xScale, yScale, stats) {
+
+			// If no xy-axis specified
+			if (!xVar || !yVar) {
+				return;
+			}
 
 			let result;
 

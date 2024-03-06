@@ -129,7 +129,7 @@ export default class GenerationCriteriaBase {
 
 	}
 
-	_parseVal(variable, val, xVar, yVar, stats) {
+	_parseVal(variable, val, stats) {
 
 		let values = stats[variable];
 
@@ -168,10 +168,13 @@ export default class GenerationCriteriaBase {
 						return split_name[1] === split_ag[1] && ag.type === "mark"
 					});
 
+					// console.log(foundIndex)
+
 					// if no augmentation of the same name is found, add to list without merging
 					if (foundIndex < 0) {
 
 						merged.push(last);
+						continue;
 
 					}
 
@@ -231,6 +234,7 @@ export default class GenerationCriteriaBase {
 				if (foundIndex < 0) {
 
 					merged.push(last);
+					continue;
 
 				} else {
 

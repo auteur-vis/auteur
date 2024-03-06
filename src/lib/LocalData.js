@@ -33,8 +33,26 @@ export default class LocalData extends GenerationCriteriaBase {
 	generateMark(local=[]) {
 		
 		return function(data, filteredIndices, xVar, yVar, xScale, yScale) {
+
+			// If no xy-axis specified
+			if (!xVar || !yVar) {
+				return;
+			}
 			
-			return(local.map(ld => {
+			return(local.map((ld, i) => {
+
+				// If no xy-axis specified
+				if (!ld[xVar]) {
+					console.error(`LocalData missing variable ${xVar} on row ${i}`)
+					return;
+				}
+
+				// If no xy-axis specified
+				if (!ld[yVar]) {
+					console.error(`LocalData missing variable ${yVar} on row ${i}`)
+					return;
+				}
+
 				ld.x = xScale(ld[xVar]);
 				ld.y = yScale(ld[yVar]);
 				return ld

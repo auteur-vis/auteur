@@ -33,6 +33,11 @@ export default class Regression extends GenerationCriteriaBase {
 		let regression = this._findLineByLeastSquares;
 
 		return function(data, filteredIndices, xVar, yVar, xScale, yScale, stats) {
+
+			// If no xy-axis specified
+			if (!xVar || !yVar) {
+				return;
+			}
 			
 			let filtered = data.filter((d, i) => filteredIndices.has(i));
 
@@ -49,7 +54,7 @@ export default class Regression extends GenerationCriteriaBase {
 	// returns a list of [Aug Class]
 	getAugs() {
 
-		let regressionAug = new Aug(`${this._id}_regression`, "regression_line", "mark", {"mark":"line"},
+		let regressionAug = new Aug(`${this._id}_regression`, "regression_regression", "mark", {"mark":"line"},
 								 this.generateLinearRegression(),
 								 this.mergeStyles(this._customStyles.regression, markStyles.regression), this._selection, 1, this._aggregator());
 

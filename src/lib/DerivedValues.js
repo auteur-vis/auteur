@@ -53,16 +53,16 @@ export default class DerivedValues extends GenerationCriteriaBase {
 		return function(data, filteredIndices, xVar, yVar, xScale, yScale) {
 			// If variable not mapped to x or y position, do not render line
 			if (xVar != variable && yVar != variable) {
-				return undefined;
+				return;
 			}
 
 			if (data.length < 1) {
-				return undefined;
+				return;
 			}
 	
 			let result;
 
-			// special condition for line paths
+			// special condition for line mark
 			if (Array.isArray(data[0])) {
 
 				if (type === "custom") {
@@ -112,7 +112,7 @@ export default class DerivedValues extends GenerationCriteriaBase {
 				}
 
 				if (!result) {
-					return undefined
+					return
 				}
 
 				if (xVar == variable) {
@@ -133,7 +133,7 @@ export default class DerivedValues extends GenerationCriteriaBase {
 					});
 				}
 
-				return undefined;
+				return;
 
 			}
 
@@ -196,6 +196,11 @@ export default class DerivedValues extends GenerationCriteriaBase {
 			// If variable not mapped to x or y position, do not render line
 			if (xVar != variable && yVar != variable) {
 				return undefined;
+			}
+
+			// If no xy-axis specified
+			if (!xVar || !yVar) {
+				return;
 			}
 
 			if (Array.isArray(data[0])) {
