@@ -26,19 +26,15 @@ export default class Range extends GenerationCriteriaBase {
 
 	}
 
-	// generator for encoding type augmentations
-	_generator(variable, min, max, type) {
+	// Returns set of indices of selected data that match gen criteria
+	_aggregator(variable, min, max, type) {
 
 		let parseVal = this._parseVal;
 
-		return function(datum, xVar, yVar, xScale, yScale, stats) {
-			// If variable not mapped to x or y position, do nothing
-			if (xVar != variable && yVar != variable) {
-				return false;
-			}
+		function filterFunction(datum, xScale, yScale, stats) {
 
-			let parsedMin = parseVal(variable, min, xVar, yVar, stats);
-			let parsedMax = parseVal(variable, max, xVar, yVar, stats);
+			let parsedMin = parseVal(variable, min, stats);
+			let parsedMax = parseVal(variable, max, stats);
 
 			if (parsedMin > parsedMax) {
 				return false;
@@ -64,6 +60,31 @@ export default class Range extends GenerationCriteriaBase {
 			return false;
 		}
 
+		return function(data, xVar, yVar, xScale, yScale, stats) {
+
+			let filteredIndices = new Set();
+
+			for (let i=0; i < data.length; i++) {
+				if (filterFunction(data[i], xScale, yScale, stats)) {
+					filteredIndices.add(i);
+				}
+			}
+
+			return filteredIndices
+			
+		}
+
+	}
+
+	// generator for encoding type augmentations
+	// val can either be a single value or list of values
+	_generator(variable, val, type) {
+
+		return function(index, filteredIndices) {
+
+			return filteredIndices.has(index);
+		}
+
 	}
 
 	// generator for rect/shading augmentation
@@ -71,14 +92,19 @@ export default class Range extends GenerationCriteriaBase {
 
 		let parseVal = this._parseVal;
 
-		return function(data, xVar, yVar, xScale, yScale, stats) {
+		return function(data, filteredIndices, xVar, yVar, xScale, yScale, stats) {
 			// If variable not mapped to x or y position, do not render range rect
 			if (xVar != variable && yVar != variable) {
 				return [];
 			}
 
-			let parsedMin = parseVal(variable, min, xVar, yVar, stats);
-			let parsedMax = parseVal(variable, max, xVar, yVar, stats);
+			// If no xy-axis specified
+			if (!xVar || !yVar) {
+				return [];
+			}
+
+			let parsedMin = parseVal(variable, min, stats);
+			let parsedMax = parseVal(variable, max, stats);
 
 			if (parsedMin > parsedMax) {
 				return false;
@@ -107,14 +133,18 @@ export default class Range extends GenerationCriteriaBase {
 	}
 
 	// generator for linear regression augmentation
-	generateLinearRegression(variable, min, max, type) {
+	generateLinearRegression(variable, val, type) {
 
 		let regression = this._findLineByLeastSquares;
-		let regressionFilter = this._generator(variable, min, max, type);
 
-		return function(data, xVar, yVar, xScale, yScale, stats) {
+		return function(data, filteredIndices, xVar, yVar, xScale, yScale, stats) {
+
+			// If no xy-axis specified
+			if (!xVar || !yVar) {
+				return;
+			}
 			
-			let filtered = data.filter(d => regressionFilter(d, xVar, yVar, xScale, yScale, stats));
+			let filtered = data.filter((d, i) => filteredIndices.has(i));
 
 			let xValues = filtered.map(d => xScale(d[xVar]));
 			let yValues = filtered.map(d => yScale(d[yVar]));
@@ -131,17 +161,22 @@ export default class Range extends GenerationCriteriaBase {
 
 		let parseVal = this._parseVal;
 
-		return function(data, xVar, yVar, xScale, yScale, stats) {
+		return function(data, filteredIndices, xVar, yVar, xScale, yScale, stats) {
 			// If variable not mapped to x or y position, do not render line
 			if (xVar != variable && yVar != variable) {
-				return false;
+				return;
 			}
 
-			let parsedMin = parseVal(variable, min, xVar, yVar, stats);
-			let parsedMax = parseVal(variable, max, xVar, yVar, stats);
+			// If no xy-axis specified
+			if (!xVar || !yVar) {
+				return;
+			}
+
+			let parsedMin = parseVal(variable, min, stats);
+			let parsedMax = parseVal(variable, max, stats);
 
 			if (parsedMin > parsedMax) {
-				return false;
+				return;
 			}
 
 			if (xVar == variable) {
@@ -157,18 +192,20 @@ export default class Range extends GenerationCriteriaBase {
 	}
 
 	// generator for label augmentation
-	generateLabel(variable, min, max, type, stats) {
+	generateLabel(variable, val, type, stats) {
 
-		let labelFilter = this._generator(variable, min, max, type);
+		return function(data, filteredIndices, xVar, yVar, xScale, yScale, stats) {
 
-		return function(data, xVar, yVar, xScale, yScale, stats) {
+			// If no xy-axis specified
+			if (!xVar || !yVar) {
+				return;
+			}
 
 			let result;
 
-			result = data.filter(d => labelFilter(d, xVar, yVar, xScale, yScale, stats)).map(d => {
+			result = data.filter((d, i) => filteredIndices.has(i)).map(d => {
 				d.x = xScale(d[xVar]);
 				d.y = yScale(d[yVar]) - 15;
-				// d.text = `${variable} = ${d[variable]}`;
 				d.text = `${d[variable]}`;
 
 				return d
@@ -185,39 +222,33 @@ export default class Range extends GenerationCriteriaBase {
 
 		let rectAug = new Aug(`${this._id}_rect`, "range_rect", "mark", {"mark":"rect"},
 								 this.generateRect(this._variable, this._min, this._max, this._type),
-								 this.mergeStyles(this._customStyles.rect, markStyles.rect), this._selection, 1);
+								 this.mergeStyles(this._customStyles.rect, markStyles.rect), this._selection, 1, this._aggregator(this._variable, this._min, this._max, this._type));
 
 		let opacityAug = new Aug(`${this._id}_opacity`, "range_opacity", "encoding", undefined,
 									this._generator(this._variable, this._min, this._max, this._type), 
-									this.mergeStyles(this._customStyles.opacity, encodingStyles.opacity), this._selection, 2);
+									this.mergeStyles(this._customStyles.opacity, encodingStyles.opacity), this._selection, 2, this._aggregator(this._variable, this._min, this._max, this._type));
 
 		let strokeAug = new Aug(`${this._id}_stroke`, "range_stroke", "encoding", undefined,
 								   this._generator(this._variable, this._min, this._max, this._type),
-								   this.mergeStyles(this._customStyles.stroke, encodingStyles.stroke), this._selection, 3);
+								   this.mergeStyles(this._customStyles.stroke, encodingStyles.stroke), this._selection, 3, this._aggregator(this._variable, this._min, this._max, this._type));
 
 		let fillAug = new Aug(`${this._id}_fill`, "range_fill", "encoding", undefined,
 								  this._generator(this._variable, this._min, this._max, this._type),
-								  this.mergeStyles(this._customStyles.fill, encodingStyles.fill), this._selection, 4);
+								  this.mergeStyles(this._customStyles.fill, encodingStyles.fill), this._selection, 4, this._aggregator(this._variable, this._min, this._max, this._type));
 
 		let textAug = new Aug(`${this._id}_text`, "range_text", "mark", {"mark":"text"},
 								 this.generateText(this._variable, this._min, this._max, this._type),
-								 this.mergeStyles(this._customStyles.text, markStyles.text), this._selection, 1);
+								 this.mergeStyles(this._customStyles.text, markStyles.text), this._selection, 1, this._aggregator(this._variable, this._min, this._max, this._type));
 
 		let labelAug = new Aug(`${this._id}_label`, "range_label", "mark", {"mark":"text"},
 								 this.generateLabel(this._variable, this._min, this._max, this._type),
-								 this.mergeStyles(this._customStyles.label, markStyles.label), this._selection, 5);
+								 this.mergeStyles(this._customStyles.label, markStyles.label), this._selection, 5, this._aggregator(this._variable, this._min, this._max, this._type));
 
 		let regressionAug = new Aug(`${this._id}_regression`, "range_regression", "mark", {"mark":"line"},
 								 this.generateLinearRegression(this._variable, this._min, this._max, this._type),
-								 this.mergeStyles(this._customStyles.regression, markStyles.line), this._selection, 6);
+								 this.mergeStyles(this._customStyles.regression, markStyles.line), this._selection, 6, this._aggregator(this._variable, this._min, this._max, this._type));
 
-		let labelAugs = labelAug.getSpec();
-		labelAugs._filter = this._generator(this._variable, this._min, this._max, this._type);
-
-		let regressionAugs = regressionAug.getSpec();
-		regressionAugs._filter = this._generator(this._variable, this._min, this._max, this._type);
-
-		return this._filter([rectAug.getSpec(), opacityAug.getSpec(), strokeAug.getSpec(), fillAug.getSpec(), textAug.getSpec(), labelAugs, regressionAugs]).sort(this._sort)
+		return this._filter([rectAug.getSpec(), opacityAug.getSpec(), strokeAug.getSpec(), fillAug.getSpec(), textAug.getSpec(), labelAug.getSpec(), regressionAug.getSpec()]).sort(this._sort)
 	}
 
 	updateVariable(variable) {
@@ -234,82 +265,6 @@ export default class Range extends GenerationCriteriaBase {
 	updateType(type) {
 		this._type = type;
 		return this;
-	}
-
-	// returns a list of [Aug Class]
-	// drft can be a single augmentation or a list of augmentations [aug, aug, ...]
-	intersect(drft) {
-
-		let augs = drft;
-
-		if (!Array.isArray(drft)) {
-			augs = [drft];
-		}
-
-		let merged_id = this._id;
-		let all_merged = this.getAugs();
-
-		for (let d of augs) {
-			if (d._name.startsWith("Threshold") || d._name.startsWith("Emphasis") || d._name.startsWith("Range")) {
-
-				merged_id = `${merged_id}-${d._id}`;
-
-				let new_augs = d.getAugs();
-				all_merged = this._mergeAugs(all_merged, new_augs, merged_id);
-			}
-		}
-
-		return all_merged
-	}
-
-	// returns a list of [Aug Class]
-	union(drft) {
-
-		let augs = drft;
-
-		if (!Array.isArray(drft)) {
-			augs = [drft];
-		}
-
-		let merged_id = this._id;
-		let all_merged = this.getAugs();
-
-		for (let d of augs) {
-			if (d._name.startsWith("Threshold") || d._name.startsWith("Emphasis") || d._name.startsWith("Range")) {
-
-				merged_id = `${merged_id}-${d._id}`;
-
-				let new_augs = d.getAugs();
-				all_merged = this._mergeAugs(all_merged, new_augs, merged_id, "union");
-			}
-		}
-
-		return all_merged
-	}
-
-	// returns a list of [Aug Class]
-	symmdiff(drft) {
-
-		let augs = drft;
-
-		if (!Array.isArray(drft)) {
-			augs = [drft];
-		}
-
-		let merged_id = this._id;
-		let all_merged = this.getAugs();
-
-		for (let d of augs) {
-			if (d._name.startsWith("Threshold") || d._name.startsWith("Emphasis") || d._name.startsWith("Range")) {
-
-				merged_id = `${merged_id}-${d._id}`;
-
-				let new_augs = d.getAugs();
-				all_merged = this._mergeAugs(all_merged, new_augs, merged_id, "symmdiff");
-			}
-		}
-
-		return all_merged
 	}
 	
 }

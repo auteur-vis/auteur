@@ -19,12 +19,40 @@ export default class LocalData extends GenerationCriteriaBase {
 
 	}
 
+	_aggregator() {
+
+		return function() {
+
+			return new Set()
+
+		}
+
+	}
+
 	// generator for mark augmentation
 	generateMark(local=[]) {
 		
-		return function(data, xVar, yVar, xScale, yScale) {
+		return function(data, filteredIndices, xVar, yVar, xScale, yScale) {
+
+			// If no xy-axis specified
+			if (!xVar || !yVar) {
+				return;
+			}
 			
-			return(local.map(ld => {
+			return(local.map((ld, i) => {
+
+				// If no xy-axis specified
+				if (!ld[xVar]) {
+					console.error(`LocalData missing variable ${xVar} on row ${i}`)
+					return;
+				}
+
+				// If no xy-axis specified
+				if (!ld[yVar]) {
+					console.error(`LocalData missing variable ${yVar} on row ${i}`)
+					return;
+				}
+
 				ld.x = xScale(ld[xVar]);
 				ld.y = yScale(ld[yVar]);
 				return ld
@@ -39,7 +67,7 @@ export default class LocalData extends GenerationCriteriaBase {
 
 		let markAug = new Aug(`${this._id}_mark`, "local_mark", "mark", {"mark":undefined},
 										 this.generateMark(this._local), 
-										 this.mergeStyles(this._customStyles.mark, undefined), this._selection, 1);
+										 this.mergeStyles(this._customStyles.mark, undefined), this._selection, 1, this._aggregator());
 
 		return this._filter([markAug.getSpec()]).sort(this._sort)
 	}

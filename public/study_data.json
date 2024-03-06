@@ -1,0 +1,1566 @@
+{
+  "NA": [
+    {
+      "Store": "A",
+      "Region": "North America",
+      "Month": 1,
+      "Revenue (in thousands)": 34,
+      "Cost (in thousands)": 14,
+      "Profit (in thousands)": 20
+    },
+    {
+      "Store": "A",
+      "Region": "North America",
+      "Month": 2,
+      "Revenue (in thousands)": 33,
+      "Cost (in thousands)": 25,
+      "Profit (in thousands)": 8
+    },
+    {
+      "Store": "A",
+      "Region": "North America",
+      "Month": 3,
+      "Revenue (in thousands)": 34,
+      "Cost (in thousands)": 7,
+      "Profit (in thousands)": 27
+    },
+    {
+      "Store": "A",
+      "Region": "North America",
+      "Month": 4,
+      "Revenue (in thousands)": 34,
+      "Cost (in thousands)": 21,
+      "Profit (in thousands)": 13
+    },
+    {
+      "Store": "A",
+      "Region": "North America",
+      "Month": 5,
+      "Revenue (in thousands)": 32,
+      "Cost (in thousands)": 12,
+      "Profit (in thousands)": 20
+    },
+    {
+      "Store": "A",
+      "Region": "North America",
+      "Month": 6,
+      "Revenue (in thousands)": 32,
+      "Cost (in thousands)": 21,
+      "Profit (in thousands)": 11
+    },
+    {
+      "Store": "A",
+      "Region": "North America",
+      "Month": 7,
+      "Revenue (in thousands)": 30,
+      "Cost (in thousands)": 19,
+      "Profit (in thousands)": 11
+    },
+    {
+      "Store": "A",
+      "Region": "North America",
+      "Month": 8,
+      "Revenue (in thousands)": 31,
+      "Cost (in thousands)": 19,
+      "Profit (in thousands)": 12
+    },
+    {
+      "Store": "A",
+      "Region": "North America",
+      "Month": 9,
+      "Revenue (in thousands)": 33,
+      "Cost (in thousands)": 20,
+      "Profit (in thousands)": 13
+    },
+    {
+      "Store": "A",
+      "Region": "North America",
+      "Month": 10,
+      "Revenue (in thousands)": 34,
+      "Cost (in thousands)": 25,
+      "Profit (in thousands)": 9
+    },
+    {
+      "Store": "A",
+      "Region": "North America",
+      "Month": 11,
+      "Revenue (in thousands)": 34,
+      "Cost (in thousands)": 20,
+      "Profit (in thousands)": 14
+    },
+    {
+      "Store": "A",
+      "Region": "North America",
+      "Month": 12,
+      "Revenue (in thousands)": 40,
+      "Cost (in thousands)": 12,
+      "Profit (in thousands)": 28
+    },
+    {
+      "Store": "B",
+      "Region": "North America",
+      "Month": 1,
+      "Revenue (in thousands)": 11,
+      "Cost (in thousands)": 4,
+      "Profit (in thousands)": 7
+    },
+    {
+      "Store": "B",
+      "Region": "North America",
+      "Month": 2,
+      "Revenue (in thousands)": 9,
+      "Cost (in thousands)": 2,
+      "Profit (in thousands)": 7
+    },
+    {
+      "Store": "B",
+      "Region": "North America",
+      "Month": 3,
+      "Revenue (in thousands)": 10,
+      "Cost (in thousands)": 2,
+      "Profit (in thousands)": 8
+    },
+    {
+      "Store": "B",
+      "Region": "North America",
+      "Month": 4,
+      "Revenue (in thousands)": 12,
+      "Cost (in thousands)": 1,
+      "Profit (in thousands)": 11
+    },
+    {
+      "Store": "B",
+      "Region": "North America",
+      "Month": 5,
+      "Revenue (in thousands)": 13,
+      "Cost (in thousands)": 6,
+      "Profit (in thousands)": 7
+    },
+    {
+      "Store": "B",
+      "Region": "North America",
+      "Month": 6,
+      "Revenue (in thousands)": 12,
+      "Cost (in thousands)": 9,
+      "Profit (in thousands)": 3
+    },
+    {
+      "Store": "B",
+      "Region": "North America",
+      "Month": 7,
+      "Revenue (in thousands)": 12,
+      "Cost (in thousands)": 4,
+      "Profit (in thousands)": 8
+    },
+    {
+      "Store": "B",
+      "Region": "North America",
+      "Month": 8,
+      "Revenue (in thousands)": 8,
+      "Cost (in thousands)": 1,
+      "Profit (in thousands)": 7
+    },
+    {
+      "Store": "B",
+      "Region": "North America",
+      "Month": 9,
+      "Revenue (in thousands)": 11,
+      "Cost (in thousands)": 9,
+      "Profit (in thousands)": 2
+    },
+    {
+      "Store": "B",
+      "Region": "North America",
+      "Month": 10,
+      "Revenue (in thousands)": 9,
+      "Cost (in thousands)": 3,
+      "Profit (in thousands)": 6
+    },
+    {
+      "Store": "B",
+      "Region": "North America",
+      "Month": 11,
+      "Revenue (in thousands)": 11,
+      "Cost (in thousands)": 9,
+      "Profit (in thousands)": 2
+    },
+    {
+      "Store": "B",
+      "Region": "North America",
+      "Month": 12,
+      "Revenue (in thousands)": 17,
+      "Cost (in thousands)": 3,
+      "Profit (in thousands)": 14
+    },
+    {
+      "Store": "C",
+      "Region": "North America",
+      "Month": 1,
+      "Revenue (in thousands)": 14,
+      "Cost (in thousands)": 3,
+      "Profit (in thousands)": 11
+    },
+    {
+      "Store": "C",
+      "Region": "North America",
+      "Month": 2,
+      "Revenue (in thousands)": 15,
+      "Cost (in thousands)": 4,
+      "Profit (in thousands)": 11
+    },
+    {
+      "Store": "C",
+      "Region": "North America",
+      "Month": 3,
+      "Revenue (in thousands)": 16,
+      "Cost (in thousands)": 4,
+      "Profit (in thousands)": 12
+    },
+    {
+      "Store": "C",
+      "Region": "North America",
+      "Month": 4,
+      "Revenue (in thousands)": 10,
+      "Cost (in thousands)": 5,
+      "Profit (in thousands)": 5
+    },
+    {
+      "Store": "C",
+      "Region": "North America",
+      "Month": 5,
+      "Revenue (in thousands)": 15,
+      "Cost (in thousands)": 9,
+      "Profit (in thousands)": 6
+    },
+    {
+      "Store": "C",
+      "Region": "North America",
+      "Month": 6,
+      "Revenue (in thousands)": 15,
+      "Cost (in thousands)": 9,
+      "Profit (in thousands)": 6
+    },
+    {
+      "Store": "C",
+      "Region": "North America",
+      "Month": 7,
+      "Revenue (in thousands)": 10,
+      "Cost (in thousands)": 6,
+      "Profit (in thousands)": 4
+    },
+    {
+      "Store": "C",
+      "Region": "North America",
+      "Month": 8,
+      "Revenue (in thousands)": 13,
+      "Cost (in thousands)": 8,
+      "Profit (in thousands)": 5
+    },
+    {
+      "Store": "C",
+      "Region": "North America",
+      "Month": 9,
+      "Revenue (in thousands)": 15,
+      "Cost (in thousands)": 4,
+      "Profit (in thousands)": 11
+    },
+    {
+      "Store": "C",
+      "Region": "North America",
+      "Month": 10,
+      "Revenue (in thousands)": 11,
+      "Cost (in thousands)": 7,
+      "Profit (in thousands)": 4
+    },
+    {
+      "Store": "C",
+      "Region": "North America",
+      "Month": 11,
+      "Revenue (in thousands)": 15,
+      "Cost (in thousands)": 5,
+      "Profit (in thousands)": 10
+    },
+    {
+      "Store": "C",
+      "Region": "North America",
+      "Month": 12,
+      "Revenue (in thousands)": 25,
+      "Cost (in thousands)": 16,
+      "Profit (in thousands)": 9
+    }
+  ],
+  "Europe": [
+    {
+      "Store": "D",
+      "Region": "Europe",
+      "Month": 1,
+      "Revenue (in thousands)": 26,
+      "Cost": 4,
+      "Profit": 22,
+      "__EMPTY_1": "Profit",
+      "__EMPTY_2": "Rev"
+    },
+    {
+      "Store": "D",
+      "Region": "Europe",
+      "Month": 2,
+      "Revenue (in thousands)": 21,
+      "Cost": 15,
+      "Profit": 6,
+      "__EMPTY_1": 150,
+      "__EMPTY_2": 312,
+      "__EMPTY_3": "C"
+    },
+    {
+      "Store": "D",
+      "Region": "Europe",
+      "Month": 3,
+      "Revenue (in thousands)": 25,
+      "Cost": 9,
+      "Profit": 16,
+      "__EMPTY_1": 156,
+      "__EMPTY_2": 270,
+      "__EMPTY_3": "D"
+    },
+    {
+      "Store": "D",
+      "Region": "Europe",
+      "Month": 4,
+      "Revenue (in thousands)": 26,
+      "Cost": 16,
+      "Profit": 10
+    },
+    {
+      "Store": "D",
+      "Region": "Europe",
+      "Month": 5,
+      "Revenue (in thousands)": 24,
+      "Cost": 17,
+      "Profit": 7
+    },
+    {
+      "Store": "D",
+      "Region": "Europe",
+      "Month": 6,
+      "Revenue (in thousands)": 24,
+      "Cost": 9,
+      "Profit": 15
+    },
+    {
+      "Store": "D",
+      "Region": "Europe",
+      "Month": 7,
+      "Revenue (in thousands)": 26,
+      "Cost": 20,
+      "Profit": 6
+    },
+    {
+      "Store": "D",
+      "Region": "Europe",
+      "Month": 8,
+      "Revenue (in thousands)": 25,
+      "Cost": 4,
+      "Profit": 21
+    },
+    {
+      "Store": "D",
+      "Region": "Europe",
+      "Month": 9,
+      "Revenue (in thousands)": 28,
+      "Cost": 19,
+      "Profit": 9
+    },
+    {
+      "Store": "D",
+      "Region": "Europe",
+      "Month": 10,
+      "Revenue (in thousands)": 25,
+      "Cost": 12,
+      "Profit": 13
+    },
+    {
+      "Store": "D",
+      "Region": "Europe",
+      "Month": 11,
+      "Revenue (in thousands)": 27,
+      "Cost": 15,
+      "Profit": 12
+    },
+    {
+      "Store": "D",
+      "Region": "Europe",
+      "Month": 12,
+      "Revenue (in thousands)": 35,
+      "Cost": 22,
+      "Profit": 13
+    },
+    {
+      "Store": "E",
+      "Region": "Europe",
+      "Month": 1,
+      "Revenue (in thousands)": 18,
+      "Cost": 2,
+      "Profit": 16
+    },
+    {
+      "Store": "E",
+      "Region": "Europe",
+      "Month": 2,
+      "Revenue (in thousands)": 23,
+      "Cost": 12,
+      "Profit": 11
+    },
+    {
+      "Store": "E",
+      "Region": "Europe",
+      "Month": 3,
+      "Revenue (in thousands)": 18,
+      "Cost": 11,
+      "Profit": 7
+    },
+    {
+      "Store": "E",
+      "Region": "Europe",
+      "Month": 4,
+      "Revenue (in thousands)": 23,
+      "Cost": 18,
+      "Profit": 5
+    },
+    {
+      "Store": "E",
+      "Region": "Europe",
+      "Month": 5,
+      "Revenue (in thousands)": 18,
+      "Cost": 7,
+      "Profit": 11
+    },
+    {
+      "Store": "E",
+      "Region": "Europe",
+      "Month": 6,
+      "Revenue (in thousands)": 25,
+      "Cost": 19,
+      "Profit": 6
+    },
+    {
+      "Store": "E",
+      "Region": "Europe",
+      "Month": 7,
+      "Revenue (in thousands)": 20,
+      "Cost": 4,
+      "Profit": 16
+    },
+    {
+      "Store": "E",
+      "Region": "Europe",
+      "Month": 8,
+      "Revenue (in thousands)": 24,
+      "Cost": 10,
+      "Profit": 14
+    },
+    {
+      "Store": "E",
+      "Region": "Europe",
+      "Month": 9,
+      "Revenue (in thousands)": 24,
+      "Cost": 3,
+      "Profit": 21
+    },
+    {
+      "Store": "E",
+      "Region": "Europe",
+      "Month": 10,
+      "Revenue (in thousands)": 24,
+      "Cost": 10,
+      "Profit": 14
+    },
+    {
+      "Store": "E",
+      "Region": "Europe",
+      "Month": 11,
+      "Revenue (in thousands)": 22,
+      "Cost": 2,
+      "Profit": 20
+    },
+    {
+      "Store": "E",
+      "Region": "Europe",
+      "Month": 12,
+      "Revenue (in thousands)": 31,
+      "Cost": 16,
+      "Profit": 15
+    }
+  ],
+  "SA": [
+    {
+      "Store": "F",
+      "Region": "South America",
+      "Month": 1,
+      "Revenue (in thousands)": 21,
+      "Cost (in thousands)": 9,
+      "Profit (in thousands)": 12,
+      "__EMPTY_1": "Profit",
+      "__EMPTY_2": "Rev"
+    },
+    {
+      "Store": "F",
+      "Region": "South America",
+      "Month": 2,
+      "Revenue (in thousands)": 21,
+      "Cost (in thousands)": 14,
+      "Profit (in thousands)": 7,
+      "__EMPTY_1": 157,
+      "__EMPTY_2": 276,
+      "__EMPTY_3": "F"
+    },
+    {
+      "Store": "F",
+      "Region": "South America",
+      "Month": 3,
+      "Revenue (in thousands)": 23,
+      "Cost (in thousands)": 16,
+      "Profit (in thousands)": 7,
+      "__EMPTY_1": 108,
+      "__EMPTY_2": 248,
+      "__EMPTY_3": "G"
+    },
+    {
+      "Store": "F",
+      "Region": "South America",
+      "Month": 4,
+      "Revenue (in thousands)": 23,
+      "Cost (in thousands)": 4,
+      "Profit (in thousands)": 19
+    },
+    {
+      "Store": "F",
+      "Region": "South America",
+      "Month": 5,
+      "Revenue (in thousands)": 23,
+      "Cost (in thousands)": 11,
+      "Profit (in thousands)": 12
+    },
+    {
+      "Store": "F",
+      "Region": "South America",
+      "Month": 6,
+      "Revenue (in thousands)": 22,
+      "Cost (in thousands)": 10,
+      "Profit (in thousands)": 12
+    },
+    {
+      "Store": "F",
+      "Region": "South America",
+      "Month": 7,
+      "Revenue (in thousands)": 22,
+      "Cost (in thousands)": 8,
+      "Profit (in thousands)": 14
+    },
+    {
+      "Store": "F",
+      "Region": "South America",
+      "Month": 8,
+      "Revenue (in thousands)": 22,
+      "Cost (in thousands)": 12,
+      "Profit (in thousands)": 10
+    },
+    {
+      "Store": "F",
+      "Region": "South America",
+      "Month": 9,
+      "Revenue (in thousands)": 25,
+      "Cost (in thousands)": 7,
+      "Profit (in thousands)": 18
+    },
+    {
+      "Store": "F",
+      "Region": "South America",
+      "Month": 10,
+      "Revenue (in thousands)": 23,
+      "Cost (in thousands)": 8,
+      "Profit (in thousands)": 15
+    },
+    {
+      "Store": "F",
+      "Region": "South America",
+      "Month": 11,
+      "Revenue (in thousands)": 22,
+      "Cost (in thousands)": 2,
+      "Profit (in thousands)": 20
+    },
+    {
+      "Store": "F",
+      "Region": "South America",
+      "Month": 12,
+      "Revenue (in thousands)": 29,
+      "Cost (in thousands)": 18,
+      "Profit (in thousands)": 11
+    },
+    {
+      "Store": "G",
+      "Region": "South America",
+      "Month": 1,
+      "Revenue (in thousands)": 20,
+      "Cost (in thousands)": 16,
+      "Profit (in thousands)": 4
+    },
+    {
+      "Store": "G",
+      "Region": "South America",
+      "Month": 2,
+      "Revenue (in thousands)": 20,
+      "Cost (in thousands)": 12,
+      "Profit (in thousands)": 8
+    },
+    {
+      "Store": "G",
+      "Region": "South America",
+      "Month": 3,
+      "Revenue (in thousands)": 22,
+      "Cost (in thousands)": 11,
+      "Profit (in thousands)": 11
+    },
+    {
+      "Store": "G",
+      "Region": "South America",
+      "Month": 4,
+      "Revenue (in thousands)": 18,
+      "Cost (in thousands)": 11,
+      "Profit (in thousands)": 7
+    },
+    {
+      "Store": "G",
+      "Region": "South America",
+      "Month": 5,
+      "Revenue (in thousands)": 19,
+      "Cost (in thousands)": 6,
+      "Profit (in thousands)": 13
+    },
+    {
+      "Store": "G",
+      "Region": "South America",
+      "Month": 6,
+      "Revenue (in thousands)": 19,
+      "Cost (in thousands)": 15,
+      "Profit (in thousands)": 4
+    },
+    {
+      "Store": "G",
+      "Region": "South America",
+      "Month": 7,
+      "Revenue (in thousands)": 19,
+      "Cost (in thousands)": 4,
+      "Profit (in thousands)": 15
+    },
+    {
+      "Store": "G",
+      "Region": "South America",
+      "Month": 8,
+      "Revenue (in thousands)": 21,
+      "Cost (in thousands)": 6,
+      "Profit (in thousands)": 15
+    },
+    {
+      "Store": "G",
+      "Region": "South America",
+      "Month": 9,
+      "Revenue (in thousands)": 22,
+      "Cost (in thousands)": 17,
+      "Profit (in thousands)": 5
+    },
+    {
+      "Store": "G",
+      "Region": "South America",
+      "Month": 10,
+      "Revenue (in thousands)": 20,
+      "Cost (in thousands)": 13,
+      "Profit (in thousands)": 7
+    },
+    {
+      "Store": "G",
+      "Region": "South America",
+      "Month": 11,
+      "Revenue (in thousands)": 20,
+      "Cost (in thousands)": 10,
+      "Profit (in thousands)": 10
+    },
+    {
+      "Store": "G",
+      "Region": "South America",
+      "Month": 12,
+      "Revenue (in thousands)": 28,
+      "Cost (in thousands)": 19,
+      "Profit (in thousands)": 9
+    }
+  ],
+  "Charts": [
+    {
+      "Store": "A",
+      "Total Revenue": 401,
+      "Total Profit": 186
+    },
+    {
+      "Store": "B",
+      "Total Revenue": 135,
+      "Total Profit": 82
+    },
+    {
+      "Store": "C",
+      "Total Revenue": 174,
+      "Total Profit": 94
+    },
+    {
+      "Store": "F",
+      "Total Revenue": 276,
+      "Total Profit": 157
+    },
+    {
+      "Store": "G",
+      "Total Revenue": 248,
+      "Total Profit": 108
+    },
+    {
+      "Store": "A",
+      "Total Revenue": 401,
+      "Total Profit": 186
+    },
+    {
+      "Store": "B",
+      "Total Revenue": 135,
+      "Total Profit": 82
+    },
+    {
+      "Store": "C",
+      "Total Revenue": 174,
+      "Total Profit": 94
+    },
+    {
+      "Store": "D",
+      "Total Revenue": 312,
+      "Total Profit": 150
+    },
+    {
+      "Store": "E",
+      "Total Revenue": 270,
+      "Total Profit": 156
+    },
+    {
+      "Store": "F",
+      "Total Revenue": 183,
+      "Total Profit": 92
+    },
+    {
+      "Store": "G",
+      "Total Revenue": 285,
+      "Total Profit": 147
+    }
+  ],
+  "Sheet8": [
+    {
+      "month": 1,
+      "A": 34,
+      "B": 11,
+      "C": 14,
+      "F": 21,
+      "G": 20
+    },
+    {
+      "month": 2,
+      "A": 33,
+      "B": 9,
+      "C": 15,
+      "F": 21,
+      "G": 20
+    },
+    {
+      "month": 3,
+      "A": 34,
+      "B": 10,
+      "C": 16,
+      "F": 23,
+      "G": 22
+    },
+    {
+      "month": 4,
+      "A": 34,
+      "B": 12,
+      "C": 10,
+      "F": 23,
+      "G": 18
+    },
+    {
+      "month": 5,
+      "A": 32,
+      "B": 13,
+      "C": 15,
+      "F": 23,
+      "G": 19
+    },
+    {
+      "month": 6,
+      "A": 32,
+      "B": 12,
+      "C": 15,
+      "F": 22,
+      "G": 19
+    },
+    {
+      "month": 7,
+      "A": 30,
+      "B": 12,
+      "C": 10,
+      "F": 22,
+      "G": 19
+    },
+    {
+      "month": 8,
+      "A": 31,
+      "B": 8,
+      "C": 13,
+      "F": 22,
+      "G": 21
+    },
+    {
+      "month": 9,
+      "A": 33,
+      "B": 11,
+      "C": 15,
+      "F": 25,
+      "G": 22
+    },
+    {
+      "month": 10,
+      "A": 34,
+      "B": 9,
+      "C": 11,
+      "F": 23,
+      "G": 20
+    },
+    {
+      "month": 11,
+      "A": 34,
+      "B": 11,
+      "C": 15,
+      "F": 22,
+      "G": 20
+    },
+    {
+      "month": 12,
+      "A": 40,
+      "B": 17,
+      "C": 25,
+      "F": 29,
+      "G": 28
+    }
+  ],
+  "All": [
+    {
+      "Store": "A",
+      "Region": "North America",
+      "Month": 1,
+      "Revenue (in thousands)": 34,
+      "Cost": 14,
+      "Profit": 20
+    },
+    {
+      "Store": "A",
+      "Region": "North America",
+      "Month": 2,
+      "Revenue (in thousands)": 33,
+      "Cost": 25,
+      "Profit": 8
+    },
+    {
+      "Store": "A",
+      "Region": "North America",
+      "Month": 3,
+      "Revenue (in thousands)": 34,
+      "Cost": 7,
+      "Profit": 27
+    },
+    {
+      "Store": "A",
+      "Region": "North America",
+      "Month": 4,
+      "Revenue (in thousands)": 34,
+      "Cost": 21,
+      "Profit": 13
+    },
+    {
+      "Store": "A",
+      "Region": "North America",
+      "Month": 5,
+      "Revenue (in thousands)": 32,
+      "Cost": 12,
+      "Profit": 20
+    },
+    {
+      "Store": "A",
+      "Region": "North America",
+      "Month": 6,
+      "Revenue (in thousands)": 32,
+      "Cost": 21,
+      "Profit": 11
+    },
+    {
+      "Store": "A",
+      "Region": "North America",
+      "Month": 7,
+      "Revenue (in thousands)": 30,
+      "Cost": 19,
+      "Profit": 11
+    },
+    {
+      "Store": "A",
+      "Region": "North America",
+      "Month": 8,
+      "Revenue (in thousands)": 31,
+      "Cost": 19,
+      "Profit": 12
+    },
+    {
+      "Store": "A",
+      "Region": "North America",
+      "Month": 9,
+      "Revenue (in thousands)": 33,
+      "Cost": 20,
+      "Profit": 13
+    },
+    {
+      "Store": "A",
+      "Region": "North America",
+      "Month": 10,
+      "Revenue (in thousands)": 34,
+      "Cost": 25,
+      "Profit": 9
+    },
+    {
+      "Store": "A",
+      "Region": "North America",
+      "Month": 11,
+      "Revenue (in thousands)": 34,
+      "Cost": 20,
+      "Profit": 14
+    },
+    {
+      "Store": "A",
+      "Region": "North America",
+      "Month": 12,
+      "Revenue (in thousands)": 40,
+      "Cost": 12,
+      "Profit": 28
+    },
+    {
+      "Store": "B",
+      "Region": "North America",
+      "Month": 1,
+      "Revenue (in thousands)": 11,
+      "Cost": 4,
+      "Profit": 7
+    },
+    {
+      "Store": "B",
+      "Region": "North America",
+      "Month": 2,
+      "Revenue (in thousands)": 9,
+      "Cost": 2,
+      "Profit": 7
+    },
+    {
+      "Store": "B",
+      "Region": "North America",
+      "Month": 3,
+      "Revenue (in thousands)": 10,
+      "Cost": 2,
+      "Profit": 8
+    },
+    {
+      "Store": "B",
+      "Region": "North America",
+      "Month": 4,
+      "Revenue (in thousands)": 12,
+      "Cost": 1,
+      "Profit": 11
+    },
+    {
+      "Store": "B",
+      "Region": "North America",
+      "Month": 5,
+      "Revenue (in thousands)": 13,
+      "Cost": 6,
+      "Profit": 7
+    },
+    {
+      "Store": "B",
+      "Region": "North America",
+      "Month": 6,
+      "Revenue (in thousands)": 12,
+      "Cost": 9,
+      "Profit": 3
+    },
+    {
+      "Store": "B",
+      "Region": "North America",
+      "Month": 7,
+      "Revenue (in thousands)": 12,
+      "Cost": 4,
+      "Profit": 8
+    },
+    {
+      "Store": "B",
+      "Region": "North America",
+      "Month": 8,
+      "Revenue (in thousands)": 8,
+      "Cost": 1,
+      "Profit": 7
+    },
+    {
+      "Store": "B",
+      "Region": "North America",
+      "Month": 9,
+      "Revenue (in thousands)": 11,
+      "Cost": 9,
+      "Profit": 2
+    },
+    {
+      "Store": "B",
+      "Region": "North America",
+      "Month": 10,
+      "Revenue (in thousands)": 9,
+      "Cost": 3,
+      "Profit": 6
+    },
+    {
+      "Store": "B",
+      "Region": "North America",
+      "Month": 11,
+      "Revenue (in thousands)": 11,
+      "Cost": 9,
+      "Profit": 2
+    },
+    {
+      "Store": "B",
+      "Region": "North America",
+      "Month": 12,
+      "Revenue (in thousands)": 17,
+      "Cost": 3,
+      "Profit": 14
+    },
+    {
+      "Store": "C",
+      "Region": "North America",
+      "Month": 1,
+      "Revenue (in thousands)": 14,
+      "Cost": 3,
+      "Profit": 11
+    },
+    {
+      "Store": "C",
+      "Region": "North America",
+      "Month": 2,
+      "Revenue (in thousands)": 15,
+      "Cost": 4,
+      "Profit": 11
+    },
+    {
+      "Store": "C",
+      "Region": "North America",
+      "Month": 3,
+      "Revenue (in thousands)": 16,
+      "Cost": 4,
+      "Profit": 12
+    },
+    {
+      "Store": "C",
+      "Region": "North America",
+      "Month": 4,
+      "Revenue (in thousands)": 10,
+      "Cost": 5,
+      "Profit": 5
+    },
+    {
+      "Store": "C",
+      "Region": "North America",
+      "Month": 5,
+      "Revenue (in thousands)": 15,
+      "Cost": 9,
+      "Profit": 6
+    },
+    {
+      "Store": "C",
+      "Region": "North America",
+      "Month": 6,
+      "Revenue (in thousands)": 15,
+      "Cost": 9,
+      "Profit": 6
+    },
+    {
+      "Store": "C",
+      "Region": "North America",
+      "Month": 7,
+      "Revenue (in thousands)": 10,
+      "Cost": 6,
+      "Profit": 4
+    },
+    {
+      "Store": "C",
+      "Region": "North America",
+      "Month": 8,
+      "Revenue (in thousands)": 13,
+      "Cost": 8,
+      "Profit": 5
+    },
+    {
+      "Store": "C",
+      "Region": "North America",
+      "Month": 9,
+      "Revenue (in thousands)": 15,
+      "Cost": 4,
+      "Profit": 11
+    },
+    {
+      "Store": "C",
+      "Region": "North America",
+      "Month": 10,
+      "Revenue (in thousands)": 11,
+      "Cost": 7,
+      "Profit": 4
+    },
+    {
+      "Store": "C",
+      "Region": "North America",
+      "Month": 11,
+      "Revenue (in thousands)": 15,
+      "Cost": 5,
+      "Profit": 10
+    },
+    {
+      "Store": "C",
+      "Region": "North America",
+      "Month": 12,
+      "Revenue (in thousands)": 25,
+      "Cost": 16,
+      "Profit": 9
+    },
+    {
+      "Store": "F",
+      "Region": "South America",
+      "Month": 1,
+      "Revenue (in thousands)": 21,
+      "Cost": 9,
+      "Profit": 12
+    },
+    {
+      "Store": "F",
+      "Region": "South America",
+      "Month": 2,
+      "Revenue (in thousands)": 21,
+      "Cost": 14,
+      "Profit": 7
+    },
+    {
+      "Store": "F",
+      "Region": "South America",
+      "Month": 3,
+      "Revenue (in thousands)": 23,
+      "Cost": 16,
+      "Profit": 7
+    },
+    {
+      "Store": "F",
+      "Region": "South America",
+      "Month": 4,
+      "Revenue (in thousands)": 23,
+      "Cost": 4,
+      "Profit": 19
+    },
+    {
+      "Store": "F",
+      "Region": "South America",
+      "Month": 5,
+      "Revenue (in thousands)": 23,
+      "Cost": 11,
+      "Profit": 12
+    },
+    {
+      "Store": "F",
+      "Region": "South America",
+      "Month": 6,
+      "Revenue (in thousands)": 22,
+      "Cost": 10,
+      "Profit": 12
+    },
+    {
+      "Store": "F",
+      "Region": "South America",
+      "Month": 7,
+      "Revenue (in thousands)": 22,
+      "Cost": 8,
+      "Profit": 14
+    },
+    {
+      "Store": "F",
+      "Region": "South America",
+      "Month": 8,
+      "Revenue (in thousands)": 22,
+      "Cost": 12,
+      "Profit": 10
+    },
+    {
+      "Store": "F",
+      "Region": "South America",
+      "Month": 9,
+      "Revenue (in thousands)": 25,
+      "Cost": 7,
+      "Profit": 18
+    },
+    {
+      "Store": "F",
+      "Region": "South America",
+      "Month": 10,
+      "Revenue (in thousands)": 23,
+      "Cost": 8,
+      "Profit": 15
+    },
+    {
+      "Store": "F",
+      "Region": "South America",
+      "Month": 11,
+      "Revenue (in thousands)": 22,
+      "Cost": 2,
+      "Profit": 20
+    },
+    {
+      "Store": "F",
+      "Region": "South America",
+      "Month": 12,
+      "Revenue (in thousands)": 29,
+      "Cost": 18,
+      "Profit": 11
+    },
+    {
+      "Store": "G",
+      "Region": "South America",
+      "Month": 1,
+      "Revenue (in thousands)": 20,
+      "Cost": 16,
+      "Profit": 4
+    },
+    {
+      "Store": "G",
+      "Region": "South America",
+      "Month": 2,
+      "Revenue (in thousands)": 20,
+      "Cost": 12,
+      "Profit": 8
+    },
+    {
+      "Store": "G",
+      "Region": "South America",
+      "Month": 3,
+      "Revenue (in thousands)": 22,
+      "Cost": 11,
+      "Profit": 11
+    },
+    {
+      "Store": "G",
+      "Region": "South America",
+      "Month": 4,
+      "Revenue (in thousands)": 18,
+      "Cost": 11,
+      "Profit": 7
+    },
+    {
+      "Store": "G",
+      "Region": "South America",
+      "Month": 5,
+      "Revenue (in thousands)": 19,
+      "Cost": 6,
+      "Profit": 13
+    },
+    {
+      "Store": "G",
+      "Region": "South America",
+      "Month": 6,
+      "Revenue (in thousands)": 19,
+      "Cost": 15,
+      "Profit": 4
+    },
+    {
+      "Store": "G",
+      "Region": "South America",
+      "Month": 7,
+      "Revenue (in thousands)": 19,
+      "Cost": 4,
+      "Profit": 15
+    },
+    {
+      "Store": "G",
+      "Region": "South America",
+      "Month": 8,
+      "Revenue (in thousands)": 21,
+      "Cost": 6,
+      "Profit": 15
+    },
+    {
+      "Store": "G",
+      "Region": "South America",
+      "Month": 9,
+      "Revenue (in thousands)": 22,
+      "Cost": 17,
+      "Profit": 5
+    },
+    {
+      "Store": "G",
+      "Region": "South America",
+      "Month": 10,
+      "Revenue (in thousands)": 20,
+      "Cost": 13,
+      "Profit": 7
+    },
+    {
+      "Store": "G",
+      "Region": "South America",
+      "Month": 11,
+      "Revenue (in thousands)": 20,
+      "Cost": 10,
+      "Profit": 10
+    },
+    {
+      "Store": "G",
+      "Region": "South America",
+      "Month": 12,
+      "Revenue (in thousands)": 28,
+      "Cost": 19,
+      "Profit": 9
+    }
+  ],
+  "By Month": [
+    {
+      "month": 1,
+      "A": 34,
+      "B": 11,
+      "C": 14,
+      "F": 21,
+      "G": 20
+    },
+    {
+      "month": 2,
+      "A": 33,
+      "B": 9,
+      "C": 15,
+      "F": 21,
+      "G": 20
+    },
+    {
+      "month": 3,
+      "A": 34,
+      "B": 10,
+      "C": 16,
+      "F": 23,
+      "G": 22
+    },
+    {
+      "month": 4,
+      "A": 34,
+      "B": 12,
+      "C": 10,
+      "F": 23,
+      "G": 18
+    },
+    {
+      "month": 5,
+      "A": 32,
+      "B": 13,
+      "C": 15,
+      "F": 23,
+      "G": 19
+    },
+    {
+      "month": 6,
+      "A": 32,
+      "B": 12,
+      "C": 15,
+      "F": 22,
+      "G": 19
+    },
+    {
+      "month": 7,
+      "A": 30,
+      "B": 12,
+      "C": 10,
+      "F": 22,
+      "G": 19
+    },
+    {
+      "month": 8,
+      "A": 31,
+      "B": 8,
+      "C": 13,
+      "F": 22,
+      "G": 21
+    },
+    {
+      "month": 9,
+      "A": 33,
+      "B": 11,
+      "C": 15,
+      "F": 25,
+      "G": 22
+    },
+    {
+      "month": 10,
+      "A": 34,
+      "B": 9,
+      "C": 11,
+      "F": 23,
+      "G": 20
+    },
+    {
+      "month": 11,
+      "A": 34,
+      "B": 11,
+      "C": 15,
+      "F": 22,
+      "G": 20
+    },
+    {
+      "month": 12,
+      "A": 40,
+      "B": 17,
+      "C": 25,
+      "F": 29,
+      "G": 28
+    },
+    {
+      "__EMPTY_3": "month",
+      "__EMPTY_4": "A",
+      "__EMPTY_5": "B",
+      "__EMPTY_6": "C",
+      "__EMPTY_7": "D",
+      "__EMPTY_8": "E",
+      "__EMPTY_9": "F",
+      "__EMPTY_10": "G"
+    },
+    {
+      "__EMPTY_3": 1,
+      "__EMPTY_4": 34,
+      "__EMPTY_5": 11,
+      "__EMPTY_6": 14,
+      "__EMPTY_7": 26,
+      "__EMPTY_8": 18,
+      "__EMPTY_9": 16,
+      "__EMPTY_10": 22
+    },
+    {
+      "__EMPTY_3": 2,
+      "__EMPTY_4": 33,
+      "__EMPTY_5": 9,
+      "__EMPTY_6": 15,
+      "__EMPTY_7": 21,
+      "__EMPTY_8": 23,
+      "__EMPTY_9": 15,
+      "__EMPTY_10": 23
+    },
+    {
+      "__EMPTY_3": 3,
+      "__EMPTY_4": 34,
+      "__EMPTY_5": 10,
+      "__EMPTY_6": 16,
+      "__EMPTY_7": 25,
+      "__EMPTY_8": 18,
+      "__EMPTY_9": 17,
+      "__EMPTY_10": 21
+    },
+    {
+      "__EMPTY_3": 4,
+      "__EMPTY_4": 34,
+      "__EMPTY_5": 12,
+      "__EMPTY_6": 10,
+      "__EMPTY_7": 26,
+      "__EMPTY_8": 23,
+      "__EMPTY_9": 17,
+      "__EMPTY_10": 22
+    },
+    {
+      "__EMPTY_3": 5,
+      "__EMPTY_4": 32,
+      "__EMPTY_5": 13,
+      "__EMPTY_6": 15,
+      "__EMPTY_7": 24,
+      "__EMPTY_8": 18,
+      "__EMPTY_9": 16,
+      "__EMPTY_10": 24
+    },
+    {
+      "__EMPTY_3": 6,
+      "__EMPTY_4": 32,
+      "__EMPTY_5": 12,
+      "__EMPTY_6": 15,
+      "__EMPTY_7": 24,
+      "__EMPTY_8": 25,
+      "__EMPTY_9": 12,
+      "__EMPTY_10": 22
+    },
+    {
+      "__EMPTY_3": 7,
+      "__EMPTY_4": 30,
+      "__EMPTY_5": 12,
+      "__EMPTY_6": 10,
+      "__EMPTY_7": 26,
+      "__EMPTY_8": 20,
+      "__EMPTY_9": 17,
+      "__EMPTY_10": 22
+    },
+    {
+      "__EMPTY_3": 8,
+      "__EMPTY_4": 31,
+      "__EMPTY_5": 8,
+      "__EMPTY_6": 13,
+      "__EMPTY_7": 25,
+      "__EMPTY_8": 24,
+      "__EMPTY_9": 11,
+      "__EMPTY_10": 25
+    },
+    {
+      "__EMPTY_3": 9,
+      "__EMPTY_4": 33,
+      "__EMPTY_5": 11,
+      "__EMPTY_6": 15,
+      "__EMPTY_7": 28,
+      "__EMPTY_8": 24,
+      "__EMPTY_9": 12,
+      "__EMPTY_10": 21
+    },
+    {
+      "__EMPTY_3": 10,
+      "__EMPTY_4": 34,
+      "__EMPTY_5": 9,
+      "__EMPTY_6": 11,
+      "__EMPTY_7": 25,
+      "__EMPTY_8": 24,
+      "__EMPTY_9": 13,
+      "__EMPTY_10": 24
+    },
+    {
+      "__EMPTY_3": 11,
+      "__EMPTY_4": 34,
+      "__EMPTY_5": 11,
+      "__EMPTY_6": 15,
+      "__EMPTY_7": 27,
+      "__EMPTY_8": 22,
+      "__EMPTY_9": 16,
+      "__EMPTY_10": 22
+    },
+    {
+      "__EMPTY_3": 12,
+      "__EMPTY_4": 40,
+      "__EMPTY_5": 17,
+      "__EMPTY_6": 25,
+      "__EMPTY_7": 35,
+      "__EMPTY_8": 31,
+      "__EMPTY_9": 21,
+      "__EMPTY_10": 37
+    }
+  ]
+}

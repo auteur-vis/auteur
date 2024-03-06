@@ -18,6 +18,9 @@ export default class Draft {
 
 		this._layer;
 
+		this._data = [];
+		this._serialize = [{},{}];
+
 	}
 
 	chart(el) {
@@ -28,7 +31,7 @@ export default class Draft {
 		return this;
 
 	}
-
+ 
 	layer(selector) {
 		this._layer = selector;
 
@@ -37,12 +40,14 @@ export default class Draft {
 
 	// Select elements by selector (e.g. class)
 	// Use either this or selection()
-	select(selector) {
+	// serialize determines whether the data will be converted to serial regex
+	select(selector, serialize = false) {
 
 		this._selector = selector;
 		this._selection = this._chart.selectAll(selector);
 		this._data = this._selection.data();
 		this._stats = this._getStats(this._data);
+		this._serialize = this._getSerialize(this._data);
 
 		return this;
 
@@ -50,20 +55,22 @@ export default class Draft {
 
 	// Elements already selected
 	// Use either this or select()
-	selection(selected) {
+	selection(selected, serialize = false) {
 
 		this._selection = selected;
 		this._data = selected.data();
 		this._stats = this._getStats(this._data);
+		this._serialize = this._getSerialize(this._data);
 
 		return this;
 
 	}
 
 	// Optional, overrides selection data with local data
-	data(data) {
+	data(data, serialize = false) {
 
 		this._data = data;
+		this._serialize = this._getSerialize(this._data);
 
 		return this;
 
@@ -373,6 +380,74 @@ export default class Draft {
 		return Math.round(val * 100) / 100;
 	}
 
+	_getSerialize(data) {
+
+		// hardcoding this may be for the best
+		let alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+
+		if (!data || data.length === 0) {
+			return [{},{}];
+		}
+
+		let variables = Object.keys(data[0]);
+		let variableSerialized = {};
+		let variableSerializedKeys = {};
+
+		for (let v of variables) {
+
+			let variableValues = data.map(d => d[v]);
+			let uniqueVariableValues = Array.from(new Set(variableValues));
+
+			let uniqueVariableValuesMap = {};
+
+			let variableType = "number";
+			let firstType;
+
+			// check if variable is numeric or categorical or other
+			for (let uvi = 0; uvi <= uniqueVariableValues.length; uvi++) {
+
+				let uv = uniqueVariableValues[uvi];
+
+				if (uv === undefined || uv === null) {
+					continue
+				} else {
+					if (!firstType) {
+						firstType = typeof uv
+						uniqueVariableValuesMap[uv] = alphabet[uvi];
+					} else if (firstType != typeof uv) {
+						uniqueVariableValuesMap = {};
+						break
+					} else {
+						// If too many unique values, raise warning
+						// Reset to none
+						if (uvi >= alphabet.length) {
+							uniqueVariableValuesMap = {};
+						} else {
+							uniqueVariableValuesMap[uv] = alphabet[uvi];
+						}
+					}
+				}
+
+			}
+
+			if (Object.keys(uniqueVariableValuesMap).length > 0) {
+				// Save the serialization keys
+				variableSerializedKeys[v] = uniqueVariableValuesMap;
+				// Save the serialized string
+				variableSerialized[v] = variableValues.map(d => uniqueVariableValuesMap[d]).join("");
+			} else {
+				variableSerializedKeys[v] = {};
+				variableSerialized[v] = {};
+			}
+
+		}
+
+		// variableSerialized is each variable converted into a string, with a unique letter for each unique variable value
+		// variableSerializedKeys stores the mapping between letter and value for each variable
+		return [variableSerialized, variableSerializedKeys]
+
+	}
+
 	_getStats(data) {
 
 		if (data.length === 0) {
@@ -429,7 +504,7 @@ export default class Draft {
 
 		if (augmentations.length === 0) {
 
-			d3selectAll(`${this._layer ? this._layer : "#draughty"} > *`).remove();
+			d3.selectAll(`${this._layer ? this._layer : "#draughty"} > *`).remove();
 
 		}
 
@@ -446,7 +521,7 @@ export default class Draft {
 			let select = (a.selection && a.selection.size() > 0) ? a.selection : this._selection;
 			let selectData = (a.selection && a.selection.size() > 0) ? a.selection.data() : this._data;
 			let stats = (a.selection && a.selection.size() > 0) ? this._getStats(selectData) : this._stats;
-
+			let serialize = (a.selection && a.selection.size() > 0) ? this._getSerialize(selectData) : this._serialize;
 			// filter by type: encoding/mark/axis/etc...
 			if (this._exclude && this._exclude["type"]) {
 				if (this._exclude["type"].indexOf(a.type) >= 0) {
@@ -469,10 +544,11 @@ export default class Draft {
 				}
 			}
 
+			let filteredIndices = a.aggregator(selectData, this._xVar, this._yVar, this._xScale, this._yScale, stats, serialize[0], serialize[1]);
 			// Handle augmentations that change encoding(s)
 			if (a.type === "encoding") {
 				
-				let encoding = a.name.split("_")[1];
+				let [name, encoding] = a.name.split("_");
 				let styles = a.styles;
 
 				for (let s of Object.keys(styles)) {
@@ -486,16 +562,33 @@ export default class Draft {
 
 						select.style(s, (d, i, n) => {
 
-							if (a.generator(d, this._xVar, this._yVar, this._xScale, this._yScale, stats)) {
-								let customStyle = styles[s];
+							if (name === "sequence") {
 
-								if (typeof customStyle === "function") {
-									return customStyle(d, i)
+								if (a.generator(i, filteredIndices, this._xVar, this._yVar, this._xScale, this._yScale, stats)) {
+
+									let customStyle = styles[s];
+
+									if (typeof customStyle === "function") {
+										return customStyle(d, i)
+									} else {
+										return customStyle
+									}
 								} else {
-									return customStyle
+									return 0.25;
 								}
 							} else {
-								return 0.25;
+								if (a.generator(i, filteredIndices)) {
+
+									let customStyle = styles[s];
+
+									if (typeof customStyle === "function") {
+										return customStyle(d, i)
+									} else {
+										return customStyle
+									}
+								} else {
+									return 0.25;
+								}
 							}
 							
 						});
@@ -504,13 +597,27 @@ export default class Draft {
 
 						select.style(s, (d, i) => {
 
-							if (a.generator(d, this._xVar, this._yVar, this._xScale, this._yScale, stats)) {
-								let customStyle = styles[s];
+							if (name === "sequence") {
 
-								if (typeof customStyle === "function") {
-									return customStyle(d, i)
-								} else {
-									return customStyle
+								if (a.generator(i, filteredIndices, this._xVar, this._yVar, this._xScale, this._yScale, stats)) {
+									let customStyle = styles[s];
+
+									if (typeof customStyle === "function") {
+										return customStyle(d, i)
+									} else {
+										return customStyle
+									}
+								}
+							} else {
+								if (a.generator(i, filteredIndices)) {
+
+									let customStyle = styles[s];
+
+									if (typeof customStyle === "function") {
+										return customStyle(d, i)
+									} else {
+										return customStyle
+									}
 								}
 							}
 							
@@ -521,10 +628,11 @@ export default class Draft {
 				}
 
 			} else if (a.type === "mark") {
+
 				// Handle augmentations that add marks
 
 				// Check that the right x and y variables are used in chart
-				let draughtData = a.generator(selectData, this._xVar, this._yVar, this._xScale, this._yScale, stats);
+				let draughtData = a.generator(selectData, filteredIndices, this._xVar, this._yVar, this._xScale, this._yScale, stats);
 
 				if (draughtData && a.encoding.mark === "line") {
 					// Add a line mark (single straight line)
