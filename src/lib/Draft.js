@@ -18,6 +18,9 @@ export default class Draft {
 
 		this._layer;
 
+		this._data = [];
+		this._serialize = [{},{}];
+
 	}
 
 	chart(el) {
@@ -382,8 +385,8 @@ export default class Draft {
 		// hardcoding this may be for the best
 		let alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 
-		if (data.length === 0) {
-			return {};
+		if (!data || data.length === 0) {
+			return [{},{}];
 		}
 
 		let variables = Object.keys(data[0]);
@@ -432,6 +435,9 @@ export default class Draft {
 				variableSerializedKeys[v] = uniqueVariableValuesMap;
 				// Save the serialized string
 				variableSerialized[v] = variableValues.map(d => uniqueVariableValuesMap[d]).join("");
+			} else {
+				variableSerializedKeys[v] = {};
+				variableSerialized[v] = {};
 			}
 
 		}
