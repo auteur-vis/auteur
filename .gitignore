@@ -24,3 +24,9 @@ yarn-error.log*
 
 /stories
 /.storybook
+
+/notebooks
+/public
+/min
+
+.git
