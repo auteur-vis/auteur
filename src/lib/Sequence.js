@@ -40,6 +40,7 @@ export default class Sequence extends GenerationCriteriaBase {
 			let allIndices = new Set();
 			for (let match of dataMatched) {
 				for (let i = 0; i < seq.length; i++) {
+					console.log(match);
 					allIndices.add(match.index + i);
 				}
 			}

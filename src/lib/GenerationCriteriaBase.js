@@ -391,7 +391,7 @@ export default class GenerationCriteriaBase {
 			merged_id = `${merged_id}-${d._id}`;
 
 			let new_augs = d.getAugs();
-			all_merged = this._mergeAugs(all_merged, new_augs, merged_id, "xor");
+			all_merged = this._mergeAugs(all_merged, new_augs, merged_id, "symmdiff");
 		}
 
 		return all_merged

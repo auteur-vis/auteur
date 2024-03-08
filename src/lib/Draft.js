@@ -23,19 +23,13 @@ export default class Draft {
 
 	}
 
-	chart(el) {
+	layer(el) {
 
-		this._chart = d3select(el);
-		this._chart.append("g").attr("id", "draughty");
-
-		return this;
-
-	}
- 
-	layer(selector) {
-		this._layer = selector;
+		this._layer = d3select(el);
+		this._layer.append("g").attr("id", "draughty");
 
 		return this;
+
 	}
 
 	// Select elements by selector (e.g. class)
@@ -44,7 +38,7 @@ export default class Draft {
 	select(selector, serialize = false) {
 
 		this._selector = selector;
-		this._selection = this._chart.selectAll(selector);
+		this._selection = d3selectAll(selector);
 		this._data = this._selection.data();
 		this._stats = this._getStats(this._data);
 		this._serialize = this._getSerialize(this._data);
@@ -115,10 +109,7 @@ export default class Draft {
 
 	_handleLine(aug, data, draughtLayer) {
 
-		// let draughtLayer = this._chart.select("#draughty");
-
 		if (data.length >= 1) {
-			// let orient = data[0]["x1"] ? "x" : "y";
 
 			let newLines = draughtLayer.selectAll(`#${aug.id}`)
 							.data(data)
@@ -151,8 +142,6 @@ export default class Draft {
 
 	_handleRect(aug, data, draughtLayer) {
 
-		// let draughtLayer = this._chart.select("#draughty");
-
 		if (data.length >= 1) {
 			let newRects = draughtLayer.selectAll(`#${aug.id}`)
 											.data(data)
@@ -184,8 +173,6 @@ export default class Draft {
 	}
 
 	_handleText(aug, data, draughtLayer) {
-
-		// let draughtLayer = this._chart.select(this._layer ? this._layer : "#draughty");
 
 		let newText;
 
@@ -238,7 +225,6 @@ export default class Draft {
 
 	_handleMarkMultiple(aug, data, draughtLayer, clone=true) {
 
-		// let draughtLayer = this._chart.select("#draughty");
 		let elements = this._selection.nodes();
 
 		let newMultiples;
@@ -400,7 +386,6 @@ export default class Draft {
 
 			let uniqueVariableValuesMap = {};
 
-			let variableType = "number";
 			let firstType;
 
 			// check if variable is numeric or categorical or other
@@ -500,11 +485,11 @@ export default class Draft {
 	augment(augmentations) {
 
 		let filteredAugs = augmentations;
-		let draughtLayer = this._chart.select(this._layer ? this._layer : "#draughty");
+		let draughtLayer = this._layer.select("#draughty");
 
 		if (augmentations.length === 0) {
 
-			d3.selectAll(`${this._layer ? this._layer : "#draughty"} > *`).remove();
+			d3.selectAll(`#draughty > *`).remove();
 
 		}
 
