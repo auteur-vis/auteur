@@ -1,6 +1,6 @@
 {
   "name": "auteur",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "main": "index.js",
   "dependencies": {
     "d3-array": "^3.2.4",

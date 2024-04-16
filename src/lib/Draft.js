@@ -376,6 +376,7 @@ export default class Draft {
 		}
 
 		let variables = Object.keys(data[0]);
+		// let variables = Array.from(new Set(data.reduce((acc, currentVal) => acc.concat(Object.keys(currentVal)), [])));
 		let variableSerialized = {};
 		let variableSerializedKeys = {};
 
